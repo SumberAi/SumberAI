@@ -1,0 +1,112 @@
+:root {
+  --bg-main: #F8FAFF;
+  --bg-card: #ffffff;
+  --text-main: #1E2A45;
+  --text-sec: #64748B;
+  --text-mute: #94A3B8;
+  --border-color: #E2E8F0;
+  --shadow-card: 0 10px 25px rgba(37,99,235,0.08);
+}
+
+body.dark {
+  --bg-main: #0F172A;
+  --bg-card: #1E293B;
+  --text-main: #F8FAFC;
+  --text-sec: #CBD5E1;
+  --text-mute: #94A3B8;
+  --border-color: #334155;
+  --shadow-card: 0 10px 25px rgba(0,0,0,0.5);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+html, body {
+  font-family: 'Nunito', sans-serif;
+  color: var(--text-main);
+  transition: background-color 0.3s ease, color 0.3s ease;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  /* Subtle dot pattern for tablets and laptops outside the phone frame */
+  background-color: #E2E8F0;
+  background-image: radial-gradient(#CBD5E1 1.5px, transparent 1.5px);
+  background-size: 24px 24px;
+}
+
+body.dark {
+  background-color: #0F172A;
+  background-image: radial-gradient(#1E293B 1.5px, transparent 1.5px);
+}
+
+::-webkit-scrollbar {
+  width: 3px;
+}
+::-webkit-scrollbar-thumb {
+  background: #93C5FD;
+  border-radius: 4px;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.88); }
+  to { opacity: 1; transform: scale(1); }
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-7px); }
+}
+@keyframes slideUp {
+  from { transform: translateY(100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-7px); }
+  75% { transform: translateX(7px); }
+}
+@keyframes floatUp {
+  from { opacity: 0; transform: translateY(-12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes coinPop {
+  0% { opacity: 0; transform: translateY(0) scale(0.5); }
+  40% { opacity: 1; transform: translateY(-36px) scale(1.25); }
+  100% { opacity: 0; transform: translateY(-70px) scale(0.9); }
+}
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.06); }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+.tap {
+  cursor: pointer;
+  transition: transform 0.14s, box-shadow 0.14s;
+  user-select: none;
+}
+.tap:active {
+  transform: scale(0.94);
+}
+
+#root {
+  height: 100%;
+}
