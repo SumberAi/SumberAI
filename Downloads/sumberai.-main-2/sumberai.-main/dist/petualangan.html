@@ -1,0 +1,1105 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>Petualangan Jambi - 9 Kabupaten/Kota</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@600;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Nunito',sans-serif;overflow:hidden;touch-action:none;background:#1a0a2e}
+.menu{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(rgba(10,22,40,0.5), rgba(10,22,40,0.85)), url('./bg_cover.png') center/cover no-repeat;z-index:100;transition:opacity .5s;overflow:hidden}
+.menu::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='50' cy='50' r='2' fill='rgba(255,255,255,0.1)'/%3E%3C/svg%3E");animation:starTwinkle 3s ease-in-out infinite;pointer-events:none}
+@keyframes starTwinkle{0%,100%{opacity:0.5}50%{opacity:1}}
+.menu::after{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(ellipse at 30% 20%,rgba(66,165,245,0.25) 0%,transparent 50%),radial-gradient(ellipse at 70% 80%,rgba(21,101,192,0.25) 0%,transparent 50%);animation:auroraMove 10s ease-in-out infinite;pointer-events:none}
+@keyframes auroraMove{0%,100%{transform:translate(0,0) rotate(0deg)}33%{transform:translate(2%,2%) rotate(1deg)}66%{transform:translate(-1%,-1%) rotate(-1deg)}}
+
+/* Animated Waves at Bottom */
+.menu-waves{position:absolute;bottom:0;left:0;width:100%;height:120px;overflow:hidden}
+.menu-waves svg{position:absolute;bottom:0;left:0;width:200%;animation:waveMove 8s linear infinite}
+@keyframes waveMove{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+
+/* Floating Bubbles */
+.bubble{position:absolute;border-radius:50%;background:radial-gradient(circle at 30% 30%,rgba(255,255,255,0.4),rgba(255,255,255,0.1));animation:bubbleFloat 6s ease-in-out infinite}
+@keyframes bubbleFloat{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-20px) scale(1.1)}}
+
+/* Logo Container */
+.logo-container{position:relative;margin-bottom:10px}
+.logo-glow{position:absolute;inset:-20px;background:radial-gradient(circle,rgba(66,165,245,0.5) 0%,transparent 70%);animation:logoGlow 2s ease-in-out infinite;filter:blur(10px)}
+@keyframes logoGlow{0%,100%{opacity:0.5;transform:scale(1)}50%{opacity:0.8;transform:scale(1.1)}}
+.logo-icon{font-size:4rem;position:relative;z-index:1;animation:logoFloat 3s ease-in-out infinite}
+@keyframes logoFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.menu.hidden{opacity:0;pointer-events:none}
+
+/* Menu Decorations */
+.menu-decor{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.float-icon{position:absolute;font-size:2rem;opacity:0.3;animation:floatIcon 4s ease-in-out infinite}
+.float-icon:nth-child(odd){animation-duration:5s}
+.float-icon:nth-child(even){animation-delay:1s}
+@keyframes floatIcon{0%,100%{transform:translateY(0) rotate(-5deg)}50%{transform:translateY(-15px) rotate(5deg)}}
+
+.menu-footer{color:#fff;opacity:0.9;font-size:0.8rem;margin-top:20px;text-align:center;line-height:1.6;position:relative;z-index:10}
+.menu-footer span{opacity:0.7;font-size:0.7rem}
+.title{font-family:'Fredoka One',cursive;font-size:clamp(1.6rem,6vw,2.8rem);color:#fff;text-shadow:0 0 20px rgba(66,165,245,0.8),0 0 40px rgba(66,165,245,0.5),3px 3px 0 #0d47a1;animation:titlePulse 2s infinite;text-align:center;position:relative;z-index:10}
+@keyframes titlePulse{0%,100%{transform:scale(1);text-shadow:0 0 20px rgba(66,165,245,0.8),0 0 40px rgba(66,165,245,0.5),3px 3px 0 #0d47a1}50%{transform:scale(1.02);text-shadow:0 0 30px rgba(66,165,245,1),0 0 60px rgba(66,165,245,0.7),3px 3px 0 #0d47a1}}
+.subtitle{color:#e3f2fd;opacity:.95;margin:8px 0 15px;font-size:0.95rem;text-shadow:1px 1px 3px rgba(0,0,0,0.3);font-weight:600;position:relative;z-index:10}
+.chars{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-bottom:15px;position:relative;z-index:10}
+.char{width:95px;height:130px;background:linear-gradient(180deg,rgba(255,255,255,.15),rgba(255,255,255,.05));border-radius:20px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding-bottom:8px;border:2px solid rgba(255,255,255,0.2);transition:all .3s ease;backdrop-filter:blur(10px);box-shadow:0 4px 15px rgba(0,0,0,0.2)}
+.char:hover{transform:translateY(-5px) scale(1.03);box-shadow:0 10px 30px rgba(0,0,0,0.3);border-color:rgba(255,255,255,0.4);background:linear-gradient(180deg,rgba(255,255,255,.25),rgba(255,255,255,.1))}
+.char.sel{border-color:#fbbf24;background:linear-gradient(180deg,rgba(251,191,36,.25),rgba(251,191,36,.1));box-shadow:0 0 30px rgba(251,191,36,.4),inset 0 0 20px rgba(255,255,255,0.05)}
+.char span{color:#fff;font-weight:700;font-size:.65rem;text-align:center;line-height:1.2;text-shadow:1px 1px 2px rgba(0,0,0,0.3)}
+
+/* Character Previews & Player Sprites */
+:root {
+  --sultan-img: url('./sultan_ai.png');
+  --boy-img: url('./boy_ai.png');
+  --girl-img: url('./girl_ai.png');
+  --enemy-img: url('./enemy_ai.png');
+  --tree-img: url('./tree_ai.png');
+}
+
+/* Character Preview in Menu */
+.char-preview{width:85px;height:110px;position:relative;margin-bottom:12px;animation:idleChar 2.5s ease-in-out infinite alternate}
+@keyframes idleChar{from{transform:translateY(0)}to{transform:translateY(-5px)}}
+.sultan-preview{background:var(--sultan-img) no-repeat bottom center/contain;filter:drop-shadow(0 4px 6px rgba(0,0,0,0.4))}
+.boy-preview{background:var(--boy-img) no-repeat bottom center/contain;filter:drop-shadow(0 4px 6px rgba(0,0,0,0.4))}
+.girl-preview{background:var(--girl-img) no-repeat bottom center/contain;filter:drop-shadow(0 4px 6px rgba(0,0,0,0.4))}
+
+.btn{font-family:'Fredoka One',cursive;font-size:1.2rem;padding:14px 40px;background:linear-gradient(180deg,#fbbf24,#f59e0b);color:#1e3a5f;border:none;border-radius:50px;cursor:pointer;box-shadow:0 6px 0 #b45309,0 8px 20px rgba(0,0,0,0.3);transition:all .15s;text-shadow:0 1px 0 rgba(255,255,255,0.3);font-weight:700;position:relative;z-index:10;letter-spacing:0.5px}
+.btn:hover{transform:translateY(-2px);box-shadow:0 8px 0 #b45309,0 12px 25px rgba(0,0,0,0.35);background:linear-gradient(180deg,#fcd34d,#fbbf24)}
+.btn:active{transform:translateY(4px);box-shadow:0 2px 0 #b45309}
+.sound-btns{position:absolute;top:10px;right:10px;display:flex;gap:8px;z-index:20}
+.snd-btn{width:45px;height:45px;border-radius:50%;background:rgba(255,255,255,.1);border:2px solid rgba(255,255,255,.3);color:#fff;font-size:1.2rem;cursor:pointer;position:relative;backdrop-filter:blur(5px);transition:all .2s}
+.snd-btn:hover{background:rgba(255,255,255,.2);transform:scale(1.1);border-color:rgba(255,255,255,.5)}
+.snd-btn.off::after, .hud-btn.off::after {content:'';position:absolute;width:3px;height:70%;background:#ef4444;transform:translate(-50%,-50%) rotate(45deg);border-radius:2px;top:50%;left:50%;box-shadow:0 0 8px rgba(239,68,68,0.5)}
+.game{width:100vw;height:100dvh;position:relative;display:none;overflow:hidden}
+.game.on{display:block}
+
+/* THEMED BACKGROUNDS FOR EACH LEVEL */
+.world{position:absolute;top:0;left:0;height:100%;transition:transform .1s}
+/* Removed legacy CSS sun (.world::before) because AI backgrounds already provide lighting */
+.game.theme-kota-jambi{background:url('./bg_kota_jambi.png') center bottom/cover;background-color:rgba(135,206,235,0.2);background-blend-mode:overlay}
+.game.theme-muaro-jambi{background:url('./bg_muaro_jambi.png') center bottom/cover;background-color:rgba(222,184,135,0.4);background-blend-mode:overlay}
+.game.theme-batanghari{background:url('./bg_batanghari.png') center bottom/cover;background-color:rgba(93,173,226,0.3);background-blend-mode:overlay}
+.game.theme-tanjab-barat{background:url('./bg_tanjab_barat.png') center bottom/cover;background-color:rgba(144,238,144,0.3);background-blend-mode:overlay}
+.game.theme-tanjab-timur{background:url('./bg_tanjab_timur.png') center bottom/cover;background-color:rgba(72,209,204,0.3);background-blend-mode:overlay}
+.game.theme-bungo{background:url('./bg_bungo.png') center bottom/cover;background-color:rgba(50,205,50,0.3);background-blend-mode:overlay}
+.game.theme-tebo{background:url('./bg_tebo.png') center bottom/cover;background-color:rgba(240,230,140,0.4);background-blend-mode:overlay}
+.game.theme-merangin{background:url('./bg_merangin.png') center bottom/cover;background-color:rgba(230,230,250,0.4);background-blend-mode:overlay}
+.game.theme-kerinci{background:url('./bg_kerinci.png') center bottom/cover;background-color:rgba(135,206,235,0.2);background-blend-mode:overlay}
+.game.theme-sungai-penuh{background:url('./bg_ai.png') center bottom/cover;background-color:rgba(255,182,193,0.3);background-blend-mode:overlay}
+/* Themed ground colors */
+.ground{position:absolute;bottom:0;left:0;height:80px;box-shadow:inset 0 6px 10px rgba(0,0,0,0.4)}
+.ground.theme-kota-jambi{background:linear-gradient(180deg,#228B22 0,#228B22 15px,#8B4513 15px,#654321)}
+.ground.theme-muaro-jambi{background:linear-gradient(180deg,#D2691E 0,#D2691E 15px,#8B4513 15px,#5D3A1A)}
+.ground.theme-batanghari{background:linear-gradient(180deg,#2E8B57 0,#2E8B57 15px,#654321 15px,#3D2817)}
+.ground.theme-tanjab-barat{background:linear-gradient(180deg,#006400 0,#006400 15px,#3D2817 15px,#2D1F14)}
+.ground.theme-tanjab-timur{background:linear-gradient(180deg,#20B2AA 0,#20B2AA 15px,#5F4B32 15px,#3D2817)}
+.ground.theme-bungo{background:linear-gradient(180deg,#32CD32 0,#32CD32 15px,#6B4423 15px,#4A3015)}
+.ground.theme-tebo{background:linear-gradient(180deg,#6B8E23 0,#6B8E23 15px,#8B7355 15px,#5D4E37)}
+.ground.theme-merangin{background:linear-gradient(180deg,#4B0082 0,#4B0082 15px,#2F1B41 15px,#1A0F24)}
+.ground.theme-kerinci{background:linear-gradient(180deg,#2F4F4F 0,#2F4F4F 15px,#1C1C1C 15px,#0D0D0D)}
+.ground.theme-sungai-penuh{background:linear-gradient(180deg,#8B0A50 0,#8B0A50 15px,#4A0A2A 15px,#2D0619)}
+
+.hud{position:fixed;top:0;left:0;right:0;padding:max(8px, env(safe-area-inset-top)) 12px 8px;display:flex;justify-content:space-between;align-items:center;background:linear-gradient(180deg,rgba(0,0,0,.6),transparent);z-index:50}
+.hud-box{background:rgba(255,255,255,.15);backdrop-filter:blur(5px);padding:5px 12px;border-radius:15px;color:#fff;font-weight:700;display:flex;align-items:center;gap:5px;font-size:.8rem;white-space:nowrap}
+.hud-left,.hud-right{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.hud-btn{width:35px;height:35px;border-radius:50%;background:rgba(255,255,255,.2);border:none;color:#fff;font-size:1rem;cursor:pointer;flex-shrink:0;position:relative}
+.progress-bar{position:fixed;top:90px;left:12px;right:12px;height:6px;background:rgba(255,255,255,.2);border-radius:3px;z-index:50}
+.progress-fill{height:100%;background:linear-gradient(90deg,#f1c40f,#e67e22);border-radius:3px;transition:width .3s}
+.location-badge{position:fixed;top:105px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.7);padding:5px 15px;border-radius:20px;color:#fff;font-size:0.75rem;z-index:50;display:flex;align-items:center;gap:8px;white-space:nowrap}
+.location-badge .icon{font-size:1rem}
+
+.btn-top{background:linear-gradient(180deg,#3498db,#2980b9);border:2px solid #1c598a;color:#fff;border-radius:20px;padding:8px 18px;font-weight:900;cursor:pointer;font-family:'Nunito',sans-serif;font-size:13px;text-transform:uppercase;box-shadow:0 4px 0 #1c598a, 0 8px 15px rgba(0,0,0,0.3);transition:all 0.1s;display:inline-flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap}
+.btn-top:active{transform:translateY(4px);box-shadow:0 0 0 #1c598a, 0 4px 8px rgba(0,0,0,0.3)}
+.btn-top.danger{background:linear-gradient(180deg,#e74c3c,#c0392b);border-color:#922b21;box-shadow:0 4px 0 #922b21, 0 8px 15px rgba(0,0,0,0.3)}
+.btn-top.danger:active{box-shadow:0 0 0 #922b21, 0 4px 8px rgba(0,0,0,0.3)}
+.btn-top.warn{background:linear-gradient(180deg,#f39c12,#d35400);border-color:#a04000;box-shadow:0 4px 0 #a04000, 0 8px 15px rgba(0,0,0,0.3)}
+.btn-top.warn:active{box-shadow:0 0 0 #a04000, 0 4px 8px rgba(0,0,0,0.3)}
+
+@media (max-width: 450px) {
+  .hud { padding: max(4px, env(safe-area-inset-top)) 6px 4px; }
+  .hud-left, .hud-right { gap: 4px; }
+  .btn-top { padding: 6px 10px; font-size: 11px; gap: 4px; border-radius: 14px; }
+  .hud-box { padding: 4px 8px; font-size: 0.7rem; gap: 3px; border-radius: 12px; }
+  .hud-btn { width: 30px; height: 30px; font-size: 0.9rem; }
+  .progress-bar { top: 75px; }
+  .location-badge { top: 90px; }
+}
+
+/* ENHANCED CHARACTER STYLES - VECTOR SVGS */
+/* ENHANCED CHARACTER STYLES - AI IMAGES */
+.player{position:absolute;width:80px;height:105px;z-index:20;transform-origin:bottom center;transition:transform 0.08s}
+.player .shadow{position:absolute;bottom:-6px;left:50%;transform:translateX(-50%);width:36px;height:8px;background:rgba(0,0,0,0.3);border-radius:50%;filter:blur(2px);transition:0.1s}
+.player .sprite{position:absolute;bottom:-10px;width:100%;height:100%;transform-origin:bottom center;filter:drop-shadow(0 4px 8px rgba(0,0,0,0.5))}
+
+.player.sultan .sprite{background:var(--sultan-img) no-repeat bottom center/contain}
+.player.boy .sprite{background:var(--boy-img) no-repeat bottom center/contain}
+.player.girl .sprite{background:var(--girl-img) no-repeat bottom center/contain}
+
+@keyframes walkBounce{0%,100%{transform:scaleY(1) translateY(0) rotate(0deg)}50%{transform:scaleY(0.92) translateY(-10px) rotate(5deg)}}
+.player.walking .sprite{animation:walkBounce 0.35s cubic-bezier(0.4, 0, 0.2, 1) infinite}
+.player.jumping .sprite{transform:scaleY(1.05) translateY(-5px)}
+.player.falling .sprite{transform:scaleY(0.95) translateY(2px)}
+.player.jumping .shadow{transform:translateX(-50%) scale(0.6);opacity:0.4}
+
+
+.platform{position:absolute;height:25px;border-radius:8px;box-shadow:0 8px 15px -5px rgba(0,0,0,0.6), inset 0 3px 5px rgba(255,255,255,0.3)}
+.platform.theme-default{background:linear-gradient(180deg,#228B22 0,#228B22 8px,#8B4513 8px,#654321)}
+.platform.theme-muaro-jambi{background:linear-gradient(180deg,#D2691E 0,#D2691E 8px,#8B4513 8px,#5D3A1A)}
+.platform.theme-batanghari{background:linear-gradient(180deg,#2E8B57 0,#2E8B57 8px,#4A3728 8px,#2D1F14)}
+.platform.theme-tanjab-barat{background:linear-gradient(180deg,#006400 0,#006400 8px,#3D2817 8px,#2D1F14)}
+.platform.theme-tanjab-timur{background:linear-gradient(180deg,#20B2AA 0,#20B2AA 8px,#4A3728 8px,#2D1F14)}
+.platform.theme-bungo{background:linear-gradient(180deg,#32CD32 0,#32CD32 8px,#5D4423 8px,#3D2817)}
+.platform.theme-tebo{background:linear-gradient(180deg,#6B8E23 0,#6B8E23 8px,#5D4E37 8px,#3D2817)}
+.platform.theme-merangin{background:linear-gradient(180deg,#6B5B95 0,#6B5B95 8px,#2F1B41 8px,#1A0F24)}
+.platform.theme-kerinci{background:linear-gradient(180deg,#4682B4 0,#4682B4 8px,#2F2F2F 8px,#1A1A1A)}
+.platform.theme-sungai-penuh{background:linear-gradient(180deg,#DB7093 0,#DB7093 8px,#4A0A2A 8px,#2D0619)}
+.platform.moving{animation:platformFloat 5s ease-in-out infinite}
+@keyframes platformFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-35px)}}
+
+.pinang{position:absolute;width:35px;height:35px;z-index:15;background:url('./pinang_ai.png') no-repeat center/contain;animation:float 1.5s infinite ease-in-out;filter:drop-shadow(0 4px 6px rgba(0,0,0,0.4))}
+.pinang-fruit{display:none}
+.pinang-fruit::after{content:'';position:absolute;top:4px;left:4px;width:6px;height:6px;background:rgba(255,255,255,.4);border-radius:50%}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.pinang.got{animation:collect .3s forwards}
+@keyframes collect{to{transform:scale(0);opacity:0}}
+
+.enemy{position:absolute;width:60px;height:55px;z-index:15;background:var(--enemy-img) no-repeat bottom center/contain;animation:crawling 0.5s ease-in-out infinite alternate;margin-bottom:-10px}
+@keyframes crawling{from{transform:scaleY(1) scaleX(1)}to{transform:scaleY(0.9) scaleX(1.05) translateY(3px)}}
+.enemy-body, .enemy-eye{display:none}
+.obstacle{position:absolute;z-index:15}
+.spike{width:35px;height:35px;background:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 80"><defs><linearGradient id="m" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="%23ecf0f1"/><stop offset="100%" stop-color="%2395a5a6"/></linearGradient></defs><path d="M0 80 L16 10 L33 80 L50 0 L66 80 L84 10 L100 80 Z" fill="url(%23m)" stroke="%237f8c8d" stroke-width="2"/><path d="M16 20 L16 70 M50 15 L50 70 M84 20 L84 70" stroke="%23fff" stroke-width="3" stroke-linecap="round" opacity="0.6"/></svg>') no-repeat bottom center/contain;clip-path:none;filter:drop-shadow(0 4px 4px rgba(255,0,0,0.5));margin-bottom:-5px}
+
+.checkpoint{position:absolute;width:50px;height:80px;z-index:10}
+.checkpoint-pole{position:absolute;left:0;top:0;width:6px;height:100%;background:linear-gradient(90deg,#7f8c8d,#bdc3c7,#7f8c8d);border-radius:3px;box-shadow:2px 2px 4px rgba(0,0,0,0.4)}
+.checkpoint-pole::after{content:'';position:absolute;top:-6px;left:-3px;width:12px;height:12px;background:radial-gradient(circle at 30% 30%,#f1c40f,#e67e22);border-radius:50%;box-shadow:0 2px 4px rgba(0,0,0,0.4)}
+.checkpoint-flag{position:absolute;left:4px;top:4px;width:45px;height:30px;background:linear-gradient(135deg,#e74c3c,#c0392b);clip-path:polygon(0 0,100% 20%,80% 50%,100% 80%,0 100%);transform-origin:left center;animation:waveFlag 1.2s ease-in-out infinite alternate}
+@keyframes waveFlag{from{transform:skewY(-8deg) scaleX(0.85)}to{transform:skewY(8deg) scaleX(1.05)}}
+.checkpoint.active .checkpoint-flag{background:linear-gradient(135deg,#2ecc71,#27ae60);filter:drop-shadow(0 0 10px #2ecc71)}
+
+/* Decorations */
+.house{position:absolute;bottom:20px;width:250px;height:250px;background:url('./rumah_ai.png') no-repeat bottom center/contain;filter:drop-shadow(0 5px 15px rgba(0,0,0,0.5));z-index:5}
+.house-roof, .house-body, .house-door, .house-window, .house-stilts{display:none}
+.stilt{width:10px;height:40px;background:linear-gradient(90deg,#4a3000,#6b4400,#4a3000)}
+
+.temple{position:absolute;bottom:20px;width:250px;height:250px;background:url('./rumah_finish_ai.png') no-repeat bottom center/contain;filter:drop-shadow(0 5px 15px rgba(0,0,0,0.5));z-index:5}
+.temple-roof, .temple-body, .temple-door{display:none}
+
+.tree{position:absolute;bottom:50px;width:150px;height:180px;margin-left:-75px;background:var(--tree-img) no-repeat bottom center/contain;animation:swayTree 3s ease-in-out infinite alternate;transform-origin:bottom center;filter:drop-shadow(0 5px 15px rgba(0,0,0,0.3))}
+@keyframes swayTree{from{transform:skewX(-2deg)}to{transform:skewX(2deg)}}
+.tree-trunk, .tree-leaves{display:none}
+
+.palm-tree{position:absolute;bottom:80px;width:100px;height:130px;margin-left:-50px;background:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 150"><path d="M45 150 Q40 80 50 20 Q55 80 55 150 Z" fill="%238B4513"/><path d="M50 150 Q45 80 55 20" fill="none" stroke="%235D2906" stroke-width="2"/><path d="M50 20 Q20 -10 0 30 Q20 20 50 20 M50 20 Q80 -10 100 30 Q80 20 50 20 M50 20 Q10 10 -10 50 Q10 30 50 20 M50 20 Q90 10 110 50 Q90 30 50 20 M50 20 Q50 -20 30 -40 Q40 -10 50 20 M50 20 Q50 -20 70 -40 Q60 -10 50 20" fill="%232ecc71" stroke="%2327ae60" stroke-width="2"/><circle cx="45" cy="30" r="8" fill="%23c0392b"/><circle cx="55" cy="35" r="8" fill="%23c0392b"/><circle cx="48" cy="25" r="8" fill="%23c0392b"/></svg>') no-repeat bottom center/contain;animation:swayTree 4s ease-in-out infinite alternate;transform-origin:bottom center}
+.palm-trunk, .palm-leaves, .palm-leaf{display:none}
+
+.mountain{position:absolute;bottom:80px;width:350px;height:120px;border-radius:50% 50% 0 0;opacity:0.8;box-shadow:inset 0 10px 20px rgba(255,255,255,0.2)}
+.mountain.bg1{background:linear-gradient(180deg,#5a8a4e,#3d6b33)}
+.mountain.bg2{background:linear-gradient(180deg,#7cb36f,#568a49)}
+.mountain.snow{box-shadow:inset 0 35px 0 -15px rgba(255,255,255,0.9)}
+
+.boat{position:absolute;bottom:85px;width:60px;height:25px}
+.boat-body{width:100%;height:100%;background:#8B4513;border-radius:0 0 10px 10px;position:relative}
+.boat-sail{position:absolute;bottom:20px;left:25px;width:0;height:0;border-left:15px solid transparent;border-right:0 solid transparent;border-bottom:40px solid #fff}
+
+.cloud{position:absolute;background:#fff;border-radius:50px;opacity:0.7}
+
+.fish{position:absolute;width:25px;height:12px;z-index:5}
+.fish-body{width:100%;height:100%;background:#3498db;border-radius:50%;position:relative}
+.fish-body::after{content:'';position:absolute;right:-8px;top:2px;border-left:10px solid #3498db;border-top:4px solid transparent;border-bottom:4px solid transparent}
+
+.oil-rig{position:absolute;bottom:80px;width:80px;height:150px}
+.rig-platform{position:absolute;bottom:80px;left:0;width:80px;height:15px;background:#555}
+.rig-tower{position:absolute;bottom:95px;left:30px;width:20px;height:70px;background:#777}
+.rig-legs{position:absolute;bottom:0;left:10px;width:60px;height:80px;display:flex;justify-content:space-between}
+.rig-leg{width:8px;height:100%;background:#444}
+
+/* Finish house */
+.finish-house{position:absolute;bottom:20px;width:300px;height:300px;z-index:10;background:url('./rumah_finish_ai.png') no-repeat bottom center/contain;filter:drop-shadow(0 5px 15px rgba(0,0,0,0.5))}
+.finish-house .roof, .finish-house .roof-ornament, .finish-house .body, .finish-house .door, .finish-house .window, .finish-house .stilts, .finish-house .stairs{display:none}
+.finish-house .banner{position:absolute;bottom:275px;left:50%;transform:translateX(-50%);background:linear-gradient(180deg,#e74c3c,#c0392b);padding:6px 15px;border-radius:8px;color:#fff;font-family:'Fredoka One',cursive;font-size:0.8rem;white-space:nowrap;animation:bannerWave 2s ease-in-out infinite}
+@keyframes bannerWave{0%,100%{transform:translateX(-50%) rotate(-2deg)}50%{transform:translateX(-50%) rotate(2deg)}}
+.finish-house .glow{position:absolute;bottom:55px;left:50%;transform:translateX(-50%);width:60px;height:80px;background:radial-gradient(ellipse,rgba(255,200,100,0.6),transparent);opacity:0;transition:opacity 0.5s}
+.finish-house.active .glow{opacity:1;animation:glowPulse 1s infinite}
+@keyframes glowPulse{0%,100%{opacity:0.6}50%{opacity:1}}
+.player.entering{animation:enterHouse 1s forwards;z-index:11}
+@keyframes enterHouse{0%{transform:scaleX(1)}30%{transform:scaleX(1) translateY(-10px)}100%{transform:scaleX(0) translateX(20px);opacity:0}}
+.level-clear-effect{position:fixed;inset:0;background:radial-gradient(circle,rgba(255,215,0,0.3),transparent);opacity:0;pointer-events:none;z-index:45}
+.level-clear-effect.show{opacity:1;animation:clearFlash 1s}
+@keyframes clearFlash{0%{opacity:0}50%{opacity:1}100%{opacity:0}}
+
+.ctrl{position:fixed;bottom:12px;left:0;right:0;display:none;justify-content:space-between;padding:0 12px;z-index:40}
+@media(max-width:768px){
+  .ctrl{display:flex}
+  .world{top:-85px!important}
+  .ground{height:165px!important;bottom:-85px!important}
+}
+.ctrl-btn{width:70px;height:70px;background:linear-gradient(145deg,rgba(139,69,19,0.8),rgba(92,48,0,0.9));border:2px solid #D2691E;border-radius:50%;font-size:2rem;color:#FFD700;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 0 #4a2500, 0 10px 15px rgba(0,0,0,0.5), inset 0 2px 5px rgba(255,255,255,0.2);text-shadow:0 2px 4px rgba(0,0,0,0.8);transition:all 0.1s;cursor:pointer}
+.ctrl-btn:active{transform:translateY(6px);box-shadow:0 0 0 #4a2500, 0 4px 8px rgba(0,0,0,0.5), inset 0 2px 5px rgba(0,0,0,0.3);background:linear-gradient(145deg,rgba(92,48,0,0.9),rgba(139,69,19,0.8))}
+.ctrl-left{display:flex;gap:12px}
+.keys{position:fixed;bottom:95px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.6);padding:8px 15px;border-radius:8px;color:#fff;font-size:.75rem;display:flex;gap:12px;z-index:30}
+@media(max-width:768px){.keys{display:none}}
+.key{background:#fff;color:#333;padding:2px 8px;border-radius:3px;font-weight:700;box-shadow:0 2px 0 #999}
+
+.tip{position:fixed;top:calc(100vh - 160px);left:50%;transform:translateX(-50%);background:linear-gradient(180deg,#fff9c4,#fff59d);padding:10px 18px;border-radius:12px;max-width:280px;text-align:center;box-shadow:0 4px 15px rgba(0,0,0,.2);z-index:55;opacity:0;pointer-events:none;transition:all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)}
+.tip.show{opacity:1}
+.tip.center{top:50%;transform:translate(-50%,-50%) scale(1.2);box-shadow:0 10px 30px rgba(0,0,0,0.4)}
+.tip.top-left{top:135px;left:50%;transform:translateX(-50%) scale(0.9);transform-origin:top center;width:90%}
+.tip h4{color:#e65100;font-size:.85rem;margin-bottom:3px}
+.tip p{color:#5d4037;font-size:.75rem;line-height:1.3}
+
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:200;opacity:0;pointer-events:none;transition:opacity .3s;padding:20px}
+.overlay.on{opacity:1;pointer-events:auto}
+.overlay h2{font-family:'Fredoka One',cursive;font-size:2rem;margin-bottom:12px;text-align:center}
+.overlay.lc h2{color:#f1c40f}
+.overlay.go h2{color:#e74c3c}
+.overlay.quiz h2{color:#e74c3c;font-size:1.5rem}
+.stars{display:flex;gap:8px;margin-bottom:15px}
+.star{font-size:2rem;animation:starPop .5s forwards;opacity:0}
+.star:nth-child(1){animation-delay:.2s}
+.star:nth-child(2){animation-delay:.4s}
+.star:nth-child(3){animation-delay:.6s}
+@keyframes starPop{from{transform:scale(0) rotate(-180deg);opacity:0}to{transform:scale(1) rotate(0);opacity:1}}
+.stats{color:#fff;font-size:1rem;margin-bottom:15px;text-align:center}
+.stats p{margin:4px 0}
+.quiz-box{background:#fff;border-radius:20px;padding:25px;max-width:400px;width:90%;text-align:center}
+.quiz-q{font-size:1.1rem;font-weight:700;color:#2c3e50;margin:12px 0 18px;line-height:1.4}
+.quiz-opts{display:grid;gap:8px}
+.quiz-opt{padding:10px 12px;background:linear-gradient(180deg,#3498db,#2980b9);color:#fff;border:none;border-radius:10px;font-size:.95rem;font-weight:600;cursor:pointer;box-shadow:0 3px 0 #1a5276}
+.quiz-opt:active{transform:translateY(2px);box-shadow:0 1px 0 #1a5276}
+.quiz-opt.ok{background:linear-gradient(180deg,#27ae60,#1e8449);box-shadow:0 3px 0 #145a32}
+.quiz-opt.no{background:linear-gradient(180deg,#e74c3c,#c0392b);box-shadow:0 3px 0 #7b241c}
+.quiz-res{margin-top:12px;padding:10px;border-radius:10px;font-weight:700;font-size:.9rem;display:none}
+.quiz-res.show{display:block;animation:popIn .3s}
+.quiz-res.ok{background:#d4edda;color:#155724}
+.quiz-res.no{background:#f8d7da;color:#721c24}
+@keyframes popIn{from{transform:scale(.5);opacity:0}to{transform:scale(1);opacity:1}}
+.quiz-next{margin-top:12px;padding:10px 25px;font-family:'Fredoka One',cursive;font-size:1rem;background:linear-gradient(180deg,#f39c12,#e67e22);color:#fff;border:none;border-radius:15px;cursor:pointer;box-shadow:0 3px 0 #b9770e;display:none}
+.quiz-next.show{display:inline-block;animation:popIn .3s}
+
+.score-pop{position:absolute;font-family:'Fredoka One',cursive;font-size:1.2rem;color:#ffd700;text-shadow:2px 2px 0 #c0392b;pointer-events:none;animation:scoreFly 1s forwards;z-index:100}
+@keyframes scoreFly{to{transform:translateY(-40px);opacity:0}}
+.level-name{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'Fredoka One',cursive;font-size:1.8rem;color:#fff;text-shadow:3px 3px 0 #000;z-index:60;opacity:0;transition:opacity .5s;text-align:center;padding:10px 20px;background:rgba(0,0,0,0.5);border-radius:15px}
+.level-name.show{opacity:1}
+.level-name small{display:block;font-size:0.9rem;opacity:0.9;margin-top:5px}
+.dust {
+    position: absolute;
+    background: rgba(255, 255, 255, 0.6);
+    border-radius: 50%;
+    pointer-events: none;
+    animation: dustFade 0.6s ease-out forwards;
+}
+@keyframes dustFade {
+    0% { transform: scale(1) translateY(0); opacity: 0.8; }
+    100% { transform: scale(3) translateY(-15px); opacity: 0; }
+}
+</style>
+</head>
+<body>
+<div class="menu" id="menu">
+<button class="btn-top danger" onclick="closeGame()" style="position:absolute; top:20px; left:20px; z-index:9999;">◀ KEMBALI</button>
+<!-- Animated Background Elements -->
+<div class="menu-waves">
+<svg viewBox="0 0 1200 120" preserveAspectRatio="none">
+<path d="M0,60 C150,100 350,0 600,60 C850,120 1050,20 1200,60 L1200,120 L0,120 Z" fill="rgba(255,255,255,0.1)"/>
+<path d="M0,80 C200,40 400,100 600,80 C800,60 1000,100 1200,80 L1200,120 L0,120 Z" fill="rgba(255,255,255,0.05)"/>
+</svg>
+</div>
+
+<!-- Floating Bubbles -->
+<div class="bubble" style="width:20px;height:20px;top:20%;left:10%;animation-delay:0s"></div>
+<div class="bubble" style="width:15px;height:15px;top:60%;left:15%;animation-delay:1s"></div>
+<div class="bubble" style="width:25px;height:25px;top:30%;right:12%;animation-delay:2s"></div>
+<div class="bubble" style="width:12px;height:12px;top:70%;right:18%;animation-delay:0.5s"></div>
+<div class="bubble" style="width:18px;height:18px;bottom:25%;left:8%;animation-delay:1.5s"></div>
+<div class="sound-btns">
+<button class="snd-btn" id="sfxBtn" onclick="toggleSfx()">🔊</button>
+</div>
+
+<!-- Logo with Glow -->
+<div class="logo-container">
+<div class="logo-glow"></div>
+<div class="logo-icon">🏝️</div>
+</div>
+
+<h1 class="title">✨ Petualangan Jambi ✨</h1>
+<p class="subtitle">🗺️ Jelajahi 9 Kabupaten/Kota Jambi!</p>
+
+<p style="color:#e3f2fd;margin-bottom:8px;font-weight:600;font-size:0.9rem;position:relative;z-index:10">Pilih Karakter:</p>
+<div class="chars">
+<div class="char sel" data-c="sultan" onclick="pickChar('sultan')">
+<div class="char-preview sultan-preview"></div>
+<span>Sultan Thaha<br>Syaifuddin</span>
+</div>
+<div class="char" data-c="boy" onclick="pickChar('boy')">
+<div class="char-preview boy-preview"></div>
+<span>Anak Laki-laki<br>Melayu</span>
+</div>
+<div class="char" data-c="girl" onclick="pickChar('girl')">
+<div class="char-preview girl-preview"></div>
+<span>Anak Perempuan<br>Melayu</span>
+</div>
+</div>
+
+<button class="btn" onclick="startGame()">🎮 MULAI PETUALANGAN!</button>
+
+<p class="menu-footer">
+🏆 9 Level • 🌴 9 Daerah • 🇮🇩 1 Provinsi Jambi<br>
+<span>📚 Game Edukasi Bahasa Inggris & Budaya Jambi</span>
+</p>
+
+<!-- Floating Decoration Icons -->
+<div class="menu-decor">
+<div class="float-icon" style="top:8%;left:5%">🌴</div>
+<div class="float-icon" style="top:12%;right:8%">🏠</div>
+<div class="float-icon" style="bottom:22%;left:3%">🥥</div>
+<div class="float-icon" style="bottom:18%;right:5%">🐊</div>
+<div class="float-icon" style="top:45%;left:2%">⭐</div>
+<div class="float-icon" style="top:50%;right:3%">🌟</div>
+<div class="float-icon" style="top:25%;left:92%">🦋</div>
+<div class="float-icon" style="bottom:40%;left:95%">🌺</div>
+</div>
+</div>
+
+<div class="game" id="game">
+<div class="world" id="world"></div>
+<div class="level-clear-effect" id="clearEffect"></div>
+<div class="hud">
+<div class="hud-left" style="gap:12px; align-items:center;">
+<button class="btn-top danger" onclick="home()">◀ KEMBALI</button>
+<button id="btnPause" class="btn-top warn" onclick="pause()">⏸ PAUSE</button>
+<div class="hud-box" style="margin-left: 10px;"><span>🥭</span><span id="score">0</span></div>
+<div class="hud-box"><span>Lv</span><span id="level">1</span>/9</div>
+</div>
+<div class="hud-right">
+<div class="hud-box"><span>💖</span><span id="hp">5</span></div>
+<button class="hud-btn" id="gameSfx" onclick="toggleSfx()">🔊</button>
+</div>
+</div>
+<div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
+<div class="location-badge" id="locBadge"><span class="icon">📍</span><span id="locName">Kota Jambi</span></div>
+<div class="tip" id="tip"><h4 id="tipTitle">💡 Tahukah Kamu?</h4><p id="tipTxt"></p></div>
+<div class="keys"><span><span class="key">←</span><span class="key">→</span> Gerak</span><span><span class="key">SPACE</span> Lompat</span></div>
+<div class="ctrl">
+<div class="ctrl-left">
+<button class="ctrl-btn" id="btnL">◀</button>
+<button class="ctrl-btn" id="btnR">▶</button>
+</div>
+<button class="ctrl-btn" id="btnJ">⬆</button>
+</div>
+<div class="level-name" id="lvName"></div>
+</div>
+
+<div class="overlay lc" id="lcO"><h2>🏠 Sampai di Rumah Adat!</h2><div class="stars"><span class="star">⭐</span><span class="star">⭐</span><span class="star">⭐</span></div><div class="stats"><p>Pinang: <span id="lcP">0</span></p><p>Skor: <span id="lcScore">0</span></p></div><button class="btn" onclick="showQuiz()">Lanjut ke Quiz!</button></div>
+<div class="overlay go" id="goO"><h2>💀 Game Over</h2><div class="stats"><p>Pinang: <span id="goP">0</span></p><p>Level: <span id="goL">1</span></p></div><button class="btn" onclick="restart()">Main Lagi</button><br><button class="btn-top danger" style="margin-top:15px; font-size:1.1rem; padding:10px 20px;" onclick="home()">◀ Menu Utama</button></div>
+<div class="overlay quiz" id="quizO"><div class="quiz-box"><h2>🎯 Quiz Time!</h2><p id="quizQ" class="quiz-q"></p><div class="quiz-opts" id="quizOpts"></div><div class="quiz-res" id="qRes"></div><button class="quiz-next" id="qNext" onclick="nextLv()">Level Berikutnya →</button></div></div>
+<div class="overlay" id="claimO">
+  <div style="background:linear-gradient(135deg,#1e293b,#0f172a); border-radius:25px; padding:35px; max-width:350px; width:90%; text-align:center; box-shadow:0 15px 35px rgba(0,0,0,0.5), inset 0 2px 5px rgba(255,255,255,0.1); border:1px solid #334155; animation:popIn 0.4s cubic-bezier(0.175,0.885,0.32,1.275)">
+    <h2 id="claimTitle" style="color:#fbbf24; font-size:2.8rem; margin-bottom:5px; text-shadow:0 3px 0 #b45309, 0 5px 15px rgba(251,191,36,0.4); font-weight:900; letter-spacing:1px">🎉 SELAMAT!</h2>
+    <p id="claimDesc" style="color:#cbd5e1; font-size:1.1rem; margin-bottom:25px; line-height:1.4">Kamu mendapatkan hadiah penyelesaian level!</p>
+    
+    <div id="claimRewardBox" style="background:rgba(0,0,0,0.3); border-radius:20px; padding:25px 20px; margin-bottom:30px; box-shadow:inset 0 4px 10px rgba(0,0,0,0.4); border:1px solid rgba(255,255,255,0.05)">
+      <div style="margin-bottom:10px; filter:drop-shadow(0 4px 12px rgba(251,191,36,0.6)); animation:bounceItem 2s infinite"><img src="./coin.png" alt="Koin" style="width:75px;height:75px;object-fit:contain"></div>
+      <div style="font-size:2.2rem; font-weight:800; color:#fbbf24; text-shadow:0 2px 4px rgba(0,0,0,0.6)">3 Koin</div>
+    </div>
+    
+    <button id="claimBtn" class="btn" style="width:100%; background:linear-gradient(180deg,#10b981,#059669); color:#fff; box-shadow:0 6px 0 #047857, 0 10px 20px rgba(16,185,129,0.3); font-size:1.4rem; padding:15px; border-radius:15px; text-transform:uppercase; letter-spacing:1px; font-weight:800; transition:all 0.2s" onmousedown="this.style.transform='translateY(4px)';this.style.boxShadow='0 2px 0 #047857'" onmouseup="this.style.transform='translateY(0)';this.style.boxShadow='0 6px 0 #047857, 0 10px 20px rgba(16,185,129,0.3)'" onclick="doClaim()">Klaim Hadiah</button>
+  </div>
+</div>
+<div class="overlay" id="pauseO"><h2 style="color:#fff">⏸ PAUSED</h2><button class="btn" onclick="pause()">▶ Lanjut</button><br><button class="btn-top danger" style="margin-top:15px; font-size:1.1rem; padding:10px 20px;" onclick="home()">◀ Menu Utama</button></div>
+
+
+<script>
+// Audio System
+const Audio = {
+    ctx: null, musicOn: true, sfxOn: true, musicLoop: null,
+    init() { if (this.ctx) return; this.ctx = new (window.AudioContext || window.webkitAudioContext)(); },
+    play(type) {
+        if (!this.sfxOn || !this.ctx) return;
+        switch(type) {
+            case 'jump': this.tone(350, 700, 0.18, 'sine', 0.2); break;
+            case 'collect': [523, 659, 784, 1047].forEach((f, i) => this.tone(f, f, 0.12, 'sine', 0.12, i * 0.05)); break;
+            case 'hurt': this.tone(200, 50, 0.3, 'sawtooth', 0.2); break;
+            case 'win': [523, 659, 784, 1047].forEach((f, i) => this.tone(f, f, i === 3 ? 0.4 : 0.15, 'triangle', 0.2, i * 0.15)); break;
+            case 'lose': [392, 349, 330, 262].forEach((f, i) => this.tone(f, f, 0.3, 'triangle', 0.15, i * 0.2)); break;
+            case 'correct': this.tone(880, 880, 0.4, 'sine', 0.12); this.tone(1109, 1109, 0.4, 'sine', 0.12); break;
+            case 'wrong': this.tone(150, 150, 0.3, 'square', 0.12); break;
+            case 'click': this.tone(500, 500, 0.08, 'sine', 0.06); break;
+            case 'walk': this.tone(60 + Math.random() * 20, 60, 0.05, 'square', 0.02); break;
+            case 'checkpoint': [440, 554, 659].forEach((f, i) => this.tone(f, f, 0.2, 'sine', 0.15, i * 0.1)); break;
+        }
+    },
+    tone(f1, f2, dur, type, vol, delay = 0) {
+        const osc = this.ctx.createOscillator(), gain = this.ctx.createGain();
+        osc.connect(gain); gain.connect(this.ctx.destination); osc.type = type;
+        const t = this.ctx.currentTime + delay;
+        osc.frequency.setValueAtTime(f1, t);
+        if (f1 !== f2) osc.frequency.exponentialRampToValueAtTime(f2, t + dur);
+        gain.gain.setValueAtTime(vol, t); gain.gain.exponentialRampToValueAtTime(0.001, t + dur);
+        osc.start(t); osc.stop(t + dur);
+    },
+    startMusic() {
+        if (!this.musicOn || !this.ctx || this.musicLoop) return;
+        const scale = [261.63, 293.66, 329.63, 392, 440];
+        const playMelody = () => {
+            if (!this.musicOn) return;
+            const now = this.ctx.currentTime, beat = 0.4;
+            [0,2,4,3,2,0,1,0,2,4,3,2,1,0,2,0].forEach((n, i) => {
+                const osc = this.ctx.createOscillator(), gain = this.ctx.createGain();
+                osc.connect(gain); gain.connect(this.ctx.destination);
+                osc.type = 'triangle'; osc.frequency.value = scale[n];
+                const t = now + i * beat;
+                gain.gain.setValueAtTime(0, t); gain.gain.linearRampToValueAtTime(0.05, t + 0.03);
+                gain.gain.linearRampToValueAtTime(0, t + beat);
+                osc.start(t); osc.stop(t + beat);
+            });
+            this.musicLoop = setTimeout(playMelody, 16 * beat * 1000);
+        };
+        playMelody();
+    },
+    stopMusic() { if (this.musicLoop) { clearTimeout(this.musicLoop); this.musicLoop = null; } }
+};
+
+// Game State
+const G = { 
+    char: 'sultan', lv: 1, p: 0, hp: 5, on: false, ps: false, 
+    x: 80, y: 80, vx: 0, vy: 0, jump: false, right: true, isWalking: false,
+    got: new Set(), checkpoints: new Set(), lastWalk: 0,
+    camX: 0, spawnX: 80, spawnY: 80, entering: false, finishTriggered: false, shownPinangWarning: false
+};
+const groundY = 80;
+let screenW = window.innerWidth;
+window.addEventListener('resize', () => { screenW = window.innerWidth; });
+
+// 9 LEVELS - Based on Jambi's 9 Districts/Cities
+const L = [
+    // Level 1: KOTA JAMBI - Ibukota Provinsi
+    {
+        name: "🏙️ Kota Jambi",
+        subtitle: "Ibukota Provinsi Jambi",
+        theme: "kota-jambi",
+        icon: "🏙️",
+        width: 2200,
+        platforms: [[180,140,100],[320,180,90],[480,150,80],[640,200,100],[820,170,90],[1000,210,100],[1200,180,90],[1400,220,80],[1600,190,100],[1850,160,90]],
+        pinangs: [[210,175],[350,215],[510,185],[670,235],[850,205],[1030,245],[1230,215],[1430,255],[1630,225],[1880,195],[120,115],[500,115],[900,115],[1300,115],[1700,115]],
+        enemies: [[400,80,350,520],[800,80,720,920],[1250,80,1150,1380],[1700,80,1600,1800]],
+        spikes: [[600,80],[1100,80],[1550,80]],
+        decorations: [{type:'tree',x:30,h:85},{type:'tree',x:700,h:80},{type:'tree',x:1100,h:85},{type:'tree',x:1500,h:90}],
+        checkpoints: [700,1400],
+        tip: 'Kota Jambi adalah ibukota Provinsi Jambi, terletak di tepi Sungai Batang Hari. Jembatan Gentala Arasy adalah ikon kota ini!'
+    },
+    // Level 2: MUARO JAMBI - Candi Bersejarah
+    {
+        name: "🏛️ Muaro Jambi",
+        subtitle: "Kompleks Candi Buddha Terbesar",
+        theme: "muaro-jambi",
+        icon: "🏛️",
+        width: 2500,
+        platforms: [[200,150,100],[380,190,90],[560,230,80],[740,180,100],[940,220,90],[1140,260,80],[1340,200,100],[1540,240,90],[1740,200,80],[1940,230,100],[2150,190,90]],
+        pinangs: [[230,185],[410,225],[590,265],[770,215],[970,255],[1170,295],[1370,235],[1570,275],[1770,235],[1970,265],[2180,225],[150,115],[600,115],[1100,115],[1600,115],[2000,115]],
+        enemies: [[350,80,280,480],[750,80,650,880],[1200,80,1100,1350],[1650,80,1550,1780],[2050,80,1950,2150]],
+        spikes: [[500,80],[900,80],[1400,80],[1850,80]],
+        decorations: [{type:'tree',x:50,h:90},{type:'tree',x:500,h:85},{type:'tree',x:1000,h:95},{type:'tree',x:1500,h:80},{type:'tree',x:1900,h:90}],
+        checkpoints: [800,1600],
+        tip: 'Candi Muaro Jambi adalah kompleks percandian Buddha terbesar di Asia Tenggara, peninggalan Kerajaan Melayu kuno!'
+    },
+    // Level 3: BATANG HARI - Sungai Bersejarah
+    {
+        name: "🌊 Batang Hari",
+        subtitle: "Sungai Terpanjang di Jambi",
+        theme: "batanghari",
+        icon: "🌊",
+        width: 2800,
+        platforms: [[200,160,90],[400,200,100],[620,170,80],[840,220,90],[1060,190,100],[1280,240,80],[1500,180,90],[1720,230,100],[1940,200,80],[2160,250,90],[2400,210,100]],
+        pinangs: [[230,195],[430,235],[650,205],[870,255],[1090,225],[1310,275],[1530,215],[1750,265],[1970,235],[2190,285],[2430,245],[150,115],[550,115],[1000,115],[1450,115],[1900,115],[2350,115]],
+        enemies: [[350,80,280,480],[700,80,600,830],[1150,80,1050,1280],[1600,80,1500,1730],[2050,80,1950,2180],[2300,80,2200,2450]],
+        spikes: [[550,80],[950,80],[1380,80],[1800,80],[2250,80]],
+        movingPlatforms: [[750,180,80],[1400,210,85],[2100,190,80]],
+        decorations: [{type:'boat',x:100},{type:'tree',x:400,h:90},{type:'boat',x:800},{type:'tree',x:1200,h:85},{type:'boat',x:1600},{type:'tree',x:2000,h:95}],
+        checkpoints: [900,1800],
+        tip: 'Sungai Batang Hari adalah sungai terpanjang di Sumatera dengan panjang 800 km, menjadi jalur perdagangan sejak zaman kerajaan!'
+    },
+    // Level 4: TANJUNG JABUNG BARAT - Pesisir & Mangrove
+    {
+        name: "🌴 Tanjab Barat",
+        subtitle: "Hutan Mangrove & Pesisir",
+        theme: "tanjab-barat",
+        icon: "🌴",
+        width: 2600,
+        platforms: [[180,150,90],[380,190,80],[580,230,100],[780,180,90],[1000,220,80],[1220,260,100],[1440,200,90],[1660,240,80],[1880,190,100],[2100,230,90],[2320,200,80]],
+        pinangs: [[210,185],[410,225],[610,265],[810,215],[1030,255],[1250,295],[1470,235],[1690,275],[1910,225],[2130,265],[2350,235],[100,115],[500,115],[950,115],[1400,115],[1850,115],[2250,115]],
+        enemies: [[320,80,250,450],[680,80,580,810],[1100,80,1000,1230],[1550,80,1450,1680],[2000,80,1900,2130]],
+        spikes: [[480,80],[880,80],[1350,80],[1780,80],[2200,80]],
+        movingPlatforms: [[600,170,85],[1300,200,80],[2000,180,85]],
+        decorations: [{type:'palm',x:50,h:70},{type:'palm',x:350,h:80},{type:'palm',x:750,h:75},{type:'palm',x:1150,h:85},{type:'palm',x:1550,h:70},{type:'palm',x:1950,h:80}],
+        checkpoints: [850,1700],
+        tip: 'Tanjung Jabung Barat memiliki hutan mangrove terluas di Jambi, menjadi habitat berbagai satwa dan melindungi pesisir!'
+    },
+    // Level 5: TANJUNG JABUNG TIMUR - Minyak & Laut
+    {
+        name: "🛢️ Tanjab Timur",
+        subtitle: "Daerah Penghasil Minyak",
+        theme: "tanjab-timur",
+        icon: "🛢️",
+        width: 2700,
+        platforms: [[200,160,100],[420,200,90],[640,170,80],[860,220,100],[1080,190,90],[1300,250,80],[1520,200,100],[1740,240,90],[1960,180,80],[2180,230,100],[2420,200,90]],
+        pinangs: [[230,195],[450,235],[670,205],[890,255],[1110,225],[1330,285],[1550,235],[1770,275],[1990,215],[2210,265],[2450,235],[150,115],[550,115],[1000,115],[1450,115],[1900,115],[2350,115]],
+        enemies: [[350,80,280,480],[750,80,650,880],[1180,80,1080,1310],[1630,80,1530,1760],[2080,80,1980,2210],[2350,80,2250,2480]],
+        spikes: [[550,80],[950,80],[1420,80],[1850,80],[2280,80]],
+        movingPlatforms: [[700,180,85],[1400,210,80],[2100,190,85]],
+        decorations: [{type:'palm',x:80,h:75},{type:'rig',x:400},{type:'palm',x:900,h:80},{type:'rig',x:1300},{type:'palm',x:1700,h:70},{type:'rig',x:2100}],
+        checkpoints: [900,1800],
+        tip: 'Tanjung Jabung Timur adalah penghasil minyak bumi utama di Jambi, berkontribusi besar terhadap ekonomi provinsi!'
+    },
+    // Level 6: BUNGO - Perkebunan Karet
+    {
+        name: "🌳 Bungo",
+        subtitle: "Sentra Perkebunan Karet",
+        theme: "bungo",
+        icon: "🌳",
+        width: 2500,
+        platforms: [[180,150,90],[380,190,100],[600,230,80],[820,180,90],[1040,220,100],[1260,260,80],[1480,200,90],[1700,240,100],[1920,190,80],[2140,230,90]],
+        pinangs: [[210,185],[410,225],[630,265],[850,215],[1070,255],[1290,295],[1510,235],[1730,275],[1950,225],[2170,265],[120,115],[500,115],[950,115],[1400,115],[1850,115]],
+        enemies: [[320,80,250,450],[700,80,600,830],[1150,80,1050,1280],[1600,80,1500,1730],[2000,80,1900,2100]],
+        spikes: [[500,80],[900,80],[1350,80],[1800,80]],
+        movingPlatforms: [[500,170,85],[1200,200,80],[1900,180,85]],
+        decorations: [{type:'tree',x:50,h:100},{type:'tree',x:350,h:110},{type:'tree',x:700,h:95},{type:'tree',x:1100,h:105},{type:'tree',x:1500,h:100},{type:'tree',x:1900,h:110}],
+        checkpoints: [800,1600],
+        tip: 'Kabupaten Bungo adalah sentra perkebunan karet terbesar di Jambi, menghasilkan lateks berkualitas tinggi!'
+    },
+    // Level 7: TEBO - Hutan Tropis
+    {
+        name: "🦎 Tebo",
+        subtitle: "Keanekaragaman Hayati",
+        theme: "tebo",
+        icon: "🦎",
+        width: 2600,
+        platforms: [[200,160,100],[420,200,90],[640,240,80],[860,190,100],[1080,230,90],[1300,270,80],[1520,210,100],[1740,250,90],[1960,200,80],[2180,240,100],[2380,210,90]],
+        pinangs: [[230,195],[450,235],[670,275],[890,225],[1110,265],[1330,305],[1550,245],[1770,285],[1990,235],[2210,275],[2410,245],[150,115],[600,115],[1050,115],[1500,115],[1950,115],[2300,115]],
+        enemies: [[350,80,280,480],[750,80,650,880],[1180,80,1080,1310],[1630,80,1530,1760],[2050,80,1950,2180],[2300,80,2200,2430]],
+        spikes: [[550,80],[950,80],[1400,80],[1850,80],[2250,80]],
+        decorations: [{type:'tree',x:60,h:95},{type:'tree',x:400,h:105},{type:'tree',x:800,h:90},{type:'tree',x:1200,h:100},{type:'tree',x:1600,h:95},{type:'tree',x:2000,h:105}],
+        checkpoints: [850,1700],
+        tip: 'Tebo memiliki hutan tropis yang kaya keanekaragaman hayati, termasuk habitat Gajah Sumatera dan Harimau Sumatera!'
+    },
+    // Level 8: MERANGIN - Geopark UNESCO
+    {
+        name: "🏔️ Merangin",
+        subtitle: "UNESCO Global Geopark",
+        theme: "merangin",
+        icon: "🏔️",
+        width: 2900,
+        platforms: [[220,170,100],[450,210,90],[680,250,80],[910,200,100],[1140,240,90],[1370,280,80],[1600,220,100],[1830,260,90],[2060,210,80],[2290,250,100],[2550,220,90]],
+        pinangs: [[250,205],[480,245],[710,285],[940,235],[1170,275],[1400,315],[1630,255],[1860,295],[2090,245],[2320,285],[2580,255],[180,115],[600,115],[1050,115],[1500,115],[1950,115],[2450,115]],
+        enemies: [[380,80,300,500],[780,80,680,910],[1230,80,1130,1360],[1700,80,1600,1830],[2150,80,2050,2280],[2450,80,2350,2580]],
+        spikes: [[580,80],[1000,80],[1480,80],[1920,80],[2380,80]],
+        movingPlatforms: [[550,190,85],[1250,220,80],[1950,200,85],[2400,210,80]],
+        decorations: [{type:'mountain',x:100},{type:'tree',x:500,h:80},{type:'mountain',x:900},{type:'tree',x:1300,h:90},{type:'mountain',x:1700},{type:'tree',x:2100,h:85}],
+        checkpoints: [950,1900],
+        tip: 'Merangin adalah UNESCO Global Geopark dengan fosil tanaman purba berusia 300 juta tahun! Air Terjun Telun Berasap sangat indah!'
+    },
+    // Level 9: KERINCI & SUNGAI PENUH - Gunung Tertinggi
+    {
+        name: "🗻 Kerinci",
+        subtitle: "Gunung Tertinggi Sumatera",
+        theme: "kerinci",
+        icon: "🗻",
+        width: 3200,
+        platforms: [[200,180,100],[440,220,90],[680,260,80],[920,210,100],[1160,250,90],[1400,300,80],[1640,240,100],[1880,280,90],[2120,230,80],[2360,270,100],[2600,220,90],[2880,260,80]],
+        pinangs: [[230,215],[470,255],[710,295],[950,245],[1190,285],[1430,335],[1670,275],[1910,315],[2150,265],[2390,305],[2630,255],[2910,295],[150,115],[600,115],[1100,115],[1600,115],[2100,115],[2600,115]],
+        enemies: [[380,80,300,520],[780,80,680,920],[1250,80,1150,1390],[1750,80,1650,1890],[2250,80,2150,2390],[2700,80,2600,2850]],
+        spikes: [[580,80],[1000,80],[1550,80],[2000,80],[2500,80],[2800,80]],
+        movingPlatforms: [[550,200,85],[1300,240,80],[2000,220,85],[2700,230,80]],
+        decorations: [{type:'mountain',x:50,snow:true},{type:'tree',x:500,h:70},{type:'mountain',x:1000,snow:true},{type:'tree',x:1400,h:80},{type:'mountain',x:1800,snow:true},{type:'tree',x:2200,h:75},{type:'mountain',x:2600,snow:true}],
+        checkpoints: [1000,2000],
+        tip: 'Gunung Kerinci (3.805m) adalah gunung tertinggi di Sumatera! Taman Nasional Kerinci Seblat adalah rumah bagi Harimau Sumatera!'
+    }
+];
+
+// Quiz Data - Based on each region
+const Q_SULTAN = [
+    { q: "What is 'Jembatan' in English?", opts: ['Road', 'Bridge', 'Building', 'River'], ans: 1, exp: 'Jembatan = Bridge. Gentala Arasy is an iconic bridge!' },
+    { q: "Candi Muaro Jambi is a _____ temple complex.", opts: ['Hindu', 'Buddhist', 'Islamic', 'Christian'], ans: 1, exp: 'Candi Muaro Jambi is a Buddhist temple complex!' },
+    { q: "'Sungai' means _____ in English.", opts: ['Mountain', 'Forest', 'River', 'Sea'], ans: 2, exp: 'Sungai = River. Batang Hari is the longest river!' },
+    { q: "What is 'Hutan Bakau' in English?", opts: ['Rain Forest', 'Mangrove Forest', 'Pine Forest', 'Bamboo Forest'], ans: 1, exp: 'Hutan Bakau = Mangrove Forest!' },
+    { q: "'Minyak Bumi' in English is _____.", opts: ['Palm Oil', 'Coconut Oil', 'Petroleum', 'Cooking Oil'], ans: 2, exp: 'Minyak Bumi = Petroleum/Oil!' },
+    { q: "What is 'Karet' in English?", opts: ['Cotton', 'Rubber', 'Silk', 'Leather'], ans: 1, exp: 'Karet = Rubber. Bungo is famous for rubber!' },
+    { q: "'Gajah' means _____ in English.", opts: ['Tiger', 'Elephant', 'Rhino', 'Bear'], ans: 1, exp: 'Gajah = Elephant. Sumatran Elephants live in Tebo!' },
+    { q: "What is 'Air Terjun' in English?", opts: ['River', 'Lake', 'Waterfall', 'Spring'], ans: 2, exp: 'Air Terjun = Waterfall. Telun Berasap is beautiful!' },
+    { q: "'Gunung' means _____ in English.", opts: ['Hill', 'Valley', 'Mountain', 'Cliff'], ans: 2, exp: 'Gunung = Mountain. Kerinci is the highest in Sumatra!' },
+    { q: "What is 'Kerajaan' in English?", opts: ['Kingdom', 'Village', 'City', 'Country'], ans: 0, exp: 'Kerajaan = Kingdom. Malayu Kingdom was in Jambi!' }
+];
+const Q_BOY = [
+    { q: "What is 'Harimau' in English?", opts: ['Tiger', 'Lion', 'Panther', 'Cat'], ans: 0, exp: 'Harimau = Tiger. The Sumatran Tiger is endangered!' },
+    { q: "'Pohon' means _____ in English.", opts: ['Leaf', 'Branch', 'Tree', 'Root'], ans: 2, exp: 'Pohon = Tree. Jambi has dense forests!' },
+    { q: "What is 'Burung' in English?", opts: ['Fish', 'Bird', 'Insect', 'Reptile'], ans: 1, exp: 'Burung = Bird. Many exotic birds live here!' },
+    { q: "'Buaya' means _____ in English.", opts: ['Snake', 'Crocodile', 'Lizard', 'Frog'], ans: 1, exp: 'Buaya = Crocodile. Batanghari river has crocodiles!' },
+    { q: "What is 'Matahari' in English?", opts: ['Moon', 'Star', 'Cloud', 'Sun'], ans: 3, exp: 'Matahari = Sun. It is very hot in the tropics!' },
+    { q: "'Danau' in English is _____.", opts: ['Ocean', 'Lake', 'Pond', 'River'], ans: 1, exp: 'Danau = Lake. Lake Kerinci is huge!' },
+    { q: "What is 'Ikan' in English?", opts: ['Fish', 'Crab', 'Shrimp', 'Squid'], ans: 0, exp: 'Ikan = Fish. We eat a lot of fish in Jambi!' },
+    { q: "'Perahu' means _____ in English.", opts: ['Car', 'Train', 'Boat', 'Plane'], ans: 2, exp: 'Perahu = Boat. Used to cross the Batanghari river!' },
+    { q: "What is 'Langit' in English?", opts: ['Earth', 'Sky', 'Space', 'Star'], ans: 1, exp: 'Langit = Sky. The sky is blue!' },
+    { q: "'Batu' means _____ in English.", opts: ['Stone', 'Sand', 'Dirt', 'Mud'], ans: 0, exp: 'Batu = Stone!' }
+];
+const Q_GIRL = [
+    { q: "What is 'Bunga' in English?", opts: ['Flower', 'Tree', 'Leaf', 'Stem'], ans: 0, exp: 'Bunga = Flower. The Rafflesia is a giant flower!' },
+    { q: "'Rumah' means _____ in English.", opts: ['School', 'Hospital', 'House', 'Market'], ans: 2, exp: 'Rumah = House. Rumah Kajang Lako is the traditional house!' },
+    { q: "What is 'Makanan' in English?", opts: ['Drink', 'Food', 'Snack', 'Fruit'], ans: 1, exp: 'Makanan = Food. Tempoyak is a famous Jambi food!' },
+    { q: "'Manis' in English is _____.", opts: ['Sour', 'Salty', 'Spicy', 'Sweet'], ans: 3, exp: 'Manis = Sweet. Like a fresh pineapple!' },
+    { q: "What is 'Cantik' in English?", opts: ['Ugly', 'Beautiful', 'Angry', 'Sad'], ans: 1, exp: 'Cantik = Beautiful. Just like Jambi!' },
+    { q: "'Bintang' means _____ in English.", opts: ['Sun', 'Moon', 'Planet', 'Star'], ans: 3, exp: 'Bintang = Star. The night sky is full of stars!' },
+    { q: "What is 'Kucing' in English?", opts: ['Dog', 'Cat', 'Mouse', 'Rabbit'], ans: 1, exp: 'Kucing = Cat. Many people keep cats!' },
+    { q: "'Desa' means _____ in English.", opts: ['City', 'Village', 'Country', 'Island'], ans: 1, exp: 'Desa = Village. Jambi has many peaceful villages!' },
+    { q: "What is 'Hujan' in English?", opts: ['Wind', 'Snow', 'Rain', 'Storm'], ans: 2, exp: 'Hujan = Rain. It rains often in the rainforest!' },
+    { q: "'Pakaian' means _____ in English.", opts: ['Clothes', 'Shoes', 'Hat', 'Bag'], ans: 0, exp: 'Pakaian = Clothes. Baju Kurung is traditional clothes!' }
+];
+
+const $ = id => document.getElementById(id);
+
+function pickChar(c) {
+    Audio.play('click');
+    document.querySelectorAll('.char').forEach(el => el.classList.toggle('sel', el.dataset.c === c));
+    G.char = c;
+}
+
+function updatePlayer() {
+    const p = $('player');
+    if (!p) return;
+    p.className = `player ${G.char}`;
+    p.innerHTML = '<div class="shadow"></div><div class="sprite"></div>';
+}
+
+function loadLevel(n) {
+    const lv = L[(n - 1) % L.length];
+    const world = $('world');
+    world.style.width = lv.width + 'px';
+    world.className = `world theme-${lv.theme}`;
+    $('game').className = `game on theme-${lv.theme}`;
+    // Update location badge
+    $('locName').textContent = lv.name.replace(/^[^\s]+\s/, '');
+    
+    let html = `<div class="ground theme-${lv.theme}" style="width:${lv.width + 4000}px"></div>`;
+    
+    // Clouds removed: AI backgrounds already have realistic clouds
+    
+    // Decorations based on theme
+    lv.decorations?.forEach(d => {
+        if (d.type === 'house') {
+            html += `<div class="house" style="left:${d.x}px"><div class="house-roof"></div><div class="house-body"><div class="house-window l"></div><div class="house-window r"></div><div class="house-door"></div></div><div class="house-stilts"><div class="stilt"></div><div class="stilt"></div><div class="stilt"></div></div></div>`;
+        } else if (d.type === 'tree') {
+            html += `<div class="tree" style="left:${d.x}px"><div class="tree-leaves"></div><div class="tree-trunk" style="height:${d.h || 80}px"></div></div>`;
+        } else if (d.type === 'palm') {
+            html += `<div class="palm-tree" style="left:${d.x}px"><div class="palm-leaves"><div class="palm-leaf"></div><div class="palm-leaf"></div><div class="palm-leaf"></div><div class="palm-leaf"></div><div class="palm-leaf"></div></div><div class="palm-trunk" style="height:${d.h || 70}px"></div></div>`;
+        } else if (d.type === 'temple') {
+            html += `<div class="temple" style="left:${d.x}px"><div class="temple-roof"></div><div class="temple-body"><div class="temple-door"></div></div></div>`;
+        } else if (d.type === 'boat') {
+            html += `<div class="boat" style="left:${d.x}px"><div class="boat-body"></div><div class="boat-sail"></div></div>`;
+        } else if (d.type === 'rig') {
+            html += `<div class="oil-rig" style="left:${d.x}px"><div class="rig-tower"></div><div class="rig-platform"></div><div class="rig-legs"><div class="rig-leg"></div><div class="rig-leg"></div></div></div>`;
+        } else if (d.type === 'mountain') {
+            html += `<div class="mountain ${d.snow ? 'snow bg1' : 'bg2'}" style="left:${d.x}px"></div>`;
+        }
+    });
+    
+    // Finish house
+    const finishX = lv.width - 260;
+    html += `<div class="finish-house" id="finishHouse" style="left:${finishX}px">
+        <div class="banner">🏁 FINISH</div><div class="roof-ornament"></div><div class="roof"></div>
+        <div class="body"></div><div class="window l"></div><div class="window r"></div>
+        <div class="door" id="finishDoor"></div><div class="glow"></div>
+        <div class="stilts"><div class="stilt"></div><div class="stilt"></div><div class="stilt"></div><div class="stilt"></div></div>
+        <div class="stairs"><div class="stair"></div><div class="stair"></div><div class="stair"></div><div class="stair"></div><div class="stair"></div></div>
+    </div>`;
+    
+    // Endless forest wall past the finish house
+    for (let i = 0; i < 15; i++) {
+        const treeX = lv.width + (i * 120);
+        const th = 80 + Math.random() * 40;
+        html += `<div class="tree" style="left:${treeX}px;z-index:-2;filter:brightness(0.7)"><div class="tree-leaves"></div><div class="tree-trunk" style="height:${th}px"></div></div>`;
+    }
+    
+    // Platforms with theme
+    const platTheme = lv.theme === 'kota-jambi' ? 'default' : lv.theme;
+    lv.platforms.forEach(([x, y, w]) => {
+        html += `<div class="platform theme-${platTheme}" style="left:${x}px;bottom:${y}px;width:${w}px"></div>`;
+    });
+    lv.movingPlatforms?.forEach(([x, y, w], i) => {
+        html += `<div class="platform theme-${platTheme} moving" style="left:${x}px;bottom:${y}px;width:${w}px"></div>`;
+    });
+    
+    // Spikes, checkpoints, pinangs, enemies
+    lv.spikes?.forEach(([x, y]) => html += `<div class="obstacle spike" style="left:${x}px;bottom:${y}px"></div>`);
+    lv.checkpoints?.forEach((x, i) => html += `<div class="checkpoint" id="cp${i}" style="left:${x}px;bottom:80px"><div class="checkpoint-pole"></div><div class="checkpoint-flag"></div></div>`);
+    lv.pinangs.forEach(([x, y], i) => html += `<div class="pinang" id="pn${i}" style="left:${x}px;bottom:${y}px"><div class="pinang-fruit"></div></div>`);
+    lv.enemies.forEach(([x, y, minX, maxX], i) => html += `<div class="enemy" id="enemy${i}" data-min="${minX}" data-max="${maxX}" data-dir="1" style="left:${x}px;bottom:${y}px"><div class="enemy-body"><div class="enemy-eye"></div></div></div>`);
+    
+    html += `<div class="player ${G.char}" id="player"></div>`;
+    world.innerHTML = html;
+    updatePlayer();
+    
+    G.got.clear(); G.checkpoints.clear();
+    G.x = G.spawnX = 80; G.y = G.spawnY = groundY;
+    G.vx = 0; G.vy = 0; G.jump = false; G.camX = 0;
+    G.entering = false; G.finishTriggered = false; G.shownPinangWarning = false;
+    
+    // Show level name
+    const lvName = $('lvName');
+    if (lvName) {
+        lvName.innerHTML = `${lv.icon} ${lv.name}<small>${lv.subtitle}</small>`;
+        lvName.classList.add('show');
+        setTimeout(() => lvName.classList.remove('show'), 2500);
+    }
+    
+    // Update location badge  
+    const locBadge = $('locBadge');
+    if (locBadge) {
+        const icon = locBadge.querySelector('.icon');
+        if (icon) icon.textContent = lv.icon;
+    }
+}
+
+function tip(msg, type = 'info') {
+    clearTimeout(G.tipT); clearTimeout(G.tipCenterT);
+    let title = '💡 Tahukah Kamu?';
+    if (type === 'checkpoint') title = '💾 Info Sistem';
+    else if (type === 'warning') title = '⚠️ Perhatian!';
+    
+    $('tipTitle').innerHTML = title;
+    $('tipTxt').innerHTML = msg;
+    let t = $('tip');
+    t.className = 'tip show';
+    
+    if (type === 'levelTip') {
+        G.readingTip = true;
+        t.classList.add('center');
+        G.tipCenterT = setTimeout(() => {
+            G.readingTip = false;
+            t.classList.remove('center');
+            t.classList.add('top-left');
+            G.tipT = setTimeout(() => t.classList.remove('show'), 12000);
+        }, 3500);
+    } else {
+        G.readingTip = false;
+        G.tipT = setTimeout(() => t.classList.remove('show'), 4000);
+    }
+}
+function hud() { $('score').textContent = G.p; $('level').textContent = G.lv; $('hp').textContent = G.hp; }
+function updateProgress() { const lv = L[(G.lv-1)%L.length]; $('progress').style.width = Math.max(0, Math.min(100, (G.x/(lv.width-screenW))*100)) + '%'; }
+
+const keys = { left: false, right: false, jump: false };
+document.addEventListener('keydown', e => {
+    if (e.code === 'ArrowLeft' || e.code === 'KeyA') keys.left = true;
+    if (e.code === 'ArrowRight' || e.code === 'KeyD') keys.right = true;
+    if (e.code === 'Space') { e.preventDefault(); keys.jump = true; }
+    if (e.code === 'Escape') pause();
+});
+document.addEventListener('keyup', e => {
+    if (e.code === 'ArrowLeft' || e.code === 'KeyA') keys.left = false;
+    if (e.code === 'ArrowRight' || e.code === 'KeyD') keys.right = false;
+    if (e.code === 'Space') keys.jump = false;
+});
+['btnL','btnR','btnJ'].forEach(id => {
+    const el = $(id);
+    if (!el) return;
+    const key = id === 'btnL' ? 'left' : id === 'btnR' ? 'right' : 'jump';
+    el.addEventListener('touchstart', e => { e.preventDefault(); e.stopPropagation(); keys[key] = true; }, {passive: false});
+    el.addEventListener('touchend', e => { e.preventDefault(); e.stopPropagation(); keys[key] = false; }, {passive: false});
+    el.addEventListener('touchcancel', e => { keys[key] = false; });
+    el.addEventListener('mousedown', e => { e.preventDefault(); keys[key] = true; });
+    el.addEventListener('mouseup', e => { e.preventDefault(); keys[key] = false; });
+    el.addEventListener('mouseleave', e => { keys[key] = false; });
+});
+
+function moveEnemies() {
+    document.querySelectorAll('.enemy').forEach(en => {
+        if (!G.on || G.ps) return;
+        let x = parseFloat(en.style.left), dir = parseInt(en.dataset.dir);
+        const min = parseInt(en.dataset.min), max = parseInt(en.dataset.max);
+        x += dir * 0.7; // SLOWER enemy (was 1.2)
+        if (x >= max || x <= min) { dir *= -1; en.dataset.dir = dir; }
+        en.style.left = x + 'px';
+        en.style.transform = dir > 0 ? 'scaleX(1)' : 'scaleX(-1)';
+    });
+}
+setInterval(moveEnemies, 30); // Smoother (was 35)
+
+function loop() {
+    if (!G.on || G.ps) { G.lastFrame = 0; requestAnimationFrame(loop); return; }
+    const p = $('player'), world = $('world'), lv = L[(G.lv-1)%L.length], now = Date.now();
+    
+    if (!G.lastFrame) G.lastFrame = now;
+    let dt = (now - G.lastFrame) / (1000/60); // dt is 1.0 at 60fps
+    if (dt > 3) dt = 3; // cap dt to prevent huge jumps
+    G.lastFrame = now;
+    
+    // PHYSICS BASED ON DELTA-TIME
+    const maxSpeed = 3.5;       
+    const jumpPower = 9.5;      
+    const gravity = 0.35;       
+    const friction = 0.82;      
+    const accel = 0.25;         
+    
+    if (!G.readingTip) {
+        if (keys.left) { 
+            G.vx = Math.max(-maxSpeed, G.vx - accel * dt);
+            G.right = false; G.isWalking = true; 
+            if (now - G.lastWalk > 300 && !G.jump) { Audio.play('walk'); G.lastWalk = now; spawnDust(G.x + 20, G.y, 2); } 
+        }
+        else if (keys.right) { 
+            G.vx = Math.min(maxSpeed, G.vx + accel * dt);
+            G.right = true; G.isWalking = true; 
+            if (now - G.lastWalk > 300 && !G.jump) { Audio.play('walk'); G.lastWalk = now; spawnDust(G.x + 20, G.y, 2); } 
+        }
+        else { 
+            G.vx *= Math.pow(friction, dt); 
+            G.isWalking = false;
+            if (Math.abs(G.vx) < 0.1) G.vx = 0;
+        }
+        
+        if (keys.jump && !G.jump) { G.vy = jumpPower; G.jump = true; Audio.play('jump'); spawnDust(G.x + 20, G.y, 6); }
+    } else {
+        G.vx *= Math.pow(friction, dt);
+        G.isWalking = false;
+        keys.left = keys.right = keys.jump = false;
+    }
+    
+    const wasFalling = G.vy < -2;
+    if (!keys.jump && G.vy > 0) { G.vy -= gravity * 2 * dt; } 
+    
+    G.vy -= gravity * dt; 
+    G.x += G.vx * dt; 
+    G.y += G.vy * dt;
+    
+    if (G.x < 0) G.x = 0; if (G.x > lv.width - 48) G.x = lv.width - 48;
+    if (G.y <= groundY) { G.y = groundY; G.vy = 0; G.jump = false; }
+
+    document.querySelectorAll('.platform').forEach(pl => {
+        const platLeft = parseFloat(pl.style.left), platWidth = parseFloat(pl.style.width);
+        let platY = parseFloat(pl.style.bottom);
+        if (pl.classList.contains('moving')) { const t = getComputedStyle(pl).transform; if (t !== 'none') platY -= new DOMMatrix(t).m42; }
+        const platTop = platY + 25;
+        if (G.vy <= 0 && G.x + 40 > platLeft && G.x < platLeft + platWidth && G.y <= platTop && G.y >= platTop - 12) { G.y = platTop; G.vy = 0; G.jump = false; }
+    });
+
+    if (wasFalling && !G.jump) {
+        p.classList.remove('falling');
+        p.classList.add('landing');
+        setTimeout(() => p.classList.remove('landing'), 250);
+        spawnDust(G.x + 20, G.y, 8);
+    }
+    p.classList.toggle('falling', G.jump && G.vy < -1);
+
+    document.querySelectorAll('.pinang:not(.got)').forEach(pn => {
+        if (G.got.has(pn.id)) return;
+        const px = parseFloat(pn.style.left) + 12, py = parseFloat(pn.style.bottom) + 16;
+        if (Math.abs(G.x + 20 - px) < 28 && Math.abs(G.y + 27 - py) < 32) {
+            G.got.add(pn.id); pn.classList.add('got'); G.p++; hud(); Audio.play('collect');
+            const pop = document.createElement('div'); pop.className = 'score-pop'; pop.textContent = '+1';
+            pop.style.left = px + 'px'; pop.style.bottom = py + 'px'; world.appendChild(pop);
+            setTimeout(() => { pn.style.display = 'none'; pop.remove(); }, 300);
+
+        }
+    });
+
+    document.querySelectorAll('.checkpoint:not(.active)').forEach(cp => {
+        if (G.checkpoints.has(cp.id)) return;
+        if (Math.abs(G.x + 20 - parseFloat(cp.style.left) - 20) < 40) {
+            G.checkpoints.add(cp.id); cp.classList.add('active');
+            G.spawnX = parseFloat(cp.style.left); G.spawnY = groundY;
+            Audio.play('checkpoint'); tip('Titik Simpan!', 'checkpoint');
+        }
+    });
+
+    document.querySelectorAll('.enemy').forEach(en => {
+        const ex = parseFloat(en.style.left), ey = parseFloat(en.style.bottom);
+        if (Math.abs(G.x + 20 - ex - 30) < 35 && Math.abs(G.y + 27 - ey - 12) < 30) hitPlayer();
+    });
+    document.querySelectorAll('.spike').forEach(sp => {
+        const sx = parseFloat(sp.style.left), sy = parseFloat(sp.style.bottom);
+        if (Math.abs(G.x + 20 - sx - 15) < 25 && Math.abs(G.y + 27 - sy - 12) < 25) hitPlayer();
+    });
+
+    const fh = $('finishHouse');
+    if (fh && !G.finishTriggered && !G.entering) {
+        const fx = parseFloat(fh.style.left), doorX = fx + 62, minP = Math.floor(lv.pinangs.length * 0.5);
+        if (G.x > fx - 80 && G.got.size >= minP) fh.classList.add('active'); else fh.classList.remove('active');
+        if (Math.abs(G.x + 20 - doorX - 22) < 30) {
+            if (G.got.size >= minP) { G.finishTriggered = true; enterFinish(); }
+            else if (!G.shownPinangWarning) { G.shownPinangWarning = true; tip(`🥭 Kumpulkan ${minP} pinang dulu! (${G.got.size}/${minP})`, 'warning'); setTimeout(() => G.shownPinangWarning = false, 3000); }
+        }
+    }
+    if (G.entering) { requestAnimationFrame(loop); return; }
+
+    const targetCam = Math.max(0, Math.min(lv.width - screenW, G.x - screenW / 3));
+    G.camX += (targetCam - G.camX) * 0.05; // Smoother camera (was 0.08)
+    world.style.transform = `translateX(${-G.camX}px)`;
+    p.style.left = G.x + 'px'; p.style.bottom = G.y + 'px';
+    p.style.transform = G.right ? 'scaleX(1)' : 'scaleX(-1)';
+    if (G.invuln > 0) { G.invuln--; p.style.opacity = (Math.floor(Date.now() / 150) % 2) ? 0.4 : 1; } else { p.style.opacity = 1; }
+    
+    // Add walking/jumping animation classes
+    p.classList.toggle('walking', G.isWalking && !G.jump);
+    p.classList.toggle('jumping', G.jump);
+    
+    updateProgress();
+    requestAnimationFrame(loop);
+}
+
+function spawnDust(x, y, count) {
+    for(let i=0; i<count; i++) {
+        const d = document.createElement('div');
+        d.className = 'dust';
+        d.style.left = (x + (Math.random()*16 - 8)) + 'px';
+        d.style.bottom = (y + (Math.random()*5)) + 'px';
+        const size = Math.random()*5 + 3;
+        d.style.width = size + 'px';
+        d.style.height = size + 'px';
+        $('world').appendChild(d);
+        setTimeout(() => d.remove(), 600);
+    }
+}
+
+function hitPlayer() { if (G.invuln > 0) return; G.hp--; hud(); Audio.play('hurt'); G.x = G.spawnX; G.y = G.spawnY; G.vx = 0; G.vy = 0; G.invuln = 90; if (G.hp <= 0) gameOver(); }
+
+function enterFinish() {
+    G.entering = true; G.on = false; Audio.play('win');
+    $('finishDoor').classList.add('open'); $('clearEffect').classList.add('show');
+    setTimeout(() => $('player').classList.add('entering'), 300);
+    setTimeout(() => { $('clearEffect').classList.remove('show'); levelClear(); }, 1500);
+}
+
+function levelClear() {
+    G.entering = false; const lv = L[(G.lv-1)%L.length];
+    $('lcP').textContent = `${G.got.size}/${lv.pinangs.length}`; $('lcScore').textContent = G.p;
+    $('lcO').classList.add('on');
+}
+
+function showQuiz() {
+    Audio.play('click'); $('lcO').classList.remove('on');
+    let pool = Q_SULTAN;
+    if (G.char === 'boy') pool = Q_BOY;
+    if (G.char === 'girl') pool = Q_GIRL;
+    G.currentQ = pool[Math.floor(Math.random() * pool.length)];
+    const q = G.currentQ;
+    $('quizQ').textContent = q.q;
+    $('quizOpts').innerHTML = q.opts.map((o,i) => `<button class="quiz-opt" onclick="checkAns(${i})">${o}</button>`).join('');
+    $('qRes').className = 'quiz-res'; $('qNext').classList.remove('show'); $('quizO').classList.add('on');
+}
+
+function checkAns(i) {
+    const q = G.currentQ;
+    document.querySelectorAll('.quiz-opt').forEach((o,idx) => { o.disabled = true; if (idx === q.ans) o.classList.add('ok'); else if (idx === i) o.classList.add('no'); });
+    const r = $('qRes');
+    if (i === q.ans) { Audio.play('correct'); r.textContent = '✅ Benar! ' + q.exp; r.className = 'quiz-res ok show'; G.p += 5; hud(); G.quizCorrect = true; }
+    else { Audio.play('wrong'); r.textContent = '❌ Salah! ' + q.exp; r.className = 'quiz-res no show'; G.quizCorrect = false; }
+    $('qNext').classList.add('show');
+}
+
+function awardCoins(amount) {
+    try {
+        let gs = JSON.parse(localStorage.getItem("sumberai_gs") || "{}");
+        if(gs && typeof gs === 'object') {
+            const now = new Date().getTime();
+            const today = new Date().toLocaleDateString('id-ID');
+            const lastReset = gs.petualanganResetDate ? new Date(gs.petualanganResetDate).toLocaleDateString('id-ID') : null;
+            
+            let currentDaily = gs.petualanganDailyCoins || 0;
+            if (today !== lastReset) {
+                currentDaily = 0;
+                gs.petualanganResetDate = now;
+            }
+            
+            if (currentDaily >= 27) {
+                alert("TIDAK ADA KOIN TAMBAHAN\n\nMaksimal koin harian dari game Petualangan Jambi (27 Koin) telah tercapai. Koin akan direset besok!");
+                localStorage.setItem("sumberai_gs", JSON.stringify(gs));
+                return;
+            }
+            
+            gs.coins = (gs.coins || 0) + amount;
+            gs.petualanganDailyCoins = currentDaily + amount;
+            localStorage.setItem("sumberai_gs", JSON.stringify(gs));
+        }
+    } catch(e){}
+}
+
+function nextLv() {
+    Audio.play('click'); $('quizO').classList.remove('on'); 
+    
+    if (G.quizCorrect) {
+        $('claimTitle').innerHTML = '🎉 SELAMAT!';
+        $('claimTitle').style.color = '#fbbf24';
+        $('claimDesc').innerHTML = 'Kamu menjawab kuis dengan BENAR dan mendapatkan koin!';
+        $('claimRewardBox').style.display = 'block';
+        $('claimBtn').innerHTML = 'Klaim Hadiah';
+        $('claimBtn').style.background = 'linear-gradient(180deg,#10b981,#059669)';
+        $('claimBtn').style.boxShadow = '0 6px 0 #047857, 0 10px 20px rgba(16,185,129,0.3)';
+    } else {
+        $('claimTitle').innerHTML = '❌ YAHHH!';
+        $('claimTitle').style.color = '#ef4444';
+        $('claimDesc').innerHTML = 'Jawaban kuis kamu SALAH. Kamu tidak mendapatkan koin tambahan.';
+        $('claimRewardBox').style.display = 'none';
+        $('claimBtn').innerHTML = 'Lanjut Bermain';
+        $('claimBtn').style.background = 'linear-gradient(180deg,#3b82f6,#2563eb)';
+        $('claimBtn').style.boxShadow = '0 6px 0 #1d4ed8, 0 10px 20px rgba(37,99,235,0.3)';
+    }
+    
+    $('claimO').classList.add('on');
+}
+
+function doClaim() {
+    if (G.quizCorrect) {
+        Audio.play('collect');
+        awardCoins(3);
+    } else {
+        Audio.play('click');
+    }
+    $('claimO').classList.remove('on');
+    G.lv++; hud();
+    if (G.lv > L.length) {
+        [Q_SULTAN, Q_BOY, Q_GIRL].forEach(arr => arr.sort(() => Math.random() - 0.5));
+        G.lv = 1;
+        alert('🎉 SELAMAT!\n\nKamu telah menyelesaikan seluruh 9 Level Petualangan Jambi!\nKuis telah diacak ulang agar tidak jenuh. Silakan lanjut main!');
+    }
+    loadLevel(G.lv); G.on = true; tip(L[(G.lv-1)%L.length].tip, 'levelTip');
+}
+
+function gameOver() { G.on = false; Audio.stopMusic(); Audio.play('lose'); $('goP').textContent = G.p; $('goL').textContent = G.lv; $('goO').classList.add('on'); }
+function restart() { Audio.play('click'); ['pauseO','goO','quizO','lcO'].forEach(id => $(id).classList.remove('on')); G.lv = 1; G.p = 0; G.hp = 5; G.ps = false; G.on = true; hud(); loadLevel(1); tip(L[0].tip, 'levelTip'); Audio.startMusic(); }
+function pause() { if (!G.on && !G.ps) return; Audio.play('click'); G.ps = !G.ps; $('pauseO').classList.toggle('on', G.ps); if (G.ps) Audio.stopMusic(); else Audio.startMusic(); }
+function home() { ['pauseO','goO','quizO','lcO'].forEach(id => $(id).classList.remove('on')); G.on = false; G.ps = false; Audio.stopMusic(); $('menu').classList.remove('hidden'); $('game').classList.remove('on'); }
+function closeGame() { Audio.stopMusic(); window.close(); setTimeout(() => { window.location.href = '/'; }, 150); }
+
+function toggleSfx() { 
+  Audio.sfxOn = !Audio.sfxOn; Audio.musicOn = Audio.sfxOn; 
+  ['sfxBtn','gameSfx'].forEach(id => $(id)?.classList.toggle('off', !Audio.sfxOn)); 
+  if (Audio.sfxOn) {
+    if (Audio.ctx && Audio.ctx.state === 'suspended') Audio.ctx.resume();
+    if (G.on && !G.ps) Audio.startMusic();
+  } else {
+    if (Audio.ctx) Audio.ctx.suspend();
+    Audio.stopMusic();
+  }
+}
+
+async function startGame() { 
+    try {
+        Audio.init(); 
+        Audio.play('click'); 
+        $('menu').classList.add('hidden'); 
+        $('game').classList.add('on'); 
+        G.lv = 1; G.p = 0; G.hp = 5; 
+        hud(); 
+        loadLevel(1); 
+        G.on = true; 
+        setTimeout(() => tip(L[0].tip, 'levelTip'), 1500); 
+        Audio.startMusic(); 
+        requestAnimationFrame(loop);
+    } catch(err) {
+        console.error('startGame error:', err);
+        alert('Error: ' + err.message);
+    }
+}
+document.addEventListener('visibilitychange', () => { if (document.hidden && G.on) Audio.stopMusic(); else if (!document.hidden && G.on && !G.ps && Audio.musicOn) Audio.startMusic(); });
+</script>
+</body>
+</html>
