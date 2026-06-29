@@ -100,7 +100,7 @@ export default function HomeScreen({ gs, setGs, onNav, onClaimStarter }) {
             <div style={{fontSize:11,color:"#78350F",lineHeight:1.6,fontWeight:500}}>
               {isEn ? 
                 "Earn coins from English Lab, AI Tutor daily bonus, and Arena games. Collect hundreds of coins every month!" : 
-                "Dapatkan koin dari English Lab, bonus harian AI Tutor, serta game di Game Arena. Total potensi kumpulkan ratusan koin tiap bulan!"
+                "Dapatkan koin dari English Lab, bonus harian AI Tutor, serta game di Game Arena. Kumpulkan hingga ratusan koin tiap bulan!"
               }
             </div>
           </div>

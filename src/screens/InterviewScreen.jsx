@@ -183,7 +183,7 @@ export default function InterviewScreen({ gs, setGs, onNav, onCoinEarned, onXPEa
     
     try {
       const client = new GeminiLiveClient(
-         "AQ.Ab8RN6J1RPz4Ri3Ouov18aqBLo4pk1O3gWJOec-a_JItHg5OuA",
+         "AQ.Ab8RN6IeM05nv_Og9Nf_Kh9xumckThs9VFTZDAV2Qd7AByUfBg",
          (text) => {
              setMessages(prev => {
                 const newMsgs = [...prev];

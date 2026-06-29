@@ -61,6 +61,7 @@ export class GeminiLiveClient {
           ttsText = rawJson;
         }
       } else {
+        console.error('LLM API Error:', llmData);
         if (this.onTurnComplete) this.onTurnComplete();
         return;
       }
