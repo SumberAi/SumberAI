@@ -107,9 +107,17 @@ export class GeminiLiveClient {
             this.onAudioChunk(part.inlineData.data);
           }
         }
+      } else if (ttsData.error) {
+         console.error('TTS API Error:', ttsData.error);
+         if (this.audioStreamer.onAudioStateChange) {
+            this.audioStreamer.onAudioStateChange(false);
+         }
       }
     } catch (err) {
       console.error('TTS Error:', err);
+      if (this.audioStreamer.onAudioStateChange) {
+         this.audioStreamer.onAudioStateChange(false);
+      }
     }
   }
 
@@ -144,7 +152,16 @@ export class AudioStreamer {
   async startRecording() {
     this.audioChunks = [];
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      // WARM UP AUDIO CONTEXT FOR MOBILE SAFARI/CHROME
+      if (!this.audioCtx) {
+        this.audioCtx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 24000 });
+      }
+      if (this.audioCtx.state === 'suspended') {
+        await this.audioCtx.resume();
+      }
+      this.nextPlayTime = this.audioCtx.currentTime;
+
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: { channelCount: 1, sampleRate: 16000 } });
       this.mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
       this.mediaRecorder.ondataavailable = (e) => {
         if (e.data.size > 0) this.audioChunks.push(e.data);
