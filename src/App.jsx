@@ -137,6 +137,7 @@ export default function App() {
           needsDbUpdate = true;
         }
 
+        updatedData.uid = userUid;
         setGs(prev => ({ ...prev, ...updatedData }));
         
         setIsDbLoaded(true);
@@ -153,6 +154,7 @@ export default function App() {
       } else {
         // If doc doesn't exist, it means user is brand new.
         // We can safely go to home and they will get the modal.
+        setGs(prev => ({ ...prev, uid: userUid }));
         setIsDbLoaded(true);
         setNav(currentNav => currentNav === "loading" ? "home" : currentNav);
       }
