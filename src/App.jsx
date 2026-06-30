@@ -109,9 +109,29 @@ export default function App() {
         
         let updatedData = { ...data };
         let needsDbUpdate = false;
+        const now = Date.now();
+
+        // Cek Kedaluwarsa Langganan PRO (30 Hari)
+        if (updatedData.proStatus) {
+           let proChanged = false;
+           if (updatedData.proStatus.grammarExpiresAt && now > updatedData.proStatus.grammarExpiresAt) {
+               updatedData.proStatus.grammar = false;
+               updatedData.proStatus.grammarExpiresAt = null;
+               proChanged = true;
+           }
+           if (updatedData.proStatus.englishExpiresAt && now > updatedData.proStatus.englishExpiresAt) {
+               updatedData.proStatus.english = false;
+               updatedData.proStatus.englishExpiresAt = null;
+               proChanged = true;
+           }
+           if (proChanged) {
+               updatedData.isPro = updatedData.proStatus.scholar || updatedData.proStatus.english || updatedData.proStatus.grammar;
+               needsDbUpdate = true;
+           }
+        }
 
         if (today !== lastReset) {
-          const isPro = data.proStatus?.scholar || data.proStatus?.english || data.proStatus?.grammar;
+          const isPro = updatedData.proStatus?.scholar || updatedData.proStatus?.english || updatedData.proStatus?.grammar;
           updatedData.voiceLimit = isPro ? 25 : 3;
           updatedData.voiceResetDate = new Date().getTime();
           needsDbUpdate = true;
@@ -125,7 +145,9 @@ export default function App() {
         if (needsDbUpdate) {
           setDoc(userRef, { 
             voiceLimit: updatedData.voiceLimit, 
-            voiceResetDate: updatedData.voiceResetDate 
+            voiceResetDate: updatedData.voiceResetDate,
+            proStatus: updatedData.proStatus,
+            isPro: updatedData.isPro
           }, { merge: true }).catch(console.error);
         }
       } else {

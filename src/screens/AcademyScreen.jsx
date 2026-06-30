@@ -47,50 +47,73 @@ export default function AcademyScreen({ gs, onCoinEarned, onXPEarned, onNav, upg
           </div>
         </div>
 
-        {modules.map((m, i) => {
-          // Locked if the user doesn't have the global scholar bundle, AND the user doesn't have this specific module
-          const isLocked = !gs.proStatus?.scholar && !gs.proStatus?.[m.id];
-          return (
-            <div 
-              key={i} 
-              className="tap" 
-              onClick={() => {
-                if(isLocked) {
-                  setBuyModal(m);
-                } else {
-                  setReadingModal(m);
-                  setReadingPage(0);
-                }
-              }} 
-              style={{
-                background:"var(--bg-card)", 
-                borderRadius: 18, 
-                padding: 16, 
-                marginBottom: 12, 
-                boxShadow: C.shadowCard, 
-                display: "flex", 
-                alignItems: "center", 
-                gap: 12, 
-                animation: `fadeUp ${.3 + i * .1}s ease both`,
-                filter: isLocked ? "grayscale(100%) opacity(0.7)" : "none",
-                position: "relative"
-              }}
-            >
-              <div style={{width: 48, height: 48, borderRadius: 14, background: C.blueLt, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, flexShrink: 0}}>
-                {isLocked ? "🔒" : "📘"}
-              </div>
-              <div style={{flex: 1}}>
-                <div style={{fontFamily: "Exo 2", fontWeight: 800, fontSize: 15, color: C.text, marginBottom: 4}}>{m.title}</div>
-                <div style={{fontSize: 11, color: C.textSec, lineHeight: 1.5, marginBottom: 6}}>{isEn && m.descEn ? m.descEn : m.desc}</div>
-                <div style={{display: "flex", gap: 8}}>
-                  <Tag label={<>+{m.coins} <img src="/coin.png" style={{width:"1.1em", height:"1.1em", verticalAlign:"middle", margin:"0 2px", position:"relative", top:"-2px", borderRadius:"50%", objectFit:"cover"}} alt="coin"/></>} color={C.gold} bg="#FEF3C7"/>
-                  <Tag label={`+${m.xp} XP`} color={C.blue} bg={C.blueLt}/>
-                  {m.isPremium && <Tag label="PRO" color="#fff" bg="#3B82F6" />}
-                </div>
-              </div>
+        {/* MODULE 1: GRATIS */}
+        <div 
+          className="tap" 
+          onClick={() => window.open('https://restor.lensetek.online/', '_blank')} 
+          style={{
+            background:"var(--bg-card)", 
+            borderRadius: 18, 
+            padding: 16, 
+            marginBottom: 12, 
+            boxShadow: C.shadowCard, 
+            display: "flex", 
+            alignItems: "center", 
+            gap: 12, 
+            animation: `fadeUp .3s ease both`,
+            position: "relative",
+            cursor: "pointer"
+          }}
+        >
+          <div style={{width: 48, height: 48, borderRadius: 14, background: C.blueLt, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, flexShrink: 0}}>
+            📘
+          </div>
+          <div style={{flex: 1}}>
+            <div style={{fontFamily: "Exo 2", fontWeight: 800, fontSize: 15, color: C.text, marginBottom: 4}}>Agentic AI Researchers & Authors</div>
+            <div style={{fontSize: 11, color: C.textSec, lineHeight: 1.5, marginBottom: 6}}>{isEn ? "Free interactive module for AI Researchers." : "Modul interaktif gratis untuk Peneliti AI."}</div>
+            <div style={{display: "flex", gap: 8}}>
+              <Tag label="FREE" color="#10B981" bg="#D1FAE5" />
             </div>
-          );
-        })}
+          </div>
+        </div>
+
+        {/* MODULE 2: BERBAYAR */}
+        <div 
+          className="tap" 
+          onClick={() => {
+            const isLocked = !gs.proStatus?.scholar;
+            if(isLocked) {
+              setBuyModal({ id: 'scholar', title: "AI Agent for Brevet A & B Course", price: "Rp 69.000" });
+            } else {
+              window.open('https://asadel.co.id/courses/brevet-ab', '_blank');
+            }
+          }} 
+          style={{
+            background:"var(--bg-card)", 
+            borderRadius: 18, 
+            padding: 16, 
+            marginBottom: 12, 
+            boxShadow: C.shadowCard, 
+            display: "flex", 
+            alignItems: "center", 
+            gap: 12, 
+            animation: `fadeUp .4s ease both`,
+            filter: !gs.proStatus?.scholar ? "grayscale(100%) opacity(0.7)" : "none",
+            position: "relative",
+            cursor: "pointer"
+          }}
+        >
+          <div style={{width: 48, height: 48, borderRadius: 14, background: C.blueLt, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, flexShrink: 0}}>
+            {!gs.proStatus?.scholar ? "🔒" : "📘"}
+          </div>
+          <div style={{flex: 1}}>
+            <div style={{fontFamily: "Exo 2", fontWeight: 800, fontSize: 15, color: C.text, marginBottom: 4}}>AI Agent for Brevet A & B Course</div>
+            <div style={{fontSize: 11, color: C.textSec, lineHeight: 1.5, marginBottom: 6}}>{isEn ? "Premium course for Brevet A & B." : "Kursus premium Brevet A & B."}</div>
+            <div style={{display: "flex", gap: 8}}>
+              <Tag label="PRO" color="#fff" bg="#3B82F6" />
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* MODAL PILIHAN PEMBELIAN */}
