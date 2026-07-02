@@ -56,10 +56,10 @@ export default function ProfileScreen({ gs, setGs, onNav, isDark }) {
 
   const achs = [
     {icon:"🔥", title:"Streak Master", sub:isEn ? "Login 3 days in a row" : "Login 3 hari berturut-turut", done: gs.streak >= 3},
-    {icon:"🎓", title:isEn ? "AI Scholar" : "Sarjana AI", sub:isEn ? "Read 10 AI Academy modules" : "Baca 10 modul AI Academy", done: gs.academyDone >= 10},
+    {icon:"🎓", title:isEn ? "Academy Scholar" : "Sarjana Academy", sub:isEn ? "Read 10 Academy modules" : "Baca 10 modul Academy", done: gs.academyDone >= 10},
     {icon:"🤖", title:"Bilingual", sub:isEn ? "Complete 20 English Lab questions" : "Selesaikan 20 soal English Lab", done: gs.engDone >= 20},
     {icon:"💼", title:"HRD Favorite", sub:isEn ? "Complete 5 Interview Simulation sessions" : "Jalani 5 sesi Simulasi Interview", done: gs.interviewDone >= 5},
-    {icon:"👑", title:isEn ? "Coin Mogul" : "Sultan Koin", sub:isEn ? "Redeem SmartCoin at UMKM Market" : "Tukar SmartCoin di UMKM Market", done: gs.redeemed >= 1},
+    {icon:"👑", title:isEn ? "Coin Mogul" : "Sultan Koin", sub:isEn ? "Collect 100 SmartCoins" : "Kumpulkan 100 SmartCoin", done: gs.coins >= 100},
   ];
 
   return (
@@ -99,7 +99,7 @@ export default function ProfileScreen({ gs, setGs, onNav, isDark }) {
         <div style={{background:"var(--bg-card)",borderRadius:24,padding:"20px",boxShadow:C.shadowCard,marginBottom:16,animation:"fadeUp .45s ease"}}>
           <div style={{fontFamily:"Exo 2",fontWeight:900,fontSize:14,color:"var(--text-main)",marginBottom:14}}>🚀 {isEn ? "LEARNING PROGRESS" : "PROGRESS BELAJAR"}</div>
           {[
-            {label:isEn ? "AI Academy Modules" : "Modul AI Academy",val:gs.academyDone || 0,max:20,grad:"linear-gradient(90deg,#059669,#10B981)"},
+            {label:isEn ? "Academy Modules" : "Modul Academy",val:gs.academyDone || 0,max:20,grad:"linear-gradient(90deg,#059669,#10B981)"},
             {label:"English Lab",val:gs.engDone || 0,max:50,grad:"linear-gradient(90deg,#2563EB,#60A5FA)"},
             {label:isEn ? "Interview Simulation" : "Simulasi Interview",val:gs.interviewDone || 0,max:10,grad:"linear-gradient(90deg,#D97706,#FBBF24)"}
           ].map((p,i)=>(

@@ -9,48 +9,63 @@ export default function MarketScreen({ gs, spendCoins, onNav, userUid }) {
   const [isGenerating, setIsGenerating] = useState(false);
   const [selectedItemTitle, setSelectedItemTitle] = useState('');
 
-  // Sesuai request: Buat gambaran kasarnya dulu yaitu 10 persen semua produk.
-  // 1 Koin = Rp 5. Anggap nilai diskon ini setara dengan 1000 Koin (Rp 5.000 diskon) atau 500 Koin. 
-  // Kita buat harganya terjangkau untuk testing.
-  const items = [
-    { id: 1, title: "Diskon 10% Kopi AA", titleEn: "10% Off AA Coffee", desc: "Nikmati potongan 10% untuk semua varian kopi Jambi.", descEn: "Enjoy 10% off for all Jambi coffee variants.", price: 500, icon: "☕", isReady: true },
-    { id: 2, title: "Diskon 10% Ayam Geprek", titleEn: "10% Off Smashed Chicken", desc: "Voucher diskon 10% makan siang ayam geprek nampol.", descEn: "10% discount voucher for spicy smashed chicken.", price: 500, icon: "🍗", isReady: true },
-    { id: 3, title: "Diskon 10% Cuci Sepatu", titleEn: "10% Off Shoe Wash", desc: "Bikin sepatu kamu kinclong dengan diskon 10%.", descEn: "Make your shoes shine with 10% discount.", price: 500, icon: "👟", isReady: true },
-    { id: 4, title: "Diskon 10% Keripik Tempoyak", titleEn: "10% Off Tempoyak Chips", desc: "Potongan harga 10% untuk oleh-oleh keripik khas.", descEn: "10% off for signature chips souvenir.", price: 500, icon: "🥔", isReady: true },
-    { id: 5, title: "Diskon 10% Cuci Motor", titleEn: "10% Off Motorbike Wash", desc: "Voucher diskon 10% untuk cuci motor salju.", descEn: "10% off voucher for snow motorbike wash.", price: 500, icon: "🏍️", isReady: false },
-    { id: 6, title: "Diskon 10% Barbershop", titleEn: "10% Off Barbershop", desc: "Tampil ganteng maksimal dengan potongan 10%.", descEn: "Look your best with a 10% haircut discount.", price: 500, icon: "✂️", isReady: false }
+  const stores = [
+    {
+      id: "s1",
+      brand: "Kopi Pak Hitam",
+      address: "Kawasan Tugu Keris Siginjai, Kota Jambi",
+      icon: "🏪",
+      items: [
+        { id: 1, title: "Voucher Kopi Liberika", titleEn: "Liberika Coffee Voucher", desc: "Voucher diskon Rp 25.000 Kopi Liberika Kerinci Premium.", descEn: "Rp 25.000 voucher for Premium Kerinci Liberika Coffee.", price: 150, icon: "☕", bg: "linear-gradient(135deg, #FDE68A, #D97706)", isReady: true },
+        { id: 2, title: "Biji Kopi Robusta 250g", titleEn: "Robusta Coffee Beans 250g", desc: "Gratis 1 bungkus biji kopi Robusta Jambi asli.", descEn: "Free 1 pack of authentic Jambi Robusta beans.", price: 250, icon: "🫘", bg: "linear-gradient(135deg, #D6D3D1, #78716C)", isReady: true }
+      ]
+    },
+    {
+      id: "s2",
+      brand: "Zhafirah Batik & Songket",
+      address: "Jl. Kolonel Abunjani No.12, Sipin, Jambi",
+      icon: "🏬",
+      items: [
+        { id: 3, title: "Potongan Batik Jambi", titleEn: "Jambi Batik Discount", desc: "Potongan eksklusif 20% kemeja Batik motif Batanghari.", descEn: "Exclusive 20% off for Batanghari motif Batik shirt.", price: 300, icon: "👘", bg: "linear-gradient(135deg, #FBCFE8, #DB2777)", isReady: true },
+        { id: 4, title: "Kain Songket Mewah", titleEn: "Luxury Songket Fabric", desc: "Potongan harga Rp 100.000 pembelian kain Songket.", descEn: "Rp 100.000 discount for purchasing Jambi Songket fabric.", price: 800, icon: "✨", bg: "linear-gradient(135deg, #BFDBFE, #2563EB)", isReady: true }
+      ]
+    },
+    {
+      id: "s3",
+      brand: "Pusat Oleh-Oleh Makmur",
+      address: "Jl. Jendral Sudirman No. 8, Thehok, Jambi",
+      icon: "🛍️",
+      items: [
+        { id: 5, title: "Lempok Durian Legit", titleEn: "Sweet Durian Lempok", desc: "1 kotak Lempok Durian khas Jambi gratis!", descEn: "Free 1 box of signature Jambi Durian Lempok!", price: 500, icon: "🍬", bg: "linear-gradient(135deg, #D9F99D, #65A30D)", isReady: true },
+        { id: 6, title: "Gelang Sebelik Sumpah", titleEn: "Sebelik Sumpah Bracelet", desc: "Diskon 50% Aksesoris khas Suku Anak Dalam.", descEn: "50% discount for Indigenous tribe accessory.", price: 200, icon: "📿", bg: "linear-gradient(135deg, #E9D5FF, #9333EA)", isReady: true }
+      ]
+    }
   ];
 
   const isEn = gs?.lang === 'en';
 
-  const handleBuy = async (price, title) => {
+  const handleBuy = async (price, title, storeName) => {
     if (gs.coins >= price && userUid) {
       setIsGenerating(true);
-      setSelectedItemTitle(title);
+      setSelectedItemTitle(`${title} (${storeName})`);
       
       try {
-        // 1. Potong Koin
         spendCoins(price);
-
-        // 2. Buat Kode Unik (Contoh: SBR-A8X9)
         const randomStr = Math.random().toString(36).substring(2, 6).toUpperCase();
-        const code = `SBR-${randomStr}`;
+        const code = `UMKM-${randomStr}`;
+        const discountValue = price * 50; 
 
-        // 3. Hitung Nilai Diskon dalam Rupiah (1 Koin = Rp 5)
-        const discountValue = price * 5; 
-
-        // 4. Simpan ke Firebase Database
         await addDoc(collection(db, "vouchers"), {
           code: code,
           userId: userUid,
           title: title,
+          store: storeName,
           amount: discountValue,
           isUsed: false,
           createdAt: Date.now(),
-          expiresAt: Date.now() + (24 * 60 * 60 * 1000) // Hangus dalam 24 Jam
+          expiresAt: Date.now() + (24 * 60 * 60 * 1000)
         });
 
-        // 5. Tampilkan Modal
         setGeneratedCode(code);
         setShowModal(true);
       } catch (e) {
@@ -72,32 +87,57 @@ export default function MarketScreen({ gs, spendCoins, onNav, userUid }) {
             ⬅️ {isEn ? "BACK" : "KEMBALI"}
           </button>
           <div style={{flex: 1}}>
-            <h2 style={{fontFamily: "Exo 2", fontWeight: 900, fontSize: 24, color: C.text, margin: 0}}>UMKM Market 🛍️</h2>
-            <p style={{fontSize: 13, color: C.textSec, margin: "4px 0 0 0"}}>{isEn ? "Exchange your SmartCoins for real discounts!" : "Tukarkan SmartCoins hasil belajar Anda dengan Voucher Diskon!"}</p>
+            <h2 style={{fontFamily: "Exo 2", fontWeight: 900, fontSize: 24, color: C.text, margin: 0}}>Mitra UMKM 🛍️</h2>
+            <p style={{fontSize: 13, color: C.textSec, margin: "4px 0 0 0"}}>{isEn ? "Exchange your SmartCoins for real local products!" : "Tukarkan SmartCoins dengan voucher produk lokal Jambi!"}</p>
           </div>
         </div>
 
-        <div style={{display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12}}>
-          {items.map((itm, i) => {
-            const canBuy = gs.coins >= itm.price;
-            return (
-            <div key={itm.id} style={{background:"var(--bg-card)", borderRadius: 18, padding: 16, boxShadow: C.shadowCard, display: "flex", flexDirection: "column", animation: `fadeUp ${.3 + i * .1}s ease both`, filter: !itm.isReady ? "grayscale(80%) opacity(0.85)" : "none"}}>
-              <div style={{fontSize: 32, marginBottom: 12}}>{itm.icon}</div>
-              <div style={{fontFamily: "Exo 2", fontWeight: 800, fontSize: 14, color: C.text, marginBottom: 4, minHeight: 40}}>{isEn ? itm.titleEn : itm.title}</div>
-              <div style={{fontSize: 11, color: C.textSec, lineHeight: 1.4, marginBottom: 12, flex: 1}}>{isEn ? itm.descEn : itm.desc}</div>
-              <div style={{fontWeight: 900, fontSize: 16, color: C.gold, marginBottom: 12}}>{itm.price.toLocaleString("id-ID")} <img src="/coin.png" style={{width:"1.1em", height:"1.1em", verticalAlign:"middle", margin:"0 2px", position:"relative", top:"-2px", borderRadius:"50%", objectFit:"cover"}} alt="coin"/></div>
-              
-              {!itm.isReady ? (
-                <button disabled style={{width: "100%", background: "transparent", color: "#94A3B8", border: "2px dashed #CBD5E1", padding: "12px", borderRadius: 14, fontSize: 13, fontWeight: 800, cursor: "not-allowed", letterSpacing: 0.5}}>
-                  🔒 {isEn ? "COMING SOON" : "SEGERA HADIR"}
-                </button>
-              ) : (
-                <button className="tap" disabled={!canBuy || isGenerating} onClick={() => handleBuy(itm.price, isEn ? itm.titleEn : itm.title)} style={{width: "100%", background: canBuy ? "linear-gradient(135deg, #F59E0B, #FCD34D)" : "#E2E8F0", color: canBuy ? "#78350F" : "#94A3B8", border: "none", padding: "12px", borderRadius: 14, fontSize: 13, fontWeight: 800, cursor: canBuy ? "pointer" : "not-allowed", letterSpacing: 0.5, boxShadow: canBuy ? "0 4px 12px rgba(245,158,11,.3)" : "none"}}>
-                  {isGenerating ? "..." : (canBuy ? (isEn ? "REDEEM" : "TUKAR") : (isEn ? "NOT ENOUGH COINS" : "KOIN KURANG"))}
-                </button>
-              )}
+        <div style={{display: "flex", flexDirection: "column", gap: 24}}>
+          {stores.map((store, storeIdx) => (
+            <div key={store.id} style={{background: "#fff", borderRadius: 24, padding: 20, boxShadow: "0 12px 30px rgba(0,0,0,0.06)", border: "1px solid rgba(0,0,0,0.04)", animation: `fadeUp ${.3 + storeIdx * .15}s ease both`}}>
+              {/* Header Toko / Brand */}
+              <div style={{display: "flex", alignItems: "center", gap: 12, marginBottom: 16, paddingBottom: 16, borderBottom: "1px solid #F1F5F9"}}>
+                <div style={{fontSize: 32}}>{store.icon}</div>
+                <div>
+                  <div style={{fontFamily: "Exo 2", fontWeight: 900, fontSize: 18, color: "#1E293B"}}>{store.brand}</div>
+                  <div style={{fontSize: 12, color: "#64748B", marginTop: 4, display: "flex", alignItems: "flex-start", gap: 4}}>
+                    <span>📍</span> <span>{store.address}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Grid Produk Dalam Toko */}
+              <div style={{display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12}}>
+                {store.items.map((itm, i) => {
+                  const canBuy = gs.coins >= itm.price;
+                  return (
+                    <div key={itm.id} style={{background:"var(--bg-card)", borderRadius: 20, padding: 16, boxShadow: "0 4px 12px rgba(0,0,0,0.03)", display: "flex", flexDirection: "column", border: "1px solid rgba(0,0,0,0.04)", filter: !itm.isReady ? "grayscale(80%) opacity(0.85)" : "none"}}>
+                      <div style={{width: 48, height: 48, borderRadius: 14, background: itm.bg, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, marginBottom: 16, boxShadow: "0 4px 10px rgba(0,0,0,0.1)"}}>
+                        {itm.icon}
+                      </div>
+                      <div style={{fontFamily: "Exo 2", fontWeight: 900, fontSize: 14, color: C.text, marginBottom: 6, minHeight: 42, lineHeight: 1.3}}>{isEn ? itm.titleEn : itm.title}</div>
+                      <div style={{fontSize: 11, color: C.textSec, lineHeight: 1.5, marginBottom: 16, flex: 1}}>{isEn ? itm.descEn : itm.desc}</div>
+                      
+                      <div style={{background: "rgba(245,158,11,0.1)", borderRadius: 12, padding: "6px 10px", display: "inline-flex", alignItems: "center", width: "fit-content", marginBottom: 16}}>
+                        <span style={{fontWeight: 900, fontSize: 14, color: C.gold}}>{itm.price.toLocaleString("id-ID")}</span>
+                        <img src="/coin.png" style={{width:"1.2em", height:"1.2em", marginLeft: 4, objectFit:"cover", borderRadius:"50%"}} alt="coin"/>
+                      </div>
+                      
+                      {!itm.isReady ? (
+                        <button disabled style={{width: "100%", background: "transparent", color: "#94A3B8", border: "2px dashed #CBD5E1", padding: "10px", borderRadius: 12, fontSize: 12, fontWeight: 800, cursor: "not-allowed", letterSpacing: 0.5}}>
+                          🔒 {isEn ? "COMING SOON" : "SEGERA"}
+                        </button>
+                      ) : (
+                        <button className="tap" disabled={!canBuy || isGenerating} onClick={() => handleBuy(itm.price, isEn ? itm.titleEn : itm.title, store.brand)} style={{width: "100%", background: canBuy ? "linear-gradient(135deg, #10B981, #059669)" : "#E2E8F0", color: canBuy ? "#FFF" : "#94A3B8", border: "none", padding: "10px", borderRadius: 12, fontSize: 12, fontWeight: 800, cursor: canBuy ? "pointer" : "not-allowed", letterSpacing: 0.5, boxShadow: canBuy ? "0 4px 12px rgba(16,185,129,.3)" : "none", transition: "all 0.2s"}}>
+                          {isGenerating ? "..." : (canBuy ? (isEn ? "REDEEM" : "TUKAR") : (isEn ? "NEED COINS" : "KOIN KURANG"))}
+                        </button>
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
             </div>
-          )})}
+          ))}
         </div>
       </div>
 

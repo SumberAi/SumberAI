@@ -108,7 +108,7 @@ export function TopBar({ gs, onLogo, onNav, isDark, setIsDark }) {
             </div>
           );
         })()}
-        <div style={{background:"#FEF3C7",border:"1px solid #FCD34D",padding:"4px 8px",borderRadius:99,display:"flex",alignItems:"center",gap:4,fontWeight:800,fontSize:12,color:"#D97706",boxShadow:"0 2px 8px rgba(217,119,6,.15)"}}>
+        <div className="tap" onClick={() => onNav && onNav("market")} style={{background:"#FEF3C7",border:"1px solid #FCD34D",padding:"4px 8px",borderRadius:99,display:"flex",alignItems:"center",gap:4,fontWeight:800,fontSize:12,color:"#D97706",boxShadow:"0 2px 8px rgba(217,119,6,.15)",cursor:"pointer"}}>
           <span><img src="/coin.png" style={{width:"1.1em", height:"1.1em", verticalAlign:"middle", margin:"0 2px", position:"relative", top:"-2px", borderRadius:"50%", objectFit:"cover"}} alt="coin"/></span> {gs.coins}
         </div>
         <div style={{width:30,height:30,borderRadius:"50%",background:"linear-gradient(135deg,#2563EB,#60A5FA)",color:"#fff",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:800,fontSize:12,boxShadow:"0 4px 12px rgba(37,99,235,.2)"}}>

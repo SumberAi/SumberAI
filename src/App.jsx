@@ -6,7 +6,6 @@ import { doc, onSnapshot, setDoc } from 'firebase/firestore';
 import HomeScreen from './screens/HomeScreen';
 import ArenaScreen from './screens/ArenaScreen';
 import EnglishScreen from './screens/EnglishScreen';
-import BisnisScreen from './screens/BisnisScreen';
 import AcademyScreen from './screens/AcademyScreen';
 import MarketScreen from './screens/MarketScreen';
 import LoginScreen from './screens/LoginScreen';
@@ -348,7 +347,6 @@ export default function App() {
     case "home": ScreenComponent = <HomeScreen gs={gs} setGs={updateGameState} onNav={setNav} onClaimStarter={claimStarter} />; break;
     case "arena": ScreenComponent = <ArenaScreen gs={gs} onXPEarned={addXP} onNav={setNav} />; break;
     case "english": ScreenComponent = <EnglishScreen gs={gs} setGs={updateGameState} onCoinEarned={addCoins} onXPEarned={addXP} onNav={setNav} />; break;
-    case "bisnis": ScreenComponent = <BisnisScreen gs={gs} onCoinEarned={addCoins} onXPEarned={addXP} />; break;
     case "academy": ScreenComponent = <AcademyScreen gs={gs} onCoinEarned={addCoins} onXPEarned={addXP} onNav={setNav} upgradeToPro={upgradeToPro} />; break;
     case "interview_pro": ScreenComponent = <InterviewScreen gs={gs} setGs={updateGameState} onNav={setNav} onCoinEarned={addCoins} onXPEarned={addXP} onChatUsed={addBasicChatCount} onTutorBonus={handleTutorBonus} />; break;
     case "market": ScreenComponent = <MarketScreen gs={gs} spendCoins={spendCoins} onNav={setNav} userUid={userUid} />; break;

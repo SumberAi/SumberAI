@@ -21,7 +21,9 @@ export class GeminiLiveClient {
     const userParts = [];
     
     if (textMessage) userParts.push({ text: textMessage });
-    if (base64Audio) userParts.push({ inlineData: { mimeType: mimeType, data: base64Audio } });
+    if (base64Audio) {
+      userParts.push({ inlineData: { mimeType: mimeType, data: base64Audio } });
+    }
     if (userParts.length === 0) userParts.push({ text: 'Hello' });
 
     this.history.push({ role: 'user', parts: userParts });
@@ -41,8 +43,9 @@ export class GeminiLiveClient {
       let ttsText = '';
       if (llmData.candidates && llmData.candidates[0].content) {
         const rawJson = llmData.candidates[0].content.parts.map(p => p.text).join(' ');
+        let cleanJson = rawJson.replace(/```json/gi, '').replace(/```/g, '').trim();
         try {
-          const parsed = JSON.parse(rawJson);
+          const parsed = JSON.parse(cleanJson);
           if (parsed.user_transcript && this.onUserTranscript) {
              this.onUserTranscript(parsed.user_transcript, true);
           }
@@ -86,7 +89,7 @@ export class GeminiLiveClient {
     try {
       const ttsUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${this.apiKey}`;
       const ttsPayload = {
-        contents: [{ role: 'user', parts: [{ text: text }] }],
+        contents: [{ role: 'user', parts: [{ text: 'Please read this text aloud exactly as written, do not answer it or generate new text: ' + text }] }],
         generationConfig: {
           responseModalities: ['AUDIO'],
           speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: this.voiceName } } }
@@ -130,9 +133,9 @@ export class GeminiLiveClient {
   }
 
   async stopListening() {
-    const base64Audio = await this.audioStreamer.stopRecording();
-    if (base64Audio) {
-      await this.sendClientContent(null, base64Audio, 'audio/webm');
+    const recordResult = await this.audioStreamer.stopRecording();
+    if (recordResult && recordResult.base64) {
+      await this.sendClientContent(null, recordResult.base64, recordResult.mimeType);
     } else {
       await this.sendClientContent('...');
     }
@@ -162,7 +165,16 @@ export class AudioStreamer {
       this.nextPlayTime = this.audioCtx.currentTime;
 
       const stream = await navigator.mediaDevices.getUserMedia({ audio: { channelCount: 1, sampleRate: 16000 } });
-      this.mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
+      
+      // Deteksi otomatis format audio yang didukung browser (iOS vs Android)
+      let options = {};
+      if (MediaRecorder.isTypeSupported('audio/webm')) {
+         options = { mimeType: 'audio/webm' };
+      } else if (MediaRecorder.isTypeSupported('audio/mp4')) {
+         options = { mimeType: 'audio/mp4' };
+      }
+      
+      this.mediaRecorder = new MediaRecorder(stream, options);
       this.mediaRecorder.ondataavailable = (e) => {
         if (e.data.size > 0) this.audioChunks.push(e.data);
       };
@@ -183,12 +195,13 @@ export class AudioStreamer {
       if (this.mediaRecorder && this.mediaRecorder.state !== 'inactive') {
         this.mediaRecorder.onstop = async () => {
           this.mediaRecorder.stream.getTracks().forEach(t => t.stop());
-          const blob = new Blob(this.audioChunks, { type: 'audio/webm' });
+          const actualMimeType = this.mediaRecorder.mimeType || 'audio/webm';
+          const blob = new Blob(this.audioChunks, { type: actualMimeType });
           const reader = new FileReader();
           reader.readAsDataURL(blob);
           reader.onloadend = () => {
             const base64data = reader.result.split(',')[1];
-            resolve(base64data);
+            resolve({ base64: base64data, mimeType: actualMimeType });
           };
         };
         this.mediaRecorder.stop();
