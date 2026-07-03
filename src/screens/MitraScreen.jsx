@@ -57,8 +57,28 @@ export default function MitraScreen() {
         usedAt: Date.now()
       });
 
+      let benefitMsg = voucherData.benefit || (voucherData.amount ? `Diskon Rp ${voucherData.amount.toLocaleString('id-ID')}` : 'GRATIS');
+      
+      let finalMessage = `BERHASIL! Keuntungan pelanggan: ${benefitMsg}`;
+      if (benefitMsg.startsWith("Tagih")) {
+        finalMessage = `BERHASIL! ${benefitMsg}`;
+      }
+
+      // 2nd Notification to Admin (Validasi Sukses)
+      const botToken = import.meta.env.VITE_TELEGRAM_BOT_TOKEN;
+      const chatId = import.meta.env.VITE_TELEGRAM_CHAT_ID;
+      if (botToken && chatId) {
+        const msg = `✅ *VOUCHER BERHASIL DIPROSES KASIR!*\n\n🎟️ *KODE:* \`${voucherData.code}\`\n🏪 *Toko:* ${voucherData.store}\n🛍️ *Produk:* ${voucherData.title}\n💵 *Aksi Kasir:* ${benefitMsg}\n\nStatus: Selesai Dilayani pelanggan.`;
+        try {
+          const url = `https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(msg)}&parse_mode=Markdown`;
+          await fetch(url, { mode: 'no-cors' });
+        } catch (e) {
+          console.error(e);
+        }
+      }
+
       setStatus('success');
-      setMessage(`BERHASIL! Berikan Diskon senilai Rp ${voucherData.amount.toLocaleString('id-ID')}.`);
+      setMessage(finalMessage);
 
     } catch (err) {
       console.error(err);

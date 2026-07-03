@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { C } from '../data/mockData';
 import { Tag, CoinAnnouncement } from '../components/Shared';
+import { GeminiLiveClient } from '../lib/geminiLive';
 
 const POLYGLOT_PROMPT = `\n\n--- MULTILINGUAL INSTRUCTIONS ---\nYou are a versatile polyglot AI tutor. Your default language is English (en-US), but you can speak any language the user wants to practice. If the user asks to practice Japanese, Korean, Indonesian, etc., change your teaching language to that language.\nCRITICAL RULE: You MUST prefix EVERY SINGLE RESPONSE with the standard BCP-47 language code of the language you are currently speaking in, enclosed in brackets. Example: "[en-US] Hello there!" or "[ja-JP] Konnichiwa!" or "[id-ID] Tentu, mari belajar!". NEVER forget the [lang-code] prefix!`;
 
@@ -107,7 +108,6 @@ const AIAvatar = ({ isSpeaking, isWaiting }) => {
     </div>
   );
 };
-import { GeminiLiveClient } from '../lib/geminiLive';
 
 export default function InterviewScreen({ gs, setGs, onNav, onCoinEarned, onXPEarned, onChatUsed, onTutorBonus }) {
   const [mode, setMode] = useState(null); // null, 'basic', 'grammar', 'interview'
@@ -234,11 +234,15 @@ export default function InterviewScreen({ gs, setGs, onNav, onCoinEarned, onXPEa
       
       liveClientRef.current = client;
       
+      // Sinkron: Aktifkan konteks audio segera setelah tombol diklik (wajib untuk iOS Safari)
+      client.initializeAudio();
+      
       await client.connect(SYSTEM_PROMPTS[selectedMode]);
       const initialGreeting = INITIAL_MESSAGES[selectedMode];
       setMessages([{ role: 'assistant', content: initialGreeting }]);
       client.history.push({ role: 'model', parts: [{ text: initialGreeting }] });
       client.speak(initialGreeting);
+      setIsWaitingForAI(false);
       
     } catch (e) {
       console.error(e);

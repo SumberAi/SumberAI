@@ -128,6 +128,10 @@ export class GeminiLiveClient {
     this.audioStreamer.stopRecording();
   }
 
+  initializeAudio() {
+    this.audioStreamer.resumeContext();
+  }
+
   async startListening() {
     await this.audioStreamer.startRecording();
   }
@@ -150,6 +154,15 @@ export class AudioStreamer {
     this.activeSources = 0;
     this.mediaRecorder = null;
     this.audioChunks = [];
+  }
+
+  resumeContext() {
+    if (!this.audioCtx) {
+      this.audioCtx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 24000 });
+    }
+    if (this.audioCtx.state === 'suspended') {
+      this.audioCtx.resume();
+    }
   }
 
   async startRecording() {

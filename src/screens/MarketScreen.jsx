@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
-import { db } from '../firebase';
-import { collection, addDoc } from 'firebase/firestore';
+import React, { useState, useEffect } from 'react';
+import { db, auth } from '../firebase';
+import { collection, addDoc, query, where, getDocs } from 'firebase/firestore';
+import { EmailAuthProvider, reauthenticateWithCredential } from 'firebase/auth';
 import { C } from '../data/mockData';
 
 export default function MarketScreen({ gs, spendCoins, onNav, userUid }) {
@@ -8,87 +9,383 @@ export default function MarketScreen({ gs, spendCoins, onNav, userUid }) {
   const [generatedCode, setGeneratedCode] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [selectedItemTitle, setSelectedItemTitle] = useState('');
+  
+  // State untuk Verifikasi Sandi
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [passwordInput, setPasswordInput] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [pendingPurchase, setPendingPurchase] = useState(null);
+  const [passwordError, setPasswordError] = useState('');
+  const [isVerifying, setIsVerifying] = useState(false);
+
+  // State untuk Voucher Aktif
+  const [showHistoryModal, setShowHistoryModal] = useState(false);
+  const [activeVouchers, setActiveVouchers] = useState([]);
+  const [isLoadingHistory, setIsLoadingHistory] = useState(false);
+
+  const fetchActiveVouchers = async () => {
+    if (!userUid) return;
+    setIsLoadingHistory(true);
+    setShowHistoryModal(true);
+    try {
+      const q = query(
+        collection(db, "vouchers"),
+        where("userId", "==", userUid),
+        where("isUsed", "==", false)
+      );
+      const querySnapshot = await getDocs(q);
+      const now = Date.now();
+      const vouchers = [];
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        if (data.expiresAt > now) {
+          vouchers.push({ id: doc.id, ...data });
+        }
+      });
+      // Sort by newest first
+      vouchers.sort((a, b) => b.createdAt - a.createdAt);
+      setActiveVouchers(vouchers);
+    } catch (e) {
+      console.error("Gagal mengambil riwayat voucher", e);
+      alert("Gagal mengambil data voucher.");
+    } finally {
+      setIsLoadingHistory(false);
+    }
+  };
 
   const stores = [
     {
-      id: "s1",
-      brand: "Kopi Pak Hitam",
-      address: "Kawasan Tugu Keris Siginjai, Kota Jambi",
+      id: "m1",
+      brand: "Aneka Minuman Segar",
+      address: "Minuman Dingin & Segar",
+      mapLink: "https://maps.app.goo.gl/iniDV3UDw89NNAGB9",
       icon: "🏪",
       items: [
-        { id: 1, title: "Voucher Kopi Liberika", titleEn: "Liberika Coffee Voucher", desc: "Voucher diskon Rp 25.000 Kopi Liberika Kerinci Premium.", descEn: "Rp 25.000 voucher for Premium Kerinci Liberika Coffee.", price: 150, icon: "☕", bg: "linear-gradient(135deg, #FDE68A, #D97706)", isReady: true },
-        { id: 2, title: "Biji Kopi Robusta 250g", titleEn: "Robusta Coffee Beans 250g", desc: "Gratis 1 bungkus biji kopi Robusta Jambi asli.", descEn: "Free 1 pack of authentic Jambi Robusta beans.", price: 250, icon: "🫘", bg: "linear-gradient(135deg, #D6D3D1, #78716C)", isReady: true }
+        { 
+          id: 1, 
+          title: "Es Jeruk", 
+          titleEn: "Fresh Orange Juice", 
+          desc: "Diskon 100%", 
+          descEn: "Discount 100%", 
+          price: 1000, 
+          image: "/es_jeruk.jpg", 
+          originalPriceRp: 5000,
+          finalPriceRp: 0,
+          isReady: true 
+        }
       ]
     },
     {
-      id: "s2",
-      brand: "Zhafirah Batik & Songket",
-      address: "Jl. Kolonel Abunjani No.12, Sipin, Jambi",
-      icon: "🏬",
+      id: "m2",
+      brand: "Maugi Official",
+      address: "Sambal Tempoyak Jambi",
+      mapLink: "https://maps.app.goo.gl/TSxjeU3CLcGJjmCB8",
+      icon: "🌶️",
       items: [
-        { id: 3, title: "Potongan Batik Jambi", titleEn: "Jambi Batik Discount", desc: "Potongan eksklusif 20% kemeja Batik motif Batanghari.", descEn: "Exclusive 20% off for Batanghari motif Batik shirt.", price: 300, icon: "👘", bg: "linear-gradient(135deg, #FBCFE8, #DB2777)", isReady: true },
-        { id: 4, title: "Kain Songket Mewah", titleEn: "Luxury Songket Fabric", desc: "Potongan harga Rp 100.000 pembelian kain Songket.", descEn: "Rp 100.000 discount for purchasing Jambi Songket fabric.", price: 800, icon: "✨", bg: "linear-gradient(135deg, #BFDBFE, #2563EB)", isReady: true }
+        { 
+          id: 2, 
+          title: "Sambal Tempoyak", 
+          titleEn: "Tempoyak Chili Paste", 
+          desc: "Diskon -+58,4%", 
+          descEn: "Discount -+58.4%", 
+          price: 2800, 
+          image: "/sambal_tempoyak.jpg",
+          originalPriceRp: 24000,
+          finalPriceRp: 10000,
+          isReady: true 
+        },
+        { 
+          id: 3, 
+          title: "Keripik Durian", 
+          titleEn: "Durian Chips", 
+          desc: "Diskon 50%", 
+          descEn: "Discount 50%", 
+          price: 2000, 
+          image: "/keripik_durian.jpg",
+          originalPriceRp: 20000,
+          finalPriceRp: 10000,
+          isReady: true 
+        }
       ]
     },
     {
-      id: "s3",
-      brand: "Pusat Oleh-Oleh Makmur",
-      address: "Jl. Jendral Sudirman No. 8, Thehok, Jambi",
-      icon: "🛍️",
+      id: "m3",
+      brand: "Ancua Harmoni",
+      address: "Kopi & Minuman",
+      mapLink: "https://maps.app.goo.gl/DHFCLnba1MZxaUbU8",
+      icon: "☕",
       items: [
-        { id: 5, title: "Lempok Durian Legit", titleEn: "Sweet Durian Lempok", desc: "1 kotak Lempok Durian khas Jambi gratis!", descEn: "Free 1 box of signature Jambi Durian Lempok!", price: 500, icon: "🍬", bg: "linear-gradient(135deg, #D9F99D, #65A30D)", isReady: true },
-        { id: 6, title: "Gelang Sebelik Sumpah", titleEn: "Sebelik Sumpah Bracelet", desc: "Diskon 50% Aksesoris khas Suku Anak Dalam.", descEn: "50% discount for Indigenous tribe accessory.", price: 200, icon: "📿", bg: "linear-gradient(135deg, #E9D5FF, #9333EA)", isReady: true }
+        { 
+          id: 4, 
+          title: "Kopi Susu Ancua Jambi", 
+          titleEn: "Ancua Milk Coffee Jambi", 
+          desc: "Diskon -+45%", 
+          descEn: "Discount -+45%", 
+          price: 2000, 
+          image: "/kopisusu_ancua.jpg",
+          originalPriceRp: 22000,
+          finalPriceRp: 12000,
+          isReady: true 
+        },
+        { 
+          id: 5, 
+          title: "Americano Lemon Jambi", 
+          titleEn: "Lemon Americano Jambi", 
+          desc: "Diskon -+47,4%", 
+          descEn: "Discount -+47.4%", 
+          price: 1800, 
+          image: "/americano_lemon.jpeg",
+          imageScale: 1.5,
+          originalPriceRp: 19000,
+          finalPriceRp: 10000,
+          isReady: true 
+        }
+      ]
+    },
+    {
+      id: "m4",
+      brand: "Geprek Royal",
+      address: "Ayam Geprek & Minuman",
+      mapLink: "https://maps.app.goo.gl/cWeP2KJ63sStGPfe9",
+      icon: "🍗",
+      items: [
+        { 
+          id: 6, 
+          title: "Ayam Geprek", 
+          titleEn: "Smashed Fried Chicken", 
+          desc: "Diskon -+58%", 
+          descEn: "Discount -+58%", 
+          price: 1400, 
+          image: "/ayam_geprek.jpeg",
+          originalPriceRp: 12000,
+          finalPriceRp: 5000,
+          isReady: true 
+        },
+        { 
+          id: 7, 
+          title: "Cappucino Cincau", 
+          titleEn: "Cappucino Grass Jelly", 
+          desc: "Diskon 100%", 
+          descEn: "Discount 100%", 
+          price: 1200, 
+          image: "/cappucino_cincau.jpeg",
+          originalPriceRp: 6000,
+          finalPriceRp: 0,
+          isReady: true 
+        }
+      ]
+    },
+    {
+      id: "m5",
+      brand: "Your Coffee Official",
+      address: "Depan Universitas Jambi",
+      mapLink: "",
+      icon: "☕",
+      items: [
+        { 
+          id: 8, 
+          title: "Candy Berry Jambi", 
+          titleEn: "Candy Berry Jambi", 
+          desc: "Diskon 50%", 
+          descEn: "Discount 50%", 
+          price: 1000, 
+          image: "/candy_berry.jpg",
+          originalPriceRp: 10000,
+          finalPriceRp: 5000,
+          isReady: true 
+        },
+        { 
+          id: 9, 
+          title: "Surya Tenggelam Jambi", 
+          titleEn: "Surya Tenggelam Jambi", 
+          desc: "Diskon 50%", 
+          descEn: "Discount 50%", 
+          price: 1000, 
+          image: "/surya_tenggelam.jpg",
+          originalPriceRp: 10000,
+          finalPriceRp: 5000,
+          isReady: true 
+        },
+        { 
+          id: 10, 
+          title: "Butterpop Jambi", 
+          titleEn: "Butterpop Jambi", 
+          desc: "Diskon 50%", 
+          descEn: "Discount 50%", 
+          price: 1200, 
+          image: "/butterpop.jpg",
+          originalPriceRp: 12000,
+          finalPriceRp: 6000,
+          isReady: true 
+        }
+      ]
+    },
+    {
+      id: "m6",
+      brand: "Kopi Kalcer",
+      address: "Depan Universitas Jambi",
+      mapLink: "",
+      icon: "☕",
+      items: [
+        { 
+          id: 11, 
+          title: "Matcha Latte Jambi", 
+          titleEn: "Matcha Latte Jambi", 
+          desc: "Diskon 50%", 
+          descEn: "Discount 50%", 
+          price: 1000, 
+          image: "/matcha_latte.png",
+          originalPriceRp: 10000,
+          finalPriceRp: 5000,
+          isReady: true 
+        },
+        { 
+          id: 12, 
+          title: "Butterscotch Latte Jambi", 
+          titleEn: "Butterscotch Latte Jambi", 
+          desc: "Diskon 50%", 
+          descEn: "Discount 50%", 
+          price: 1000, 
+          image: "/butterscotch_latte.png",
+          originalPriceRp: 10000,
+          finalPriceRp: 5000,
+          isReady: true 
+        }
       ]
     }
   ];
 
+  const handleCopyLink = (link) => {
+    navigator.clipboard.writeText(link);
+    alert('Link Maps berhasil disalin! Silakan paste di browser atau aplikasi ojol Anda.');
+  };
+
   const isEn = gs?.lang === 'en';
 
-  const handleBuy = async (price, title, storeName) => {
+  const handleBuy = (price, title, storeName, desc, originalPriceRp, finalPriceRp) => {
     if (gs.coins >= price && userUid) {
-      setIsGenerating(true);
-      setSelectedItemTitle(`${title} (${storeName})`);
       
-      try {
-        spendCoins(price);
-        const randomStr = Math.random().toString(36).substring(2, 6).toUpperCase();
-        const code = `UMKM-${randomStr}`;
-        const discountValue = price * 50; 
-
-        await addDoc(collection(db, "vouchers"), {
-          code: code,
-          userId: userUid,
-          title: title,
-          store: storeName,
-          amount: discountValue,
-          isUsed: false,
-          createdAt: Date.now(),
-          expiresAt: Date.now() + (24 * 60 * 60 * 1000)
-        });
-
-        setGeneratedCode(code);
-        setShowModal(true);
-      } catch (e) {
-        console.error(e);
-        alert('Gagal memproses penukaran. Cek koneksi Anda.');
-      } finally {
-        setIsGenerating(false);
+      const confirmMsg = isEn 
+        ? "⚠️ ATTENTION!\n\nThis voucher is only valid for 24 HOURS after redemption. Please ensure the store is OPEN today before proceeding.\n\nAre you sure you want to redeem your coins now?" 
+        : "⚠️ PERHATIAN!\n\nVoucher diskon HANYA BERLAKU 24 JAM setelah ditukarkan. Pastikan toko mitra sedang BUKA hari ini sebelum Anda menukar koin.\n\nApakah Anda yakin ingin menukar koin sekarang?";
+        
+      if (!window.confirm(confirmMsg)) {
+        return; 
       }
+
+      // Alih-alih langsung memproses, kita simpan data pembelian dan tampilkan modal sandi
+      setPendingPurchase({ price, title, storeName, desc, originalPriceRp, finalPriceRp });
+      setPasswordInput('');
+      setPasswordError('');
+      setShowPasswordModal(true);
+      
     } else if (!userUid) {
       alert('Harap login terlebih dahulu untuk menukar kupon.');
+    }
+  };
+
+  const handleConfirmPassword = async () => {
+    if (!passwordInput) {
+      setPasswordError('Sandi tidak boleh kosong');
+      return;
+    }
+    
+    setIsVerifying(true);
+    setPasswordError('');
+    
+    try {
+      const user = auth.currentUser;
+      if (!user || !user.email) {
+        throw new Error("Sesi pengguna tidak valid.");
+      }
+      
+      // Verifikasi Sandi
+      const credential = EmailAuthProvider.credential(user.email, passwordInput);
+      await reauthenticateWithCredential(user, credential);
+      
+      // Jika sandi benar, proses penukaran voucher
+      setShowPasswordModal(false);
+      setIsGenerating(true);
+      
+      const { price, title, storeName, desc, originalPriceRp, finalPriceRp } = pendingPurchase;
+      setSelectedItemTitle(`${title} (${storeName})`);
+      
+      spendCoins(price);
+      const randomStr = Math.random().toString(36).substring(2, 6).toUpperCase();
+      const code = `UMKM-${randomStr}`;
+      
+      // Deteksi otomatis apakah ini produk Gratis atau Diskon
+      const isFree = desc.toLowerCase().includes("gratis") || desc.toLowerCase().includes("free");
+      let benefitText = isFree ? "GRATIS" : `Diskon (Tukar ${price} Koin)`;
+      if (typeof finalPriceRp === 'number' && typeof originalPriceRp === 'number') {
+        benefitText = finalPriceRp === 0 
+          ? "GRATIS" 
+          : `Tagih Rp ${finalPriceRp.toLocaleString('id-ID')} (Dari Rp ${originalPriceRp.toLocaleString('id-ID')})`;
+      }
+
+      // 1. Simpan ke Database
+      await addDoc(collection(db, "vouchers"), {
+        code: code,
+        userId: userUid,
+        title: title,
+        store: storeName,
+        benefit: benefitText,
+        originalPriceRp: typeof originalPriceRp === 'number' ? originalPriceRp : null,
+        finalPriceRp: typeof finalPriceRp === 'number' ? finalPriceRp : null,
+        desc: desc,
+        isUsed: false,
+        createdAt: Date.now(),
+        expiresAt: Date.now() + (24 * 60 * 60 * 1000)
+      });
+
+      // 2. Kirim Notifikasi ke Telegram Admin
+      const botToken = import.meta.env.VITE_TELEGRAM_BOT_TOKEN;
+      const chatId = import.meta.env.VITE_TELEGRAM_CHAT_ID;
+      
+      if (botToken && chatId) {
+        const message = `📢 *PENUKARAN VOUCHER BARU!*\n\n🏪 *Toko:* ${storeName}\n🛍️ *Produk:* ${title}\n🎁 *Keuntungan:* ${benefitText}\n🎟️ *KODE:* \`${code}\`\n\n🕒 *Waktu:* ${new Date().toLocaleString('id-ID')}\n_Siap-siap pelanggan akan datang menukarkan kode ini dalam waktu 24 jam!_`;
+        
+        try {
+          const url = `https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(message)}&parse_mode=Markdown`;
+          await fetch(url, { mode: 'no-cors' });
+        } catch (telegramErr) {
+          console.error("Gagal mengirim notifikasi Telegram:", telegramErr);
+        }
+      }
+
+      setGeneratedCode(code);
+      setShowModal(true);
+      
+    } catch (error) {
+      console.error("Gagal verifikasi sandi:", error);
+      if (error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
+        setPasswordError('Sandi salah. Silakan coba lagi.');
+      } else if (error.code === 'auth/too-many-requests') {
+        setPasswordError('Terlalu banyak percobaan. Coba lagi nanti.');
+      } else {
+        setPasswordError('Gagal memverifikasi sandi. Pastikan Anda login dengan Email dan Sandi.');
+      }
+    } finally {
+      setIsVerifying(false);
+      setIsGenerating(false);
     }
   };
 
   return (
     <div style={{paddingTop: 80, paddingBottom: 100, minHeight: "100vh", background:"var(--bg-main)", position: "relative"}}>
       <div style={{padding: "0 16px"}}>
-        <div style={{display: "flex", alignItems: "center", marginBottom: 24}}>
-          <button className="tap" onClick={() => onNav('home')} style={{background: "#fff", border: "1px solid #E2E8F0", padding: "8px 16px", borderRadius: "99px", display: "flex", alignItems: "center", gap: 6, cursor: "pointer", marginRight: 16, boxShadow: "0 4px 12px rgba(0,0,0,0.04)", flexShrink: 0, color: "#1E293B", fontWeight: 800, fontSize: 13}}>
-            ⬅️ {isEn ? "BACK" : "KEMBALI"}
-          </button>
-          <div style={{flex: 1}}>
-            <h2 style={{fontFamily: "Exo 2", fontWeight: 900, fontSize: 24, color: C.text, margin: 0}}>Mitra UMKM 🛍️</h2>
-            <p style={{fontSize: 13, color: C.textSec, margin: "4px 0 0 0"}}>{isEn ? "Exchange your SmartCoins for real local products!" : "Tukarkan SmartCoins dengan voucher produk lokal Jambi!"}</p>
+        <div style={{display: "flex", flexDirection: "column", gap: 16, marginBottom: 24}}>
+          <div style={{display: "flex", justifyContent: "space-between", alignItems: "center"}}>
+            <button className="tap" onClick={() => onNav('home')} style={{background: "#fff", border: "1px solid #E2E8F0", padding: "8px 16px", borderRadius: "99px", display: "flex", alignItems: "center", gap: 6, cursor: "pointer", boxShadow: "0 4px 12px rgba(0,0,0,0.04)", color: "#1E293B", fontWeight: 800, fontSize: 13}}>
+              ⬅️ {isEn ? "BACK" : "KEMBALI"}
+            </button>
+            <button className="tap" onClick={fetchActiveVouchers} style={{background: "linear-gradient(135deg, #F59E0B, #D97706)", border: "none", padding: "10px 16px", borderRadius: "99px", display: "flex", alignItems: "center", gap: 6, cursor: "pointer", boxShadow: "0 4px 12px rgba(245,158,11,0.3)", color: "#FFF", fontWeight: 800, fontSize: 12}}>
+              🎟️ {isEn ? "MY VOUCHERS" : "VOUCHER AKTIF"}
+            </button>
+          </div>
+          <div>
+            <h2 style={{fontFamily: "Exo 2", fontWeight: 900, fontSize: 28, color: C.text, margin: 0}}>Mitra UMKM 🛍️</h2>
+            <p style={{fontSize: 14, color: C.textSec, margin: "4px 0 0 0"}}>{isEn ? "Exchange your SmartCoins for real local products!" : "Tukarkan SmartCoins dengan voucher produk lokal Jambi!"}</p>
           </div>
         </div>
 
@@ -96,14 +393,21 @@ export default function MarketScreen({ gs, spendCoins, onNav, userUid }) {
           {stores.map((store, storeIdx) => (
             <div key={store.id} style={{background: "#fff", borderRadius: 24, padding: 20, boxShadow: "0 12px 30px rgba(0,0,0,0.06)", border: "1px solid rgba(0,0,0,0.04)", animation: `fadeUp ${.3 + storeIdx * .15}s ease both`}}>
               {/* Header Toko / Brand */}
-              <div style={{display: "flex", alignItems: "center", gap: 12, marginBottom: 16, paddingBottom: 16, borderBottom: "1px solid #F1F5F9"}}>
-                <div style={{fontSize: 32}}>{store.icon}</div>
-                <div>
-                  <div style={{fontFamily: "Exo 2", fontWeight: 900, fontSize: 18, color: "#1E293B"}}>{store.brand}</div>
-                  <div style={{fontSize: 12, color: "#64748B", marginTop: 4, display: "flex", alignItems: "flex-start", gap: 4}}>
-                    <span>📍</span> <span>{store.address}</span>
+              <div style={{display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 16, paddingBottom: 16, borderBottom: "1px solid #F1F5F9"}}>
+                <div style={{display: "flex", alignItems: "center", gap: 12, flex: 1, minWidth: 200}}>
+                  <div style={{fontSize: 32}}>{store.icon}</div>
+                  <div style={{flex: 1}}>
+                    <div style={{fontFamily: "Exo 2", fontWeight: 900, fontSize: 18, color: "#1E293B"}}>{store.brand}</div>
+                    <div style={{fontSize: 12, color: "#64748B", marginTop: 4, display: "flex", alignItems: "flex-start", gap: 4}}>
+                      <span>📍</span> <span>{store.address}</span>
+                    </div>
                   </div>
                 </div>
+                {store.mapLink && (
+                  <button className="tap" onClick={() => handleCopyLink(store.mapLink)} style={{background: "#EFF6FF", border: "1px solid #BFDBFE", color: "#1D4ED8", padding: "6px 12px", borderRadius: "99px", fontSize: 11, fontWeight: 800, cursor: "pointer", display: "flex", alignItems: "center", gap: 4, flexShrink: 0}}>
+                    📋 Salin Link Maps
+                  </button>
+                )}
               </div>
 
               {/* Grid Produk Dalam Toko */}
@@ -112,23 +416,37 @@ export default function MarketScreen({ gs, spendCoins, onNav, userUid }) {
                   const canBuy = gs.coins >= itm.price;
                   return (
                     <div key={itm.id} style={{background:"var(--bg-card)", borderRadius: 20, padding: 16, boxShadow: "0 4px 12px rgba(0,0,0,0.03)", display: "flex", flexDirection: "column", border: "1px solid rgba(0,0,0,0.04)", filter: !itm.isReady ? "grayscale(80%) opacity(0.85)" : "none"}}>
-                      <div style={{width: 48, height: 48, borderRadius: 14, background: itm.bg, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, marginBottom: 16, boxShadow: "0 4px 10px rgba(0,0,0,0.1)"}}>
-                        {itm.icon}
+                      <div style={{width: 48, height: 48, borderRadius: 14, background: itm.bg || "#F1F5F9", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, marginBottom: 16, boxShadow: "0 4px 10px rgba(0,0,0,0.1)", overflow: "hidden"}}>
+                        {itm.image ? <img src={itm.image} alt={itm.title} style={{width: "100%", height: "100%", objectFit: "cover", transform: itm.imageScale ? `scale(${itm.imageScale})` : "none"}} /> : (itm.icon || "🎁")}
                       </div>
                       <div style={{fontFamily: "Exo 2", fontWeight: 900, fontSize: 14, color: C.text, marginBottom: 6, minHeight: 42, lineHeight: 1.3}}>{isEn ? itm.titleEn : itm.title}</div>
                       <div style={{fontSize: 11, color: C.textSec, lineHeight: 1.5, marginBottom: 16, flex: 1}}>{isEn ? itm.descEn : itm.desc}</div>
                       
-                      <div style={{background: "rgba(245,158,11,0.1)", borderRadius: 12, padding: "6px 10px", display: "inline-flex", alignItems: "center", width: "fit-content", marginBottom: 16}}>
+                      <div style={{background: "rgba(245,158,11,0.1)", borderRadius: 12, padding: "6px 10px", display: "inline-flex", alignItems: "center", width: "fit-content", marginBottom: 12}}>
                         <span style={{fontWeight: 900, fontSize: 14, color: C.gold}}>{itm.price.toLocaleString("id-ID")}</span>
                         <img src="/coin.png" style={{width:"1.2em", height:"1.2em", marginLeft: 4, objectFit:"cover", borderRadius:"50%"}} alt="coin"/>
                       </div>
+                      
+                      {typeof itm.originalPriceRp === 'number' && typeof itm.finalPriceRp === 'number' && (
+                        <div style={{marginBottom: 16, background: "#FEF2F2", padding: "8px 12px", borderRadius: 12, border: "1px dashed #FCA5A5"}}>
+                          <div style={{fontSize: 11, color: "#94A3B8", textDecoration: "line-through"}}>
+                            Rp {itm.originalPriceRp.toLocaleString("id-ID")}
+                          </div>
+                          <div style={{fontSize: 12, fontWeight: 900, color: "#EF4444", marginTop: 2}}>
+                            {itm.finalPriceRp === 0
+                              ? (isEn ? "FREE at cashier!" : "GRATIS di Kasir!")
+                              : (isEn ? `Pay only Rp ${itm.finalPriceRp.toLocaleString("id-ID")} at cashier!` : `Cukup bayar Rp ${itm.finalPriceRp.toLocaleString("id-ID")} di Kasir!`)
+                            }
+                          </div>
+                        </div>
+                      )}
                       
                       {!itm.isReady ? (
                         <button disabled style={{width: "100%", background: "transparent", color: "#94A3B8", border: "2px dashed #CBD5E1", padding: "10px", borderRadius: 12, fontSize: 12, fontWeight: 800, cursor: "not-allowed", letterSpacing: 0.5}}>
                           🔒 {isEn ? "COMING SOON" : "SEGERA"}
                         </button>
                       ) : (
-                        <button className="tap" disabled={!canBuy || isGenerating} onClick={() => handleBuy(itm.price, isEn ? itm.titleEn : itm.title, store.brand)} style={{width: "100%", background: canBuy ? "linear-gradient(135deg, #10B981, #059669)" : "#E2E8F0", color: canBuy ? "#FFF" : "#94A3B8", border: "none", padding: "10px", borderRadius: 12, fontSize: 12, fontWeight: 800, cursor: canBuy ? "pointer" : "not-allowed", letterSpacing: 0.5, boxShadow: canBuy ? "0 4px 12px rgba(16,185,129,.3)" : "none", transition: "all 0.2s"}}>
+                        <button className="tap" disabled={!canBuy || isGenerating} onClick={() => handleBuy(itm.price, isEn ? itm.titleEn : itm.title, store.brand, isEn ? itm.descEn : itm.desc, itm.originalPriceRp, itm.finalPriceRp)} style={{width: "100%", background: canBuy ? "linear-gradient(135deg, #10B981, #059669)" : "#E2E8F0", color: canBuy ? "#FFF" : "#94A3B8", border: "none", padding: "10px", borderRadius: 12, fontSize: 12, fontWeight: 800, cursor: canBuy ? "pointer" : "not-allowed", letterSpacing: 0.5, boxShadow: canBuy ? "0 4px 12px rgba(16,185,129,.3)" : "none", transition: "all 0.2s"}}>
                           {isGenerating ? "..." : (canBuy ? (isEn ? "REDEEM" : "TUKAR") : (isEn ? "NEED COINS" : "KOIN KURANG"))}
                         </button>
                       )}
@@ -140,6 +458,117 @@ export default function MarketScreen({ gs, spendCoins, onNav, userUid }) {
           ))}
         </div>
       </div>
+
+      {/* Modal Voucher Aktif (Riwayat) */}
+      {showHistoryModal && (
+        <div style={{position: "fixed", top: 0, left: 0, right: 0, bottom: 0, background: "rgba(15,23,42,0.8)", display: "flex", justifyContent: "center", alignItems: "center", zIndex: 999, padding: 24, backdropFilter: "blur(4px)", animation: "fadeIn .2s ease"}}>
+          <div style={{background: "#F8FAFC", borderRadius: 24, padding: 24, width: "100%", maxWidth: 400, boxShadow: "0 24px 50px rgba(0,0,0,0.2)", animation: "scaleUp .3s cubic-bezier(0.175, 0.885, 0.32, 1.275)", maxHeight: "80vh", display: "flex", flexDirection: "column"}}>
+            
+            <div style={{display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20}}>
+              <h3 style={{fontFamily: "Exo 2", fontWeight: 900, fontSize: 20, color: "#1E293B", margin: 0}}>
+                🎟️ {isEn ? "Active Vouchers" : "Voucher Aktif"}
+              </h3>
+              <button className="tap" onClick={() => setShowHistoryModal(false)} style={{background: "#F1F5F9", border: "none", width: 32, height: 32, borderRadius: 16, fontSize: 16, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#64748B"}}>
+                ✕
+              </button>
+            </div>
+
+            <div style={{overflowY: "auto", flex: 1, paddingRight: 4, display: "flex", flexDirection: "column", gap: 12}}>
+              {isLoadingHistory ? (
+                <div style={{textAlign: "center", padding: "40px 0", color: "#94A3B8", fontWeight: 700}}>
+                  ⏳ {isEn ? "Loading vouchers..." : "Memuat data voucher..."}
+                </div>
+              ) : activeVouchers.length === 0 ? (
+                <div style={{textAlign: "center", padding: "40px 0", color: "#94A3B8"}}>
+                  <div style={{fontSize: 48, marginBottom: 12}}>📭</div>
+                  <div style={{fontWeight: 700}}>{isEn ? "No active vouchers found." : "Belum ada voucher aktif."}</div>
+                  <div style={{fontSize: 12, marginTop: 4}}>{isEn ? "Redeem coins to get discounts!" : "Tukarkan koinmu dengan diskon menarik!"}</div>
+                </div>
+              ) : (
+                activeVouchers.map(v => {
+                  const timeLeft = Math.max(0, Math.floor((v.expiresAt - Date.now()) / (1000 * 60 * 60)));
+                  return (
+                    <div key={v.id} style={{background: "#FFF", borderRadius: 16, padding: 16, border: "2px dashed #E2E8F0"}}>
+                      <div style={{fontSize: 13, color: "#64748B", fontWeight: 600, marginBottom: 4}}>{v.title}</div>
+                      <div style={{fontSize: 11, color: "#94A3B8", marginBottom: 12}}>📍 {v.store}</div>
+                      
+                      <div style={{background: "rgba(59,130,246,0.1)", color: "#2563EB", padding: "10px", borderRadius: 12, textAlign: "center", fontFamily: "monospace", fontSize: 22, fontWeight: 900, letterSpacing: 3, marginBottom: 12}}>
+                        {v.code}
+                      </div>
+                      
+                      <div style={{display: "flex", alignItems: "center", justifyContent: "space-between", fontSize: 11, fontWeight: 700}}>
+                        <span style={{color: timeLeft < 2 ? "#EF4444" : "#F59E0B"}}>⏳ Sisa waktu: {timeLeft} jam</span>
+                        <span style={{background: "#ECFDF5", color: "#10B981", padding: "4px 8px", borderRadius: 8}}>🟢 Aktif</span>
+                      </div>
+                    </div>
+                  )
+                })
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Verifikasi Sandi */}
+      {showPasswordModal && (
+        <div style={{position: "fixed", top: 0, left: 0, right: 0, bottom: 0, background: "rgba(15,23,42,0.8)", display: "flex", justifyContent: "center", alignItems: "center", zIndex: 999, padding: 24, backdropFilter: "blur(4px)", animation: "fadeIn .2s ease"}}>
+          <div style={{background: "#fff", borderRadius: 24, padding: 32, width: "100%", maxWidth: 360, textAlign: "center", boxShadow: "0 24px 50px rgba(0,0,0,0.2)", animation: "scaleUp .3s cubic-bezier(0.175, 0.885, 0.32, 1.275)"}}>
+            <div style={{fontSize: 48, marginBottom: 16}}>🔒</div>
+            <h3 style={{fontFamily: "Exo 2", fontWeight: 900, fontSize: 20, color: "#1E293B", margin: "0 0 8px 0"}}>
+              {isEn ? "Verify Password" : "Verifikasi Sandi"}
+            </h3>
+            <p style={{fontSize: 13, color: "#64748B", marginBottom: 24, lineHeight: 1.5}}>
+              {isEn ? "Please enter your account password to confirm this redemption." : "Masukkan sandi akun Anda untuk mengonfirmasi penukaran ini demi keamanan."}
+            </p>
+
+            <div style={{position: "relative", marginBottom: 8}}>
+              <input 
+                type={showPassword ? "text" : "password"} 
+                value={passwordInput}
+                onChange={(e) => setPasswordInput(e.target.value)}
+                placeholder={isEn ? "Enter your password" : "Ketik sandi Anda"}
+                style={{
+                  width: "100%", padding: "14px 44px 14px 16px", borderRadius: 14, 
+                  border: passwordError ? "2px solid #EF4444" : "2px solid #E2E8F0", 
+                  fontSize: 15, fontFamily: "inherit", outline: "none",
+                  background: "#F8FAFC", boxSizing: "border-box"
+                }}
+                onKeyDown={(e) => e.key === 'Enter' && handleConfirmPassword()}
+              />
+              <div 
+                className="tap"
+                onClick={() => setShowPassword(!showPassword)}
+                style={{position: "absolute", right: 14, top: 14, cursor: "pointer", fontSize: 18, filter: showPassword ? "none" : "grayscale(100%) opacity(0.5)"}}
+              >
+                {showPassword ? "👁️" : "👁️‍🗨️"}
+              </div>
+            </div>
+            {passwordError && (
+              <div style={{color: "#EF4444", fontSize: 12, fontWeight: 700, marginBottom: 16, textAlign: "left", paddingLeft: 4}}>
+                {passwordError}
+              </div>
+            )}
+            {!passwordError && <div style={{height: 16, marginBottom: 16}}></div>}
+
+            <div style={{display: "flex", gap: 12}}>
+              <button 
+                onClick={() => { setShowPasswordModal(false); setPasswordInput(''); setPasswordError(''); setShowPassword(false); }}
+                disabled={isVerifying}
+                style={{flex: 1, padding: "14px 0", borderRadius: 14, border: "none", background: "#F1F5F9", color: "#64748B", fontWeight: 800, cursor: isVerifying ? "not-allowed" : "pointer"}}
+              >
+                {isEn ? "CANCEL" : "BATAL"}
+              </button>
+              <button 
+                onClick={handleConfirmPassword}
+                disabled={isVerifying}
+                style={{flex: 1, padding: "14px 0", borderRadius: 14, border: "none", background: "linear-gradient(135deg, #10B981, #059669)", color: "#FFF", fontWeight: 800, cursor: isVerifying ? "not-allowed" : "pointer", boxShadow: "0 4px 12px rgba(16,185,129,0.3)"}}
+              >
+                {isVerifying ? "..." : (isEn ? "CONFIRM" : "KONFIRMASI")}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Modal Voucher */}
       {showModal && (
