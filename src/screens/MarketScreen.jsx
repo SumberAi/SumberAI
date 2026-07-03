@@ -68,7 +68,7 @@ export default function MarketScreen({ gs, spendCoins, onNav, userUid }) {
           desc: "Diskon 100%", 
           descEn: "Discount 100%", 
           price: 1000, 
-          image: "/es_jeruk.jpg", 
+          image: "./es_jeruk.jpg", 
           originalPriceRp: 5000,
           finalPriceRp: 0,
           isReady: true 
@@ -89,7 +89,7 @@ export default function MarketScreen({ gs, spendCoins, onNav, userUid }) {
           desc: "Diskon -+58,4%", 
           descEn: "Discount -+58.4%", 
           price: 2800, 
-          image: "/sambal_tempoyak.jpg",
+          image: "./sambal_tempoyak.jpg",
           originalPriceRp: 24000,
           finalPriceRp: 10000,
           isReady: true 
@@ -101,7 +101,7 @@ export default function MarketScreen({ gs, spendCoins, onNav, userUid }) {
           desc: "Diskon 50%", 
           descEn: "Discount 50%", 
           price: 2000, 
-          image: "/keripik_durian.jpg",
+          image: "./keripik_durian.jpg",
           originalPriceRp: 20000,
           finalPriceRp: 10000,
           isReady: true 
@@ -122,7 +122,7 @@ export default function MarketScreen({ gs, spendCoins, onNav, userUid }) {
           desc: "Diskon -+45%", 
           descEn: "Discount -+45%", 
           price: 2000, 
-          image: "/kopisusu_ancua.jpg",
+          image: "./kopisusu_ancua.jpg",
           originalPriceRp: 22000,
           finalPriceRp: 12000,
           isReady: true 
@@ -134,7 +134,7 @@ export default function MarketScreen({ gs, spendCoins, onNav, userUid }) {
           desc: "Diskon -+47,4%", 
           descEn: "Discount -+47.4%", 
           price: 1800, 
-          image: "/americano_lemon.jpeg",
+          image: "./americano_lemon.jpeg",
           imageScale: 1.5,
           originalPriceRp: 19000,
           finalPriceRp: 10000,
@@ -156,7 +156,7 @@ export default function MarketScreen({ gs, spendCoins, onNav, userUid }) {
           desc: "Diskon -+58%", 
           descEn: "Discount -+58%", 
           price: 1400, 
-          image: "/ayam_geprek.jpeg",
+          image: "./ayam_geprek.jpeg",
           originalPriceRp: 12000,
           finalPriceRp: 5000,
           isReady: true 
@@ -168,7 +168,7 @@ export default function MarketScreen({ gs, spendCoins, onNav, userUid }) {
           desc: "Diskon 100%", 
           descEn: "Discount 100%", 
           price: 1200, 
-          image: "/cappucino_cincau.jpeg",
+          image: "./cappucino_cincau.jpeg",
           originalPriceRp: 6000,
           finalPriceRp: 0,
           isReady: true 
@@ -189,7 +189,7 @@ export default function MarketScreen({ gs, spendCoins, onNav, userUid }) {
           desc: "Diskon 50%", 
           descEn: "Discount 50%", 
           price: 1000, 
-          image: "/candy_berry.jpg",
+          image: "./candy_berry.jpg",
           originalPriceRp: 10000,
           finalPriceRp: 5000,
           isReady: true 
@@ -201,7 +201,7 @@ export default function MarketScreen({ gs, spendCoins, onNav, userUid }) {
           desc: "Diskon 50%", 
           descEn: "Discount 50%", 
           price: 1000, 
-          image: "/surya_tenggelam.jpg",
+          image: "./surya_tenggelam.jpg",
           originalPriceRp: 10000,
           finalPriceRp: 5000,
           isReady: true 
@@ -213,7 +213,7 @@ export default function MarketScreen({ gs, spendCoins, onNav, userUid }) {
           desc: "Diskon 50%", 
           descEn: "Discount 50%", 
           price: 1200, 
-          image: "/butterpop.jpg",
+          image: "./butterpop.jpg",
           originalPriceRp: 12000,
           finalPriceRp: 6000,
           isReady: true 
@@ -234,7 +234,7 @@ export default function MarketScreen({ gs, spendCoins, onNav, userUid }) {
           desc: "Diskon 50%", 
           descEn: "Discount 50%", 
           price: 1000, 
-          image: "/matcha_latte.png",
+          image: "./matcha_latte.png",
           originalPriceRp: 10000,
           finalPriceRp: 5000,
           isReady: true 
@@ -246,7 +246,7 @@ export default function MarketScreen({ gs, spendCoins, onNav, userUid }) {
           desc: "Diskon 50%", 
           descEn: "Discount 50%", 
           price: 1000, 
-          image: "/butterscotch_latte.png",
+          image: "./butterscotch_latte.png",
           originalPriceRp: 10000,
           finalPriceRp: 5000,
           isReady: true 
