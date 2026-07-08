@@ -209,9 +209,62 @@ export default function MitraScreen() {
 
         {isScanning && (
           <div style={{width: "100%"}}>
-            <div id="reader" style={{width: "100%", borderRadius: 16, overflow: "hidden", border: "2px solid #E2E8F0", marginBottom: 16}}></div>
+            <style>
+              {`
+                #reader {
+                  border: none !important;
+                  background: #1E293B;
+                  border-radius: 16px;
+                }
+                #reader__dashboard_section_csr {
+                  padding: 16px !important;
+                  background: #fff;
+                  border-radius: 16px 16px 0 0;
+                }
+                #reader__dashboard_section_csr > span {
+                  display: none !important;
+                }
+                #reader select {
+                  width: 100%;
+                  padding: 12px;
+                  border-radius: 12px;
+                  border: 2px solid #E2E8F0;
+                  margin-bottom: 12px;
+                  font-size: 14px;
+                  outline: none;
+                  background: #F8FAFC;
+                  color: #1E293B;
+                  font-weight: 700;
+                }
+                #reader button {
+                  background: #10B981 !important;
+                  color: white !important;
+                  border: none !important;
+                  padding: 12px 16px !important;
+                  border-radius: 12px !important;
+                  font-weight: 800 !important;
+                  cursor: pointer !important;
+                  width: 100% !important;
+                }
+                #reader__dashboard_section_swaplink {
+                  display: none !important;
+                }
+                #reader img {
+                  display: none !important;
+                }
+                #reader__header_message {
+                  display: none !important;
+                }
+                #reader video {
+                  border-radius: 0 0 16px 16px !important;
+                  object-fit: cover !important;
+                  width: 100% !important;
+                }
+              `}
+            </style>
+            <div id="reader" style={{width: "100%", overflow: "hidden", border: "2px solid #E2E8F0", marginBottom: 16, borderRadius: 16, boxShadow: "0 10px 25px rgba(0,0,0,0.05)"}}></div>
             <button onClick={() => setIsScanning(false)} style={{width: "100%", background: "#EF4444", color: "#fff", border: "none", padding: "16px", borderRadius: 16, fontSize: 16, fontWeight: 800, cursor: "pointer", boxShadow: "0 10px 20px rgba(239,68,68,.2)"}}>
-              Tutup Kamera
+              Batal / Tutup Kamera
             </button>
           </div>
         )}
