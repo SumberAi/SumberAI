@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { db, auth } from '../firebase';
 import { collection, addDoc, query, where, getDocs } from 'firebase/firestore';
 import { EmailAuthProvider, reauthenticateWithCredential } from 'firebase/auth';
+import QRCode from 'react-qr-code';
 import { C } from '../data/mockData';
 
 export default function MarketScreen({ gs, spendCoins, onNav, userUid }) {
@@ -22,6 +23,7 @@ export default function MarketScreen({ gs, spendCoins, onNav, userUid }) {
   const [showHistoryModal, setShowHistoryModal] = useState(false);
   const [activeVouchers, setActiveVouchers] = useState([]);
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
 
   const fetchActiveVouchers = async () => {
     if (!userUid) return;
@@ -59,7 +61,7 @@ export default function MarketScreen({ gs, spendCoins, onNav, userUid }) {
       brand: "Aneka Minuman Segar",
       address: "Minuman Dingin & Segar",
       mapLink: "https://maps.app.goo.gl/iniDV3UDw89NNAGB9",
-      icon: "🏪",
+      icon: "logo_fernandi.jpeg",
       items: [
         { 
           id: 1, 
@@ -77,10 +79,10 @@ export default function MarketScreen({ gs, spendCoins, onNav, userUid }) {
     },
     {
       id: "m2",
-      brand: "Maugi Official",
+      brand: "Maugi Oleh-Oleh Khas Jambi",
       address: "Sambal Tempoyak Jambi",
       mapLink: "https://maps.app.goo.gl/TSxjeU3CLcGJjmCB8",
-      icon: "🌶️",
+      icon: "logo_maugi.jpeg",
       items: [
         { 
           id: 2, 
@@ -113,7 +115,7 @@ export default function MarketScreen({ gs, spendCoins, onNav, userUid }) {
       brand: "Ancua Harmoni",
       address: "Kopi & Minuman",
       mapLink: "https://maps.app.goo.gl/DHFCLnba1MZxaUbU8",
-      icon: "☕",
+      icon: "logo_ancua.jpg",
       items: [
         { 
           id: 4, 
@@ -144,10 +146,10 @@ export default function MarketScreen({ gs, spendCoins, onNav, userUid }) {
     },
     {
       id: "m4",
-      brand: "Geprek Royal",
+      brand: "Royal Chicken",
       address: "Ayam Geprek & Minuman",
       mapLink: "https://maps.app.goo.gl/cWeP2KJ63sStGPfe9",
-      icon: "🍗",
+      icon: "logo_geprek.jpeg",
       items: [
         { 
           id: 6, 
@@ -180,7 +182,7 @@ export default function MarketScreen({ gs, spendCoins, onNav, userUid }) {
       brand: "Your Coffee Official",
       address: "Depan Universitas Jambi",
       mapLink: "",
-      icon: "☕",
+      icon: "logo_yourcoffe.jpg",
       items: [
         { 
           id: 8, 
@@ -225,7 +227,7 @@ export default function MarketScreen({ gs, spendCoins, onNav, userUid }) {
       brand: "Kopi Kalcer",
       address: "Depan Universitas Jambi",
       mapLink: "",
-      icon: "☕",
+      icon: "logo_kalcer.jpg",
       items: [
         { 
           id: 11, 
@@ -249,6 +251,339 @@ export default function MarketScreen({ gs, spendCoins, onNav, userUid }) {
           image: "./butterscotch_latte.png",
           originalPriceRp: 10000,
           finalPriceRp: 5000,
+          isReady: true 
+        }
+      ]
+    },
+    {
+      id: "m7",
+      brand: "3 Queen’s Batik",
+      address: "Jambi",
+      mapLink: "https://maps.app.goo.gl/iQDdTYtRt6kkuoxv7",
+      icon: "logo_batik.jpg",
+      items: [
+        { 
+          id: 13, 
+          title: "Batik Tulis", 
+          titleEn: "Hand-Drawn Batik", 
+          desc: "Diskon Rp 100.000", 
+          descEn: "Discount Rp 100.000", 
+          price: 20000, 
+          image: "./batik_tulis.jpg",
+          originalPriceRp: 1000000,
+          finalPriceRp: 900000,
+          isReady: true 
+        },
+        { 
+          id: 14, 
+          title: "Batik Cap", 
+          titleEn: "Stamped Batik", 
+          desc: "Diskon Rp 50.000", 
+          descEn: "Discount Rp 50.000", 
+          price: 10000, 
+          image: "./batik_cap.jpg",
+          originalPriceRp: 250000,
+          finalPriceRp: 200000,
+          isReady: true 
+        }
+      ]
+    },
+    {
+      id: "m8",
+      brand: "Black Garlic Tunggal",
+      address: "Jambi",
+      mapLink: "https://maps.app.goo.gl/oLh1g5ZCMiyHvFkX9",
+      icon: "logo_garlic.jpeg",
+      items: [
+        { 
+          id: 15, 
+          title: "Black Garlic", 
+          titleEn: "Black Garlic", 
+          desc: "Diskon ±10,5%", 
+          descEn: "Discount ±10.5%", 
+          price: 2000, 
+          image: "./black_garlic.jpg",
+          originalPriceRp: 95000,
+          finalPriceRp: 85000,
+          isReady: true 
+        }
+      ]
+    },
+    {
+      id: "m9",
+      brand: "Alen Bakery",
+      address: "Jambi",
+      mapLink: "https://maps.app.goo.gl/KeeaCMr1chhjuvYa7",
+      icon: "logo_alen.jpg",
+      items: [
+        { 
+          id: 16, 
+          title: "Nastar", 
+          titleEn: "Pineapple Tart", 
+          desc: "Diskon ±16,6%", 
+          descEn: "Discount ±16.6%", 
+          price: 2000, 
+          image: "./nastar.png",
+          originalPriceRp: 60000,
+          finalPriceRp: 50000,
+          isReady: true 
+        },
+        { 
+          id: 17, 
+          title: "Molen Coklat Keju", 
+          titleEn: "Chocolate Cheese Molen", 
+          desc: "Diskon 50%", 
+          descEn: "Discount 50%", 
+          price: 2000, 
+          image: "./molen_coklat_keju.png",
+          originalPriceRp: 20000,
+          finalPriceRp: 10000,
+          isReady: true 
+        },
+        { 
+          id: 18, 
+          title: "Mixed Fruit & Snack", 
+          titleEn: "Mixed Fruit & Snack", 
+          desc: "Diskon 25%", 
+          descEn: "Discount 25%", 
+          price: 2000, 
+          image: "./mixed_fruit_snack.png",
+          originalPriceRp: 40000,
+          finalPriceRp: 30000,
+          isReady: true 
+        }
+      ]
+    },
+    {
+      id: "m15",
+      brand: "Snack R&R",
+      address: "Jambi",
+      mapLink: "https://maps.app.goo.gl/bMhJje3Fq6Ri7QWr7",
+      icon: "logo_snack_rr.jpeg",
+      items: [
+        { 
+          id: 29, 
+          title: "Kembang Tahu “R&R”", 
+          titleEn: "Tofu Skin “R&R”", 
+          desc: "Diskon ±41%", 
+          descEn: "Discount ±41%", 
+          price: 1400, 
+          image: "./kembang_tahu.jpg",
+          originalPriceRp: 17000,
+          finalPriceRp: 10000,
+          isReady: true 
+        },
+        { 
+          id: 30, 
+          title: "Keripik Labu “R&R”", 
+          titleEn: "Pumpkin Chips “R&R”", 
+          desc: "Diskon ±28,5%", 
+          descEn: "Discount ±28.5%", 
+          price: 800, 
+          image: "./keripik_labu.jpg",
+          originalPriceRp: 14000,
+          finalPriceRp: 10000,
+          isReady: true 
+        },
+        { 
+          id: 31, 
+          title: "Opak Kiribon", 
+          titleEn: "Opak Kiribon", 
+          desc: "Diskon ±28,5%", 
+          descEn: "Discount ±28.5%", 
+          price: 800, 
+          image: "./opak_kiribon.jpg",
+          originalPriceRp: 14000,
+          finalPriceRp: 10000,
+          isReady: true 
+        },
+        { 
+          id: 32, 
+          title: "Keripik Sayur “R&R”", 
+          titleEn: "Vegetable Chips “R&R”", 
+          desc: "Diskon ±28,5%", 
+          descEn: "Discount ±28.5%", 
+          price: 800, 
+          image: "./keripik_sayur.jpg",
+          originalPriceRp: 14000,
+          finalPriceRp: 10000,
+          isReady: true 
+        },
+        { 
+          id: 33, 
+          title: "Rempeyek Kiribon", 
+          titleEn: "Kiribon Rempeyek", 
+          desc: "Diskon ±28,5%", 
+          descEn: "Discount ±28.5%", 
+          price: 800, 
+          image: "./rempeyek_kiribon.jpg",
+          originalPriceRp: 14000,
+          finalPriceRp: 10000,
+          isReady: true 
+        }
+      ]
+    },
+    {
+      id: "m10",
+      brand: "Bolu Jadoel SR Bakery",
+      address: "Jambi",
+      mapLink: "https://maps.app.goo.gl/6MUT7Mm3kuu2opS78",
+      icon: "logo_bolu.jpeg",
+      items: [
+        { 
+          id: 19, 
+          title: "Bolu Kecil", 
+          titleEn: "Small Sponge Cake", 
+          desc: "Diskon 50%", 
+          descEn: "Discount 50%", 
+          price: 1000, 
+          image: "./bolu_kecil.jpg",
+          originalPriceRp: 10000,
+          finalPriceRp: 5000,
+          isReady: true 
+        },
+        { 
+          id: 20, 
+          title: "Bolu Besar", 
+          titleEn: "Large Sponge Cake", 
+          desc: "Diskon 40%", 
+          descEn: "Discount 40%", 
+          price: 2000, 
+          image: "./bolu_besar.jpg",
+          originalPriceRp: 25000,
+          finalPriceRp: 15000,
+          isReady: true 
+        },
+        { 
+          id: 21, 
+          title: "Brownies", 
+          titleEn: "Brownies", 
+          desc: "Diskon 50%", 
+          descEn: "Discount 50%", 
+          price: 2000, 
+          image: "./brownies.jpg",
+          originalPriceRp: 20000,
+          finalPriceRp: 10000,
+          isReady: true 
+        }
+      ]
+    },
+    {
+      id: "m11",
+      brand: "J.A. Seafood",
+      address: "Jambi",
+      mapLink: "https://maps.app.goo.gl/AiWjKRUAu3jK6F7z5",
+      icon: "logo_ja.jpg",
+      items: [
+        { 
+          id: 22, 
+          title: "Seafood Tumpah", 
+          titleEn: "Mixed Seafood", 
+          desc: "Diskon ±18,2%", 
+          descEn: "Discount ±18.2%", 
+          price: 2000, 
+          image: "./seafood_tumpah.jpg",
+          originalPriceRp: 55000,
+          finalPriceRp: 45000,
+          isReady: true 
+        }
+      ]
+    },
+    {
+      id: "m12",
+      brand: "Ars Snack",
+      address: "Jambi",
+      mapLink: "https://maps.app.goo.gl/Nr3cEYx2bDd3qkLQA",
+      icon: "logo_ars.jpg",
+      items: [
+        { 
+          id: 23, 
+          title: "Pangsit Ubi Ungu", 
+          titleEn: "Purple Sweet Potato Wonton", 
+          desc: "Diskon ±41%", 
+          descEn: "Discount ±41%", 
+          price: 1400, 
+          image: "./pangsit_ubi_ungu.jpg",
+          originalPriceRp: 17000,
+          finalPriceRp: 10000,
+          isReady: true 
+        },
+        { 
+          id: 24, 
+          title: "Emping Jagung", 
+          titleEn: "Corn Emping", 
+          desc: "Diskon ±41%", 
+          descEn: "Discount ±41%", 
+          price: 1400, 
+          image: "./emping_jagung.jpg",
+          originalPriceRp: 17000,
+          finalPriceRp: 10000,
+          isReady: true 
+        },
+        { 
+          id: 25, 
+          title: "Kerichiz", 
+          titleEn: "Kerichiz", 
+          desc: "Diskon ±41%", 
+          descEn: "Discount ±41%", 
+          price: 1400, 
+          image: "./kerichiz.jpg",
+          originalPriceRp: 17000,
+          finalPriceRp: 10000,
+          isReady: true 
+        },
+        { 
+          id: 26, 
+          title: "Stick Kacang Kedelai", 
+          titleEn: "Soybean Stick", 
+          desc: "Diskon ±41%", 
+          descEn: "Discount ±41%", 
+          price: 1400, 
+          image: "./stick_kacang_kedelai.jpg",
+          originalPriceRp: 17000,
+          finalPriceRp: 10000,
+          isReady: true 
+        }
+      ]
+    },
+    {
+      id: "m13",
+      brand: "Juice Palanta",
+      address: "Jambi",
+      mapLink: "https://maps.app.goo.gl/4zwYRfnTuqJF9STG6",
+      icon: "logo_juice.jpg",
+      items: [
+        { 
+          id: 27, 
+          title: "Aneka Jus Buah", 
+          titleEn: "Various Fruit Juices", 
+          desc: "Diskon 100%", 
+          descEn: "Discount 100%", 
+          price: 1000, 
+          image: "./aneka_jus_buah.jpg",
+          originalPriceRp: 5000,
+          finalPriceRp: 0,
+          isReady: true 
+        }
+      ]
+    },
+    {
+      id: "m14",
+      brand: "Iqola",
+      address: "Jambi",
+      mapLink: "https://maps.app.goo.gl/svCiZxEgM2tUino69",
+      icon: "logo_iqola.jpg",
+      items: [
+        { 
+          id: 28, 
+          title: "Molen (kemasan kotakan)", 
+          titleEn: "Molen (Box Packaging)", 
+          desc: "Diskon 25%", 
+          descEn: "Discount 25%", 
+          price: 2000, 
+          image: "./molen.jpeg",
+          originalPriceRp: 40000,
+          finalPriceRp: 30000,
           isReady: true 
         }
       ]
@@ -390,12 +725,22 @@ export default function MarketScreen({ gs, spendCoins, onNav, userUid }) {
         </div>
 
         <div style={{display: "flex", flexDirection: "column", gap: 24}}>
-          {stores.map((store, storeIdx) => (
+          {[...stores].sort((a, b) => {
+            const maxA = Math.max(...a.items.map(i => i.originalPriceRp || i.price || 0));
+            const maxB = Math.max(...b.items.map(i => i.originalPriceRp || i.price || 0));
+            return maxB - maxA;
+          }).map((store, storeIdx) => (
             <div key={store.id} style={{background: "#fff", borderRadius: 24, padding: 20, boxShadow: "0 12px 30px rgba(0,0,0,0.06)", border: "1px solid rgba(0,0,0,0.04)", animation: `fadeUp ${.3 + storeIdx * .15}s ease both`}}>
               {/* Header Toko / Brand */}
               <div style={{display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 16, paddingBottom: 16, borderBottom: "1px solid #F1F5F9"}}>
                 <div style={{display: "flex", alignItems: "center", gap: 12, flex: 1, minWidth: 200}}>
-                  <div style={{fontSize: 32}}>{store.icon}</div>
+                  <div style={{fontSize: 32, display: "flex", alignItems: "center"}}>
+                    {store.icon.includes('.') ? (
+                      <img src={`./${store.icon}`} alt="logo" style={{width: 40, height: 40, objectFit: 'contain', borderRadius: 8}} />
+                    ) : (
+                      store.icon
+                    )}
+                  </div>
                   <div style={{flex: 1}}>
                     <div style={{fontFamily: "Exo 2", fontWeight: 900, fontSize: 18, color: "#1E293B"}}>{store.brand}</div>
                     <div style={{fontSize: 12, color: "#64748B", marginTop: 4, display: "flex", alignItems: "flex-start", gap: 4}}>
@@ -412,11 +757,14 @@ export default function MarketScreen({ gs, spendCoins, onNav, userUid }) {
 
               {/* Grid Produk Dalam Toko */}
               <div style={{display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12}}>
-                {store.items.map((itm, i) => {
+                {[...store.items].sort((a, b) => (b.originalPriceRp || b.price) - (a.originalPriceRp || a.price)).map((itm, i) => {
                   const canBuy = gs.coins >= itm.price;
                   return (
                     <div key={itm.id} style={{background:"var(--bg-card)", borderRadius: 20, padding: 16, boxShadow: "0 4px 12px rgba(0,0,0,0.03)", display: "flex", flexDirection: "column", border: "1px solid rgba(0,0,0,0.04)", filter: !itm.isReady ? "grayscale(80%) opacity(0.85)" : "none"}}>
-                      <div style={{width: 48, height: 48, borderRadius: 14, background: itm.bg || "#F1F5F9", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, marginBottom: 16, boxShadow: "0 4px 10px rgba(0,0,0,0.1)", overflow: "hidden"}}>
+                      <div 
+                        onClick={() => itm.image ? setSelectedImage(itm.image) : null}
+                        style={{width: 48, height: 48, borderRadius: 14, background: itm.bg || "#F1F5F9", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, marginBottom: 16, boxShadow: "0 4px 10px rgba(0,0,0,0.1)", overflow: "hidden", cursor: itm.image ? "pointer" : "default"}}
+                      >
                         {itm.image ? <img src={itm.image} alt={itm.title} style={{width: "100%", height: "100%", objectFit: "cover", transform: itm.imageScale ? `scale(${itm.imageScale})` : "none"}} /> : (itm.icon || "🎁")}
                       </div>
                       <div style={{fontFamily: "Exo 2", fontWeight: 900, fontSize: 14, color: C.text, marginBottom: 6, minHeight: 42, lineHeight: 1.3}}>{isEn ? itm.titleEn : itm.title}</div>
@@ -493,6 +841,9 @@ export default function MarketScreen({ gs, spendCoins, onNav, userUid }) {
                       <div style={{fontSize: 11, color: "#94A3B8", marginBottom: 12}}>📍 {v.store}</div>
                       
                       <div style={{background: "rgba(59,130,246,0.1)", color: "#2563EB", padding: "10px", borderRadius: 12, textAlign: "center", fontFamily: "monospace", fontSize: 22, fontWeight: 900, letterSpacing: 3, marginBottom: 12}}>
+                        <div style={{ background: 'white', padding: '8px', borderRadius: '8px', width: 'fit-content', margin: '0 auto 8px auto' }}>
+                          <QRCode value={v.code} size={120} />
+                        </div>
                         {v.code}
                       </div>
                       
@@ -581,6 +932,9 @@ export default function MarketScreen({ gs, spendCoins, onNav, userUid }) {
             
             <div style={{background: "#F8FAFC", border: "2px dashed #CBD5E1", borderRadius: 16, padding: 20, marginBottom: 24}}>
               <p style={{margin: "0 0 8px 0", fontSize: 12, fontWeight: "bold", color: "#94A3B8"}}>KODE VOUCHER ANDA:</p>
+              <div style={{ background: 'white', padding: '12px', borderRadius: '12px', width: 'fit-content', margin: '0 auto 16px auto', boxShadow: '0 4px 6px rgba(0,0,0,0.05)' }}>
+                <QRCode value={generatedCode} size={160} />
+              </div>
               <div style={{fontSize: 32, fontWeight: 900, color: "#2563EB", letterSpacing: 4}}>{generatedCode}</div>
             </div>
 
@@ -588,6 +942,16 @@ export default function MarketScreen({ gs, spendCoins, onNav, userUid }) {
               <span style={{fontSize: 20}}>⚠️</span> Tunjukkan kode ini ke Kasir UMKM. Voucher akan hangus dalam 24 Jam.
             </div>
             
+          </div>
+        </div>
+      )}
+
+      {/* Modal Zoom Gambar */}
+      {selectedImage && (
+        <div style={{position: "fixed", top: 0, left: 0, right: 0, bottom: 0, background: "rgba(0,0,0,0.8)", display: "flex", justifyContent: "center", alignItems: "center", zIndex: 1000, padding: 24, backdropFilter: "blur(5px)", animation: "fadeIn .2s ease"}} onClick={() => setSelectedImage(null)}>
+          <div style={{position: "relative", maxWidth: "100%", maxHeight: "100%"}}>
+            <button onClick={() => setSelectedImage(null)} style={{position: "absolute", top: -40, right: 0, background: "transparent", border: "none", color: "#FFF", fontSize: 32, cursor: "pointer"}}>✕</button>
+            <img src={selectedImage} alt="Zoomed" style={{maxWidth: "100%", maxHeight: "80vh", borderRadius: 16, objectFit: "contain", boxShadow: "0 10px 30px rgba(0,0,0,0.5)", animation: "popIn .3s cubic-bezier(0.34, 1.56, 0.64, 1)"}} />
           </div>
         </div>
       )}

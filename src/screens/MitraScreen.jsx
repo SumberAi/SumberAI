@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { Html5QrcodeScanner } from 'html5-qrcode';
 import { db } from '../firebase';
 import { collection, query, where, getDocs, updateDoc, doc } from 'firebase/firestore';
 
@@ -8,6 +9,30 @@ export default function MitraScreen() {
   const [voucherCode, setVoucherCode] = useState('');
   const [status, setStatus] = useState(null); // null, 'loading', 'success', 'error', 'used'
   const [message, setMessage] = useState('');
+  const [isScanning, setIsScanning] = useState(false);
+
+  useEffect(() => {
+    let scanner = null;
+    if (isScanning) {
+      scanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: {width: 250, height: 250} }, false);
+      scanner.render(
+        (decodedText) => {
+          scanner.clear();
+          setIsScanning(false);
+          setVoucherCode(decodedText);
+          processValidation(decodedText);
+        },
+        (error) => {
+          // Ignore scanning errors
+        }
+      );
+    }
+    return () => {
+      if (scanner) {
+        scanner.clear().catch(console.error);
+      }
+    };
+  }, [isScanning]);
 
   const handleLogin = (e) => {
     e.preventDefault();
@@ -18,15 +43,14 @@ export default function MitraScreen() {
     }
   };
 
-  const handleValidate = async (e) => {
-    e.preventDefault();
-    if (!voucherCode.trim()) return;
+  const processValidation = async (codeToProcess) => {
+    if (!codeToProcess.trim()) return;
     
     setStatus('loading');
     setMessage('Mengecek database...');
 
     try {
-      const q = query(collection(db, "vouchers"), where("code", "==", voucherCode.trim().toUpperCase()));
+      const q = query(collection(db, "vouchers"), where("code", "==", codeToProcess.trim().toUpperCase()));
       const querySnapshot = await getDocs(q);
 
       if (querySnapshot.empty) {
@@ -87,10 +111,16 @@ export default function MitraScreen() {
     }
   };
 
+  const handleValidate = async (e) => {
+    e.preventDefault();
+    processValidation(voucherCode);
+  };
+
   const resetForm = () => {
     setStatus(null);
     setVoucherCode('');
     setMessage('');
+    setIsScanning(false);
   };
 
   if (!isLogged) {
@@ -156,19 +186,34 @@ export default function MitraScreen() {
           </div>
         )}
 
-        {status === null && (
-          <form onSubmit={handleValidate}>
-            <input 
-              type="text" 
-              value={voucherCode}
-              onChange={e => setVoucherCode(e.target.value.toUpperCase())}
-              placeholder="Contoh: KOP-8B2X" 
-              style={{width: "100%", padding: "16px", borderRadius: 16, border: "2px solid #E2E8F0", background: "#F8FAFC", color: "#1E293B", fontSize: 20, textAlign: "center", fontWeight: 800, textTransform: "uppercase", marginBottom: 16}}
-            />
-            <button type="submit" disabled={!voucherCode} style={{width: "100%", background: voucherCode ? "linear-gradient(135deg, #3B82F6, #2563EB)" : "#E2E8F0", color: voucherCode ? "#fff" : "#94A3B8", border: "none", padding: "16px", borderRadius: 16, fontSize: 16, fontWeight: 800, cursor: voucherCode ? "pointer" : "not-allowed", boxShadow: voucherCode ? "0 10px 20px rgba(37,99,235,.2)" : "none"}}>
-              Cek Kode
+        {status === null && !isScanning && (
+          <>
+            <button onClick={() => setIsScanning(true)} style={{width: "100%", background: "#10B981", color: "#fff", border: "none", padding: "16px", borderRadius: 16, fontSize: 16, fontWeight: 800, cursor: "pointer", boxShadow: "0 10px 20px rgba(16,185,129,.2)", marginBottom: 16, display: "flex", justifyContent: "center", alignItems: "center", gap: 8}}>
+              📷 Scan QR Code
             </button>
-          </form>
+            <div style={{textAlign: "center", color: "#94A3B8", fontWeight: "bold", marginBottom: 16, fontSize: 12}}>ATAU KETIK MANUAL</div>
+            <form onSubmit={handleValidate}>
+              <input 
+                type="text" 
+                value={voucherCode}
+                onChange={e => setVoucherCode(e.target.value.toUpperCase())}
+                placeholder="Contoh: KOP-8B2X" 
+                style={{width: "100%", padding: "16px", borderRadius: 16, border: "2px solid #E2E8F0", background: "#F8FAFC", color: "#1E293B", fontSize: 20, textAlign: "center", fontWeight: 800, textTransform: "uppercase", marginBottom: 16}}
+              />
+              <button type="submit" disabled={!voucherCode} style={{width: "100%", background: voucherCode ? "linear-gradient(135deg, #3B82F6, #2563EB)" : "#E2E8F0", color: voucherCode ? "#fff" : "#94A3B8", border: "none", padding: "16px", borderRadius: 16, fontSize: 16, fontWeight: 800, cursor: voucherCode ? "pointer" : "not-allowed", boxShadow: voucherCode ? "0 10px 20px rgba(37,99,235,.2)" : "none"}}>
+                Cek Kode
+              </button>
+            </form>
+          </>
+        )}
+
+        {isScanning && (
+          <div style={{width: "100%"}}>
+            <div id="reader" style={{width: "100%", borderRadius: 16, overflow: "hidden", border: "2px solid #E2E8F0", marginBottom: 16}}></div>
+            <button onClick={() => setIsScanning(false)} style={{width: "100%", background: "#EF4444", color: "#fff", border: "none", padding: "16px", borderRadius: 16, fontSize: 16, fontWeight: 800, cursor: "pointer", boxShadow: "0 10px 20px rgba(239,68,68,.2)"}}>
+              Tutup Kamera
+            </button>
+          </div>
         )}
         
       </div>
