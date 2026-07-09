@@ -17,7 +17,7 @@ const INITIAL_MESSAGES = {
   interview: "Welcome. I am the HR Manager. Please introduce yourself and tell me about your vocational major."
 };
 
-const AIAvatar = ({ isSpeaking, isWaiting }) => {
+const AIAvatar = ({ isSpeaking, isWaiting, selectedVoice }) => {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: 24, marginTop: 16 }}>
       <style>{`
@@ -170,7 +170,19 @@ export default function InterviewScreen({ gs, setGs, onNav, onCoinEarned, onXPEa
       return;
     }
 
-    if (gs?.proStatus?.english && (gs?.proChatCount || 0) >= 25) {
+    const todayStr = new Date().toLocaleDateString('id-ID');
+    let currentChatCount = gs?.proChatCount || 0;
+    
+    // Reset limit percakapan harian jika ini hari baru
+    const lastChatDay = gs?.proChatDate ? new Date(gs.proChatDate).toLocaleDateString('id-ID') : null;
+    if (todayStr !== lastChatDay) {
+      currentChatCount = 0;
+      if (setGs) {
+        setGs(prev => ({ ...prev, proChatCount: 0, proChatDate: new Date().getTime() }));
+      }
+    }
+
+    if (gs?.proStatus?.english && currentChatCount >= 25) {
       alert("Limit Percakapan Harian PRO Anda (25x) telah habis. Silakan kembali lagi besok!");
       return;
     }
@@ -443,7 +455,7 @@ export default function InterviewScreen({ gs, setGs, onNav, onCoinEarned, onXPEa
 
       {/* Sticky Avatar Area */}
       <div style={{ background: "#F1F5F9", zIndex: 5, paddingBottom: 0 }}>
-        <AIAvatar isSpeaking={isSpeaking} isWaiting={isWaitingForAI} />
+        <AIAvatar isSpeaking={isSpeaking} isWaiting={isWaitingForAI} selectedVoice={selectedVoice} />
       </div>
 
       {/* Chat Area */}
