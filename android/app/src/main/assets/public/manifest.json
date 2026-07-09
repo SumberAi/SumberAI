@@ -1,0 +1,1 @@
+{name: Sumber AI, short_name: Sumber AI, start_url: /, display: standalone, background_color: #ffffff, theme_color: #2563EB, icons: [{src: /logo.webp, sizes: 1024x1024, type: image/webp, purpose: any maskable}]}
