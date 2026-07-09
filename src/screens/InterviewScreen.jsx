@@ -6,18 +6,18 @@ import { GeminiLiveClient } from '../lib/geminiLive';
 const POLYGLOT_PROMPT = `\n\n--- MULTILINGUAL INSTRUCTIONS ---\nYou are a versatile polyglot AI tutor. Your default language is English (en-US), but you can speak any language the user wants to practice. If the user asks to practice Japanese, Korean, Indonesian, etc., change your teaching language to that language.\nCRITICAL RULE: You MUST prefix EVERY SINGLE RESPONSE with the standard BCP-47 language code of the language you are currently speaking in, enclosed in brackets. Example: "[en-US] Hello there!" or "[ja-JP] Konnichiwa!" or "[id-ID] Tentu, mari belajar!". NEVER forget the [lang-code] prefix!`;
 
 const SYSTEM_PROMPTS = {
-  basic: `You are a friendly and encouraging English conversation buddy named Sumber AI. Your goal is to help the user practice casual daily English speaking. Keep your responses short (1-3 sentences). Always ask a follow-up question. Be very supportive. Do not break character.` + POLYGLOT_PROMPT,
-  grammar: `You are a strict but helpful English grammar tutor named Sumber AI. Your goal is to improve the user's grammar. You should: 1) Point out any grammatical mistakes they made and correct them. 2) Provide a new incorrect sentence for them to fix. Keep responses concise.` + POLYGLOT_PROMPT,
-  interview: `You are a professional HR Manager conducting a job interview for a high school or vocational school (SMA/SMK) graduate applying for an entry-level position. Act professionally. Ask one interview question at a time. Probe their skills, school experience, organizational/internship experience (PKL), and work ethic. Do not break character. Keep responses concise.` + POLYGLOT_PROMPT
+  basic: `You are a friendly, expressive, and fun English conversation buddy named GAMY. You are hanging out with the user at a virtual cafe. Your goal is to help the user practice casual, everyday English speaking. Talk about relatable topics like hobbies, food, movies, or daily life. Keep your responses natural and short (1-3 sentences). Always end by asking an engaging follow-up question to keep the conversation flowing. Be very supportive and do not break character.` + POLYGLOT_PROMPT,
+  grammar: `You are a sharp and helpful English grammar tutor named GAMY. Your goal is to train the user's grammar through an interactive quiz game. Structure your responses in 3 parts: 1) Feedback: Briefly evaluate their previous answer, pointing out and correcting any mistakes. 2) Explanation: Provide a very brief 1-sentence explanation of the rule. 3) Next Challenge: Give them exactly ONE new incorrect English sentence and ask them to speak the corrected version. Keep responses concise.` + POLYGLOT_PROMPT,
+  interview: `You are a professional HR Manager conducting a job interview for candidates across various career levels (fresh graduates, juniors, and seniors). Adapt your questions based on their experience. Act professionally. Ask one interview question at a time. Probe their skills, educational background, past work/organizational experience, and work ethic. Do not break character. Keep responses concise.` + POLYGLOT_PROMPT
 };
 
 const INITIAL_MESSAGES = {
-  basic: "Hello there! I am Sumber AI, your English practice buddy. What did you do today?",
-  grammar: "Hello, I am Sumber AI. Let's practice grammar. Can you fix this sentence: 'She don't like apples.'?",
-  interview: "Welcome. I am the HR Manager. Please introduce yourself and tell me about your vocational major."
+  basic: "Hey there! I'm GAMY. It's so nice to hang out with you today. How has your day been going?",
+  grammar: "Hello! I am GAMY, your Grammar Tutor. Let's play a game! I will give you an incorrect sentence, and you have to speak the correct one. Ready? Fix this sentence: 'He go to school every day.'",
+  interview: "Welcome. I am the HR Manager. Please introduce yourself and briefly tell me about your educational background and professional experience."
 };
 
-const AIAvatar = ({ isSpeaking, isWaiting, selectedVoice }) => {
+const AIAvatar = ({ isSpeaking, isWaiting, isListening, selectedVoice }) => {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: 24, marginTop: 16 }}>
       <style>{`
@@ -103,7 +103,7 @@ const AIAvatar = ({ isSpeaking, isWaiting, selectedVoice }) => {
         padding: "6px 16px",
         borderRadius: 99
       }}>
-        {isWaiting ? "THINKING..." : isSpeaking ? "SPEAKING..." : "LISTENING"}
+        {isWaiting ? "THINKING..." : isSpeaking ? "SPEAKING..." : isListening ? "LISTENING..." : "ONLINE"}
       </div>
     </div>
   );
@@ -138,6 +138,17 @@ export default function InterviewScreen({ gs, setGs, onNav, onCoinEarned, onXPEa
 
   const isPro = gs?.proStatus?.english;
   const isEn = gs?.lang === 'en';
+
+  useEffect(() => {
+    return () => {
+      // Bersihkan audio dan koneksi saat komponen tertutup (kembali)
+      if (inactivityTimerRef.current) clearTimeout(inactivityTimerRef.current);
+      if (liveClientRef.current) {
+        liveClientRef.current.disconnect();
+        liveClientRef.current = null;
+      }
+    };
+  }, []);
 
   useEffect(() => {
     const now = new Date().getTime();
@@ -269,7 +280,7 @@ export default function InterviewScreen({ gs, setGs, onNav, onCoinEarned, onXPEa
       const initialGreeting = INITIAL_MESSAGES[selectedMode];
       setMessages([{ role: 'assistant', content: initialGreeting }]);
       client.history.push({ role: 'model', parts: [{ text: initialGreeting }] });
-      client.speak(initialGreeting);
+      await client.speak(initialGreeting);
       setIsWaitingForAI(false);
 
     } catch (e) {
@@ -360,10 +371,12 @@ export default function InterviewScreen({ gs, setGs, onNav, onCoinEarned, onXPEa
             ◀ {isEn ? "BACK" : "KEMBALI"}
           </button>
           <div style={{ flex: 1 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-              <h2 style={{ fontFamily: "Exo 2", fontWeight: 900, fontSize: 20, color: "#1E293B", margin: 0, letterSpacing: -0.5, whiteSpace: "nowrap" }}>AI TUTOR</h2>
-              <span style={{ fontSize: 20 }}>🤖</span>
-            </div>
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <div style={{width: 32, height: 32, borderRadius: 10, background: "#fff", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden", border: "1px solid #E2E8F0", boxShadow: "0 2px 8px rgba(0,0,0,0.05)"}}>
+                  <img src="./sumberai.png" alt="Sumber AI" style={{ width: 30, height: 30, objectFit: "contain" }} />
+                </div>
+                <h2 style={{ fontFamily: "Exo 2", fontWeight: 900, fontSize: 20, color: "#1E293B", margin: 0, letterSpacing: -0.5, whiteSpace: "nowrap" }}>AI TUTOR</h2>
+              </div>
             <p style={{ fontSize: 12, color: "#64748B", margin: "4px 0 0 0", lineHeight: 1.4 }}>{isEn ? <>Train your <i>Speaking</i> skills!</> : <>Latih kemampuan <i>Speaking</i> Anda!</>}</p>
           </div>
           <button className="tap" onClick={() => setShowCoinInfo(true)} style={{ background: "#FEF3C7", color: "#D97706", border: "1px solid #FCD34D", padding: "6px 12px", borderRadius: 99, fontSize: 12, fontWeight: 800, cursor: "pointer", display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
@@ -391,7 +404,7 @@ export default function InterviewScreen({ gs, setGs, onNav, onCoinEarned, onXPEa
               </div>
               {(!gs?.proStatus?.english && (gs?.basicChatCount || 0) >= 3) ? <span style={{ fontSize: 18 }}>🔒</span> : <span style={{ fontSize: 11, background: "#FEF3C7", color: "#F59E0B", padding: "4px 10px", borderRadius: 99, fontWeight: 800 }}>Free</span>}
             </div>
-            <p style={{ fontSize: 13, color: "#64748B", margin: "0 0 12px 0", lineHeight: 1.5 }}>{isEn ? "Casual daily conversation practice to improve your pronunciation." : "Latihan mengobrol santai sehari-hari untuk melancarkan pelafalan Anda."}</p>
+            <p style={{ fontSize: 13, color: "#64748B", margin: 0, lineHeight: 1.5 }}>{isEn ? "Practice natural daily conversations about hobbies, food, and daily life in a friendly setting." : "Simulasi obrolan santai sehari-hari untuk melatih kepercayaan diri dan kelancaran berbicara."}</p>
             {!gs?.proStatus?.english && (
               <div style={{ background: "#FEF2F2", color: "#EF4444", fontSize: 11, fontWeight: 700, padding: "6px 12px", borderRadius: 8, display: "inline-block" }}>
                 {isEn ? "Remaining Free Quota:" : "Sisa Kuota Gratis:"} {Math.max(0, 3 - (gs?.basicChatCount || 0))}/3
@@ -409,7 +422,7 @@ export default function InterviewScreen({ gs, setGs, onNav, onCoinEarned, onXPEa
               </div>
               {!gs?.proStatus?.english && <span style={{ fontSize: 18 }}>🔒</span>}
             </div>
-            <p style={{ fontSize: 13, color: "#64748B", margin: 0, lineHeight: 1.5 }}>{isEn ? "Listen to grammatically incorrect sentences, and speak the correction!" : "Dengarkan kalimat yang salah secara tata bahasa, dan ucapkan perbaikannya!"}</p>
+            <p style={{ fontSize: 13, color: "#64748B", margin: 0, lineHeight: 1.5 }}>{isEn ? "Interactive grammar quiz: Fix incorrect sentences and learn from instant feedback." : "Kuis interaktif: Perbaiki kalimat yang salah secara tata bahasa & dapatkan koreksi langsung!"}</p>
           </div>
 
           {/* Mode Wawancara SMA/SMK */}
@@ -422,7 +435,7 @@ export default function InterviewScreen({ gs, setGs, onNav, onCoinEarned, onXPEa
               </div>
               {!gs?.proStatus?.english && <span style={{ fontSize: 18 }}>🔒</span>}
             </div>
-            <p style={{ fontSize: 13, color: "#64748B", margin: 0, lineHeight: 1.5 }}>{isEn ? "High school / Vocational school interview practice (discussing school, internship & skills)." : "Latihan wawancara untuk lulusan SMA/SMK (membahas sekolah, PKL/Organisasi & keahlian)."}</p>
+            <p style={{ fontSize: 13, color: "#64748B", margin: 0, lineHeight: 1.5 }}>{isEn ? "HR interview simulation for various career levels (adaptable for fresh grads to seniors)." : "Simulasi wawancara HR untuk berbagai jenjang karier."}</p>
           </div>
         </div>
       </div>
@@ -455,7 +468,7 @@ export default function InterviewScreen({ gs, setGs, onNav, onCoinEarned, onXPEa
 
       {/* Sticky Avatar Area */}
       <div style={{ background: "#F1F5F9", zIndex: 5, paddingBottom: 0 }}>
-        <AIAvatar isSpeaking={isSpeaking} isWaiting={isWaitingForAI} selectedVoice={selectedVoice} />
+        <AIAvatar isSpeaking={isSpeaking} isWaiting={isWaitingForAI} isListening={isListening} selectedVoice={selectedVoice} />
       </div>
 
       {/* Chat Area */}
@@ -489,7 +502,7 @@ export default function InterviewScreen({ gs, setGs, onNav, onCoinEarned, onXPEa
         {isWaitingForAI && (
           <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", animation: "fadeUp .3s ease" }}>
             <div style={{ background: "#fff", color: "#64748B", padding: "12px 16px", borderRadius: 20, fontStyle: "italic", fontSize: 13 }}>
-              Sumber AI is typing...
+              GAMY is typing...
             </div>
           </div>
         )}
@@ -518,24 +531,25 @@ export default function InterviewScreen({ gs, setGs, onNav, onCoinEarned, onXPEa
       <div style={{ background: "#fff", paddingTop: 16, paddingBottom: "max(24px, env(safe-area-inset-bottom, 24px))", paddingLeft: 16, paddingRight: 16, borderTop: "1px solid #E2E8F0", display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
 
         {/* Visualizer text */}
-        <div style={{ fontSize: 12, fontWeight: 700, color: isListening ? "#EF4444" : "#94A3B8", height: 16 }}>
-          {isListening ? (isEn ? "🎙️ Listening..." : "🎙️ Mendengarkan...") : (isEn ? "Tap mic to speak" : "Tap mic untuk berbicara")}
+        <div style={{ fontSize: 12, fontWeight: 700, color: isListening ? "#EF4444" : (isWaitingForAI ? "#F59E0B" : "#94A3B8"), height: 16 }}>
+          {isWaitingForAI ? (isEn ? "🤔 AI is thinking..." : "🤔 AI sedang berpikir...") : isListening ? (isEn ? "🎙️ Listening..." : "🎙️ Mendengarkan...") : (isEn ? "Tap mic to speak" : "Tap mic untuk berbicara")}
         </div>
 
         <button
           className="tap"
-          onClick={toggleListen}
+          onClick={!isWaitingForAI ? toggleListen : undefined}
           style={{
             width: 70, height: 70, borderRadius: "50%",
-            background: isListening ? "#EF4444" : "linear-gradient(135deg, #3B82F6, #1E3A8A)",
+            background: isWaitingForAI ? "#CBD5E1" : (isListening ? "#EF4444" : "linear-gradient(135deg, #3B82F6, #1E3A8A)"),
             color: "#fff", border: "none", fontSize: 28,
             display: "flex", alignItems: "center", justifyContent: "center",
-            cursor: "pointer",
-            boxShadow: isListening ? "0 0 20px rgba(239,68,68,0.6)" : "0 8px 24px rgba(37,99,235,.3)",
-            transition: "all .3s"
+            cursor: isWaitingForAI ? "not-allowed" : "pointer",
+            boxShadow: isListening ? "0 0 20px rgba(239,68,68,0.6)" : (isWaitingForAI ? "none" : "0 8px 24px rgba(37,99,235,.3)"),
+            transition: "all .3s",
+            opacity: isWaitingForAI ? 0.8 : 1
           }}
         >
-          {isListening ? "⏹️" : "🎤"}
+          {isWaitingForAI ? "⏳" : (isListening ? "⏹️" : "🎤")}
         </button>
 
       </div>

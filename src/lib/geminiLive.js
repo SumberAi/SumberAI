@@ -125,7 +125,10 @@ export class GeminiLiveClient {
   }
 
   disconnect() {
-    this.audioStreamer.stopRecording();
+    if (this.audioStreamer) {
+      this.audioStreamer.stopRecording();
+      this.audioStreamer.stopAudio();
+    }
   }
 
   initializeAudio() {
@@ -274,5 +277,21 @@ export class AudioStreamer {
     }, delayBeforeStart * 1000);
     
     this.nextPlayTime += audioBuffer.duration;
+  }
+  
+  stopAudio() {
+    if (this.audioCtx) {
+      try {
+        if (this.audioCtx.state !== 'closed' && typeof this.audioCtx.close === 'function') {
+          this.audioCtx.close();
+        }
+      } catch (e) {
+        console.warn("Failed to close AudioContext", e);
+      }
+      this.audioCtx = null;
+    }
+    this.nextPlayTime = 0;
+    this.activeSources = 0;
+    if (this.onAudioStateChange) this.onAudioStateChange(false);
   }
 }

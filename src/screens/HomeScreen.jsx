@@ -10,11 +10,11 @@ export default function HomeScreen({ gs, setGs, onNav, onClaimStarter }) {
   const toggleLang = () => setGs(p => ({ ...p, lang: p.lang === 'en' ? 'id' : 'en' }));
 
   const levels = [
-    {id:"arena",num:1,icon:"🎮",name:"GAMY ARENA",sub:isEn ? "Arcade & Action Games" : "Kumpulan Game Arcade • Petualangan & Aksi",tag:isEn ? "FREE • +SmartCoin" : "FREE • +SmartCoin",
+    {id:"arena",num:1,icon:<img src="./gamy_arena.jpeg" alt="Gamy Arena" style={{ width: 56, height: 56, borderRadius: 18, objectFit: "cover" }} />,name:"GAMY ARENA",sub:isEn ? "Arcade & Action Games" : "Kumpulan Game Arcade • Petualangan & Aksi",tag:isEn ? "FREE • +SmartCoin" : "FREE • +SmartCoin",
      grad:"linear-gradient(135deg,#DC2626,#F87171,#FBBF24)",glow:"rgba(220,38,38,.2)", isPremium: false},
-    {id:"english",num:2,icon:"🧪",name:"ENGLISH LAB",sub:isEn ? "GRAMMAR Simulation" : "Simulasi GRAMMAR",tag:"+SmartCoin",
+    {id:"english",num:2,icon:<img src="./english_lab.jpeg" alt="English Lab" style={{ width: 56, height: 56, borderRadius: 18, objectFit: "cover" }} />,name:"ENGLISH LAB",sub:isEn ? "GRAMMAR Simulation" : "Simulasi GRAMMAR",tag:"+SmartCoin",
      grad:"linear-gradient(135deg,#2563EB,#60A5FA,#06B6D4)",glow:"rgba(37,99,235,.2)", isPremium: false},
-    {id:"interview_pro",num:3,icon:"🤖",name:"AI ENGLISH TUTOR",sub:"AI Conversation",tag:"Freemium • +SmartCoin",
+    {id:"interview_pro",num:3,icon:<div style={{width: 56, height: 56, borderRadius: 18, background: "#fff", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden"}}><img src="./sumberai.png" alt="Sumber AI" style={{ width: 52, height: 52, objectFit: "contain", filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.1))" }} /></div>,name:"AI ENGLISH TUTOR",sub:"AI Conversation",tag:"Freemium • +SmartCoin",
      grad:"linear-gradient(135deg,#059669,#10B981,#34D399)",glow:"rgba(16,185,129,.2)", isPremium: false}
   ];
 

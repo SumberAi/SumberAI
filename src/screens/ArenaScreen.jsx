@@ -11,7 +11,7 @@ export default function ArenaScreen({ gs, onNav }) {
             ◀ {isEn ? "BACK" : "KEMBALI"}
           </button>
         </div>
-        <div style={{fontFamily:"Exo 2",fontWeight:900,fontSize:22,color:"#fff",marginBottom:2}}>🎮 GAMY ARENA</div>
+        <div style={{fontFamily:"Exo 2",fontWeight:900,fontSize:22,color:"#fff",marginBottom:2,display:"flex",alignItems:"center",gap:10}}><img src="./gamy_arena.jpeg" alt="Gamy Arena" style={{ width: 32, height: 32, borderRadius: 10, objectFit: "cover" }} /> GAMY ARENA</div>
         <div style={{fontSize:12,color:"rgba(255,255,255,.85)"}}>{isEn ? "Where all the fun games gather!" : "Tempat berkumpulnya game-game seru!"}</div>
       </div>
 

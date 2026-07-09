@@ -264,8 +264,8 @@ export default function MarketScreen({ gs, spendCoins, onNav, userUid }) {
       items: [
         { 
           id: 13, 
-          title: "Batik Tulis", 
-          titleEn: "Hand-Drawn Batik", 
+          title: "Batik Tulis Jambi", 
+          titleEn: "Hand-Drawn Batik Jambi", 
           desc: "Diskon Rp 100.000", 
           descEn: "Discount Rp 100.000", 
           price: 20000, 
@@ -276,8 +276,8 @@ export default function MarketScreen({ gs, spendCoins, onNav, userUid }) {
         },
         { 
           id: 14, 
-          title: "Batik Cap", 
-          titleEn: "Stamped Batik", 
+          title: "Batik Cap Jambi", 
+          titleEn: "Stamped Batik Jambi", 
           desc: "Diskon Rp 50.000", 
           descEn: "Discount Rp 50.000", 
           price: 10000, 

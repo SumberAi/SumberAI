@@ -114,8 +114,8 @@ export default function EnglishScreen({ gs, setGs, onCoinEarned, onXPEarned, onN
             </button>
             <div style={{flex: 1}}>
               <div style={{display: "flex", alignItems: "center", gap: 8}}>
+                <img src="./english_lab.jpeg" alt="English Lab" style={{ width: 32, height: 32, borderRadius: 10, objectFit: "cover" }} />
                 <h2 style={{fontFamily: "Exo 2", fontWeight: 900, fontSize: 24, color: "#1E293B", margin: 0, letterSpacing: -0.5}}>ENGLISH LAB</h2>
-                <span style={{fontSize: 22}}>🔬</span>
               </div>
               <p style={{fontSize: 13, color: "#64748B", margin: "4px 0 0 0", lineHeight: 1.4}}>{isEn ? "Test your grammar comprehension!" : "Uji pemahaman tata bahasa Anda!"}</p>
             </div>
