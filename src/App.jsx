@@ -342,25 +342,37 @@ export default function App() {
     });
   };
 
+  const handleNav = (target) => {
+    if (target === "pricing") {
+      // Deteksi apakah sedang berjalan di dalam APK/Native app
+      const isNative = typeof window !== 'undefined' && window.Capacitor?.isNativePlatform?.();
+      if (isNative) {
+        alert(gs.lang === 'en' ? "Premium (PRO) purchases are currently only available through our official website in your browser (sumberai.com) in compliance with Google Play Store policies." : "Pembelian paket Premium (PRO) saat ini hanya tersedia melalui website resmi kami di browser (sumberai.com) sesuai dengan kebijakan Google Play Store.");
+        return;
+      }
+    }
+    setNav(target);
+  };
+
   let ScreenComponent;
   switch (nav) {
-    case "home": ScreenComponent = <HomeScreen gs={gs} setGs={updateGameState} onNav={setNav} onClaimStarter={claimStarter} />; break;
-    case "arena": ScreenComponent = <ArenaScreen gs={gs} onXPEarned={addXP} onNav={setNav} />; break;
-    case "english": ScreenComponent = <EnglishScreen gs={gs} setGs={updateGameState} onCoinEarned={addCoins} onXPEarned={addXP} onNav={setNav} />; break;
-    case "academy": ScreenComponent = <AcademyScreen gs={gs} onCoinEarned={addCoins} onXPEarned={addXP} onNav={setNav} upgradeToPro={upgradeToPro} />; break;
-    case "interview_pro": ScreenComponent = <InterviewScreen gs={gs} setGs={updateGameState} onNav={setNav} onCoinEarned={addCoins} onXPEarned={addXP} onChatUsed={addBasicChatCount} onTutorBonus={handleTutorBonus} />; break;
-    case "market": ScreenComponent = <MarketScreen gs={gs} spendCoins={spendCoins} onNav={setNav} userUid={userUid} />; break;
+    case "home": ScreenComponent = <HomeScreen gs={gs} setGs={updateGameState} onNav={handleNav} onClaimStarter={claimStarter} />; break;
+    case "arena": ScreenComponent = <ArenaScreen gs={gs} onXPEarned={addXP} onNav={handleNav} />; break;
+    case "english": ScreenComponent = <EnglishScreen gs={gs} setGs={updateGameState} onCoinEarned={addCoins} onXPEarned={addXP} onNav={handleNav} />; break;
+    case "academy": ScreenComponent = <AcademyScreen gs={gs} onCoinEarned={addCoins} onXPEarned={addXP} onNav={handleNav} upgradeToPro={upgradeToPro} />; break;
+    case "interview_pro": ScreenComponent = <InterviewScreen gs={gs} setGs={updateGameState} onNav={handleNav} onCoinEarned={addCoins} onXPEarned={addXP} onChatUsed={addBasicChatCount} onTutorBonus={handleTutorBonus} />; break;
+    case "market": ScreenComponent = <MarketScreen gs={gs} spendCoins={spendCoins} onNav={handleNav} userUid={userUid} />; break;
     case "mitra": ScreenComponent = <MitraScreen />; break;
-    case "pricing": ScreenComponent = <PricingScreen gs={gs} onNav={setNav} upgradeToPro={upgradeToPro} />; break;
-    case "profile": ScreenComponent = <ProfileScreen gs={gs} setGs={updateGameState} onNav={setNav} isDark={isDark} />; break;
-    case "memory": ScreenComponent = <MemoryGameScreen gs={gs} setGs={updateGameState} onNav={setNav} onCoinEarned={addCoins} />; break;
-    case "typing": ScreenComponent = <TypingShooterScreen gs={gs} setGs={updateGameState} onNav={setNav} onCoinEarned={addCoins} />; break;
-    case "board": ScreenComponent = <BoardGameScreen gs={gs} onNav={setNav} onCoinEarned={addCoins} onXPEarned={addXP} />; break;
+    case "pricing": ScreenComponent = <PricingScreen gs={gs} onNav={handleNav} upgradeToPro={upgradeToPro} />; break;
+    case "profile": ScreenComponent = <ProfileScreen gs={gs} setGs={updateGameState} onNav={handleNav} isDark={isDark} />; break;
+    case "memory": ScreenComponent = <MemoryGameScreen gs={gs} setGs={updateGameState} onNav={handleNav} onCoinEarned={addCoins} />; break;
+    case "typing": ScreenComponent = <TypingShooterScreen gs={gs} setGs={updateGameState} onNav={handleNav} onCoinEarned={addCoins} />; break;
+    case "board": ScreenComponent = <BoardGameScreen gs={gs} onNav={handleNav} onCoinEarned={addCoins} onXPEarned={addXP} />; break;
     case "login": ScreenComponent = <LoginScreen onLogin={(userData)=>{ 
       // Karena onAuthStateChanged otomatis memanggil setNav("home") dan update gs, kita kosongkan saja callback ini.
     }} />; break;
     case "loading": ScreenComponent = <div style={{height:"100vh", display:"flex", justifyContent:"center", alignItems:"center", color:"#fff"}}>Loading profile...</div>; break;
-    default: ScreenComponent = <HomeScreen gs={gs} onNav={setNav} onClaimStarter={handleClaimStarter} />;
+    default: ScreenComponent = <HomeScreen gs={gs} onNav={handleNav} onClaimStarter={handleClaimStarter} />;
   }
 
   // Khusus untuk game Typing/Board, kita hide TopBar/BottomNav agar fullscreen
