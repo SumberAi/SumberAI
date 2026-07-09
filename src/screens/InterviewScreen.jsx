@@ -306,6 +306,13 @@ export default function InterviewScreen({ gs, setGs, onNav, onCoinEarned, onXPEa
   };
 
   const toggleListen = async () => {
+    // Validasi Limit Saat Sedang Chat
+    if (!isListening && !gs?.proStatus?.english && mode === 'basic' && (gs?.basicChatCount || 0) >= 3) {
+      alert(isEn ? "Free Trial Limit Reached! You have used your 3 free interactions today. Please subscribe to PRO to continue." : "Limit Percakapan Gratis Habis! Anda telah menggunakan 3 kali interaksi gratis hari ini. Silakan berlangganan PRO untuk melanjutkan.");
+      onNav("pricing");
+      return;
+    }
+
     if (isListening) {
       setIsListening(false);
       setIsWaitingForAI(true);
