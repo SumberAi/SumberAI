@@ -347,7 +347,7 @@ export default function App() {
       // Deteksi apakah sedang berjalan di dalam APK/Native app
       const isNative = typeof window !== 'undefined' && window.Capacitor?.isNativePlatform?.();
       if (isNative) {
-        alert(gs.lang === 'en' ? "Premium (PRO) purchases are currently only available through our official website in your browser (sumberai.com) in compliance with Google Play Store policies." : "Pembelian paket Premium (PRO) saat ini hanya tersedia melalui website resmi kami di browser (sumberai.com) sesuai dengan kebijakan Google Play Store.");
+        alert(gs.lang === 'en' ? "PRO package upgrade is currently unavailable in this version of the app." : "Upgrade paket PRO saat ini tidak tersedia di dalam versi aplikasi ini.");
         return;
       }
     }

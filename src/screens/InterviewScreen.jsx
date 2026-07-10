@@ -306,10 +306,16 @@ export default function InterviewScreen({ gs, setGs, onNav, onCoinEarned, onXPEa
   };
 
   const toggleListen = async () => {
-    // Validasi Limit Saat Sedang Chat
+    // Validasi Limit Saat Sedang Chat (User Gratis)
     if (!isListening && !gs?.proStatus?.english && mode === 'basic' && (gs?.basicChatCount || 0) >= 3) {
       alert(isEn ? "Free Trial Limit Reached! You have used your 3 free interactions today. Please subscribe to PRO to continue." : "Limit Percakapan Gratis Habis! Anda telah menggunakan 3 kali interaksi gratis hari ini. Silakan berlangganan PRO untuk melanjutkan.");
       onNav("pricing");
+      return;
+    }
+    
+    // Validasi Limit Saat Sedang Chat (User PRO)
+    if (!isListening && gs?.proStatus?.english && (gs?.proChatCount || 0) >= 25) {
+      alert(isEn ? "Daily PRO Limit Reached (25/25). Please come back tomorrow!" : "Limit Percakapan Harian PRO Anda (25/25) telah habis. Silakan kembali lagi besok untuk mencegah penyalahgunaan sistem!");
       return;
     }
 
