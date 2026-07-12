@@ -211,9 +211,9 @@ export default function MemoryGameScreen({ gs, setGs, onNav, onCoinEarned }) {
   const isEn = gs?.lang === 'en';
 
   return (
-    <div style={{minHeight:"100dvh",background:"var(--bg-main)",paddingBottom:80,fontFamily:"'Nunito',sans-serif",position:"relative"}}>
+    <div style={{minHeight:"100dvh",background:"var(--bg-main)",paddingBottom:24,fontFamily:"'Nunito',sans-serif",position:"relative"}}>
       {/* Header */}
-      <div style={{background:"linear-gradient(135deg,#6366F1,#8B5CF6)",padding:"80px 20px 40px",borderBottomLeftRadius:30,borderBottomRightRadius:30,boxShadow:C.shadowCard,position:"relative"}}>
+      <div style={{background:"linear-gradient(135deg,#6366F1,#8B5CF6)",padding:"20px 20px 40px",borderBottomLeftRadius:30,borderBottomRightRadius:30,boxShadow:C.shadowCard,position:"relative"}}>
         <CoinAnnouncement 
           show={showCoinInfo} 
           onClose={() => setShowCoinInfo(false)} 

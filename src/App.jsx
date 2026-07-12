@@ -26,6 +26,7 @@ export default function App() {
     return 'login';
   });
   const [isDark, setIsDark] = useState(false);
+  const [debugText, setDebugText] = useState("");
   
   // Game State
   const defaultGs = {
@@ -251,6 +252,7 @@ export default function App() {
 
   const handleClaimStarter = () => {
     setGs(prev => {
+      if (prev.hasClaimedStarter) return prev;
       const newGs = { ...prev, coins: prev.coins + 50, hasClaimedStarter: true };
       updateDb(newGs);
       return newGs;
@@ -261,8 +263,7 @@ export default function App() {
     setGs(p => {
       let newCoins = p.coins;
       if (type === 'scholar' && !p.proStatus?.scholar) {
-        newCoins += 1500;
-        alert(p.lang === 'en' ? "Successfully upgraded to AI Academy PRO! You get a bonus of 1500 Coins." : "Berhasil langganan AI Academy PRO! Anda mendapatkan bonus 1500 Koin.");
+        alert(p.lang === 'en' ? "Successfully upgraded to AI Academy PRO!" : "Berhasil langganan AI Academy PRO!");
       }
       const newGs = {
         ...p, 
@@ -287,7 +288,7 @@ export default function App() {
       let nxp = p.xp + amt;
       let nlv = p.level;
       let nxpNext = p.xpNext;
-      if(nxp >= nxpNext) {
+      while(nxp >= nxpNext) {
         nlv++;
         nxp -= nxpNext;
         nxpNext = Math.floor(nxpNext * 1.5);
@@ -326,6 +327,9 @@ export default function App() {
   const handleTutorBonus = () => {
     setGs(p => {
       const now = new Date().getTime();
+      const today = new Date().toLocaleDateString('id-ID');
+      const lastBonusDay = p.tutorDailyBonusDate ? new Date(p.tutorDailyBonusDate).toLocaleDateString('id-ID') : null;
+      if (today === lastBonusDay) return p; // CEGAH SPAM CLICK!
       const newGs = { ...p, coins: p.coins + 20, tutorDailyBonusDate: now };
       updateDb({ coins: newGs.coins, tutorDailyBonusDate: now });
       return newGs;
@@ -376,13 +380,24 @@ export default function App() {
   }
 
   // Khusus untuk game Typing/Board, kita hide TopBar/BottomNav agar fullscreen
-  const isFullscreen = nav === "typing" || nav === "board" || nav === "login" || nav === "pricing" || nav === "mitra";
+  const isFullscreen = nav === "typing" || nav === "board" || nav === "memory" || nav === "login" || nav === "pricing" || nav === "mitra";
+  const hideTopBar = nav === "typing" || nav === "board" || nav === "memory" || nav === "login" || nav === "mitra";
 
   return (
     <ErrorBoundary>
-      <div style={{maxWidth: 430, margin: "0 auto", background: "var(--bg-main)", minHeight: "100dvh", position: "relative", boxShadow: "0 0 40px rgba(0,0,0,.1)", overflowX: "hidden", display: "flex", flexDirection: "column"}}>
-        {!isFullscreen && <TopBar gs={gs} onLogo={() => setNav("home")} onNav={setNav} isDark={isDark} setIsDark={setIsDark} />}
-        <div style={{flex: 1, paddingBottom: !isFullscreen ? 80 : 0}}>
+      <div style={{
+        maxWidth: 430,
+        margin: "0 auto",
+        minHeight: "100vh",
+        background: "var(--bg-main)",
+        position: "relative",
+        display: "flex",
+        flexDirection: "column",
+        overflowX: "hidden",
+        boxShadow: "0 0 40px rgba(0,0,0,0.05)"
+      }}>
+        {!hideTopBar && <TopBar gs={gs} onLogo={() => setNav("home")} onNav={setNav} isDark={isDark} setIsDark={setIsDark} />}
+        <div style={{flex: 1, display: "flex", flexDirection: "column", paddingBottom: !isFullscreen ? 80 : 0}}>
           {ScreenComponent}
         </div>
         {!isFullscreen && <BottomNav gs={gs} active={nav} onNav={setNav} />}

@@ -5,6 +5,15 @@ export default function PricingScreen({ gs, onNav, upgradeToPro }) {
   const lang = gs.lang || 'id';
 
   const handleMidtransPayment = (planKey) => {
+    // Trigger Google Ads Conversion Tracking Event
+    if (typeof window !== 'undefined' && window.gtag) {
+      window.gtag('event', 'conversion', {
+        'send_to': 'AW-17600263727/eDPSCJ_H5KEbEK_sushB',
+        'value': 1.0,
+        'currency': 'IDR'
+      });
+    }
+
     let url = "";
     if (planKey === 'grammar') {
       url = "https://sumberai.myr.id/pl/english-lab";
@@ -58,7 +67,7 @@ export default function PricingScreen({ gs, onNav, upgradeToPro }) {
   };
 
   return (
-    <div style={{paddingTop: 24, paddingBottom: 100, minHeight: "100vh", background:"var(--bg-main)", position: "relative"}}>
+    <div style={{paddingTop: 72, paddingBottom: 24, flex: 1, background:"var(--bg-main)", position: "relative"}}>
       <div style={{padding: "0 16px"}}>
         <div style={{display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24}}>
           <h2 style={{fontFamily: "Exo 2", fontWeight: 900, fontSize: 24, color: "var(--text-color)", margin: 0}}>{t.title}</h2>

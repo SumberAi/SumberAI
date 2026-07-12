@@ -28,7 +28,7 @@ export default function VocabMode({ onBack, onEarn }) {
   };
 
   if(phase==="pick") return (
-    <div style={{paddingTop:56,paddingBottom:100,background:`linear-gradient(180deg,#EFF6FF,#EEF4FF)`,minHeight:"100vh"}}>
+    <div style={{paddingTop:56,paddingBottom:24,background:`linear-gradient(180deg,#EFF6FF,#EEF4FF)`,flex:1}}>
       <CoinPopup coins={lastC} trigger={coinTrig}/>
       <div style={{background:"linear-gradient(135deg,#2563EB,#60A5FA,#06B6D4)",padding:"24px 18px 18px",borderRadius:"0 0 24px 24px",boxShadow:"0 8px 24px rgba(37,99,235,.2)"}}>
         <button className="tap" onClick={onBack} style={{background: "#fff", border: "1px solid #E2E8F0", width: 44, height: 44, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", marginBottom: 16, boxShadow: "0 4px 12px rgba(0,0,0,0.04)", flexShrink: 0}}>
@@ -55,7 +55,7 @@ export default function VocabMode({ onBack, onEarn }) {
   if(phase==="learn") {
     const ch = lesson.challenges[cardIdx];
     return (
-      <div style={{paddingTop:56,paddingBottom:100,background:`linear-gradient(180deg,#EFF6FF,#EEF4FF)`,minHeight:"100vh"}}>
+      <div style={{paddingTop:56,paddingBottom:24,background:`linear-gradient(180deg,#EFF6FF,#EEF4FF)`,flex:1}}>
         <div style={{background:"linear-gradient(135deg,#2563EB,#60A5FA,#06B6D4)",padding:"20px 18px 18px",borderRadius:"0 0 24px 24px"}}>
         <button className="tap" onClick={()=>setPhase("pick")} style={{background: "#fff", border: "1px solid #E2E8F0", width: 44, height: 44, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", marginBottom: 16, boxShadow: "0 4px 12px rgba(0,0,0,0.04)", flexShrink: 0}}>
           <span style={{fontSize: 20}}>⬅️</span>
@@ -97,7 +97,7 @@ export default function VocabMode({ onBack, onEarn }) {
     const ch = lesson.challenges[quizIdx];
     const opts = [ch.q.slice(0,40)+"...",...SPEAKING_CHALLENGES.filter(l=>l!==lesson).flatMap(l=>l.challenges).sort(()=>Math.random()-.5).slice(0,3).map(c=>c.q.slice(0,40)+"...")].sort(()=>Math.random()-.5);
     return (
-      <div style={{paddingTop:56,paddingBottom:100,background:`linear-gradient(180deg,#EFF6FF,#EEF4FF)`,minHeight:"100vh"}}>
+      <div style={{paddingTop:56,paddingBottom:24,background:`linear-gradient(180deg,#EFF6FF,#EEF4FF)`,flex:1}}>
         <CoinPopup coins={lastC} trigger={coinTrig}/>
         <div style={{background:"linear-gradient(135deg,#2563EB,#60A5FA)",padding:"20px 18px 16px",borderRadius:"0 0 24px 24px"}}>
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
@@ -135,7 +135,7 @@ export default function VocabMode({ onBack, onEarn }) {
 
   const pct=Math.round((correct/lesson.challenges.length)*100);
   return (
-    <div style={{padding:"80px 16px 100px",background:`linear-gradient(180deg,#EFF6FF,#EEF4FF)`,minHeight:"100vh",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center"}}>
+    <div style={{padding:"80px 16px 24px",background:`linear-gradient(180deg,#EFF6FF,#EEF4FF)`,flex:1,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center"}}>
       <div style={{background:"linear-gradient(135deg,#2563EB,#60A5FA,#06B6D4)",borderRadius:26,padding:28,textAlign:"center",color:"#fff",marginBottom:16,width:"100%",boxShadow:"0 12px 40px rgba(37,99,235,.25)",animation:"scaleIn .4s ease"}}>
         <div style={{fontSize:52,marginBottom:8}}>{pct>=80?"🏆":pct>=60?"🎉":"💪"}</div>
         <h2 style={{fontFamily:"Exo 2",fontWeight:900,fontSize:22,marginBottom:4}}>{pct>=80?"Sempurna!":pct>=60?"Bagus!":"Terus Berlatih!"}</h2>

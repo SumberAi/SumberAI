@@ -3,6 +3,81 @@ import { C } from '../data/mockData';
 import { playSfx, toggleMute, getMuteState, playBgm, stopBgm } from '../utils/audio';
 import { CoinAnnouncement } from '../components/Shared';
 
+const BossShip = React.memo(({ isTarget }) => (
+  <svg width="120" height="120" viewBox="0 0 100 100" fill="none" style={{animation: "elasticBoss 2s infinite ease-in-out", transformOrigin:"top center"}}>
+    <defs>
+      <radialGradient id="bossGlow" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stopColor="#EF4444" stopOpacity="1"/>
+        <stop offset="100%" stopColor="#7F1D1D" stopOpacity="0"/>
+      </radialGradient>
+      <linearGradient id="bossArmor" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#3F3F46"/>
+        <stop offset="50%" stopColor="#18181B"/>
+        <stop offset="100%" stopColor="#09090B"/>
+      </linearGradient>
+      <linearGradient id="bossGold" x1="0%" y1="100%" x2="100%" y2="0%">
+        <stop offset="0%" stopColor="#B45309"/>
+        <stop offset="100%" stopColor="#FBBF24"/>
+      </linearGradient>
+    </defs>
+    <path d="M10 40 L50 10 L90 40 L80 80 L50 60 L20 80 Z" fill="url(#bossArmor)" stroke={isTarget ? "#EF4444" : "url(#bossGold)"} strokeWidth="2" />
+    <path d="M25 45 L50 25 L75 45 L65 70 L50 55 L35 70 Z" fill="url(#bossArmor)" stroke="#52525B" strokeWidth="1.5" />
+    <path d="M50 10 L10 40 L25 45 L50 25 Z" fill="#71717A" opacity="0.4"/>
+    <g style={{animation:"wingFlap 1.5s infinite ease-in-out", transformOrigin:"center"}}>
+      <circle cx="50" cy="50" r="18" fill="url(#bossGlow)" />
+      <circle cx="50" cy="50" r="8" fill="#FFFFFF" opacity="0.9" />
+    </g>
+    <circle cx="20" cy="70" r="6" fill="#EF4444" filter="drop-shadow(0 0 8px #EF4444)" />
+    <circle cx="80" cy="70" r="6" fill="#EF4444" filter="drop-shadow(0 0 8px #EF4444)" />
+  </svg>
+));
+
+const FastShip = React.memo(({ isTarget }) => (
+  <svg width="70" height="70" viewBox="0 0 100 100" fill="none" style={{animation: "elasticFast 0.8s infinite ease-in-out", transformOrigin:"center"}}>
+    <defs>
+      <linearGradient id="fastArmor" x1="50%" y1="0%" x2="50%" y2="100%">
+        <stop offset="0%" stopColor="#52525B"/>
+        <stop offset="100%" stopColor="#18181B"/>
+      </linearGradient>
+      <linearGradient id="fastTrim" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stopColor="#F59E0B"/>
+        <stop offset="100%" stopColor="#EA580C"/>
+      </linearGradient>
+    </defs>
+    <g style={{animation:"wingFlap 0.4s infinite ease-in-out", transformOrigin:"center"}}>
+      <path d="M50 90 L10 20 L50 40 L90 20 Z" fill="url(#fastArmor)" stroke={isTarget ? "#FBBF24" : "url(#fastTrim)"} strokeWidth="3" strokeLinejoin="round" />
+    </g>
+    <path d="M50 80 L40 50 L50 45 L60 50 Z" fill="#FCD34D" opacity="0.9" />
+    <circle cx="50" cy="30" r="8" fill="#F97316" filter="blur(2px)" />
+  </svg>
+));
+
+const NormalShip = React.memo(({ isTarget }) => (
+  <svg width="80" height="80" viewBox="0 0 100 100" fill="none" style={{animation: "elasticBob 1.2s infinite ease-in-out", transformOrigin:"center"}}>
+    <defs>
+      <radialGradient id="ufoDome" cx="50%" cy="30%" r="50%">
+        <stop offset="0%" stopColor="#6EE7B7"/>
+        <stop offset="100%" stopColor="#059669"/>
+      </radialGradient>
+      <linearGradient id="ufoMetal" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stopColor="#94A3B8"/>
+        <stop offset="50%" stopColor="#475569"/>
+        <stop offset="100%" stopColor="#1E293B"/>
+      </linearGradient>
+    </defs>
+    <ellipse cx="50" cy="40" rx="20" ry="25" fill="url(#ufoDome)" filter={isTarget ? "drop-shadow(0 0 15px #EF4444)" : "none"} />
+    <ellipse cx="50" cy="25" rx="8" ry="4" fill="#FFFFFF" opacity="0.6" />
+    <g style={{animation:"wingFlap 0.8s infinite ease-in-out", transformOrigin:"center"}}>
+      <ellipse cx="50" cy="60" rx="45" ry="15" fill="url(#ufoMetal)" />
+      <ellipse cx="50" cy="58" rx="42" ry="12" fill="none" stroke={isTarget ? "#EF4444" : "#CBD5E1"} strokeWidth="2" opacity="0.5" />
+      <circle cx="15" cy="60" r="4" fill={isTarget ? "#EF4444" : "#10B981"} />
+      <circle cx="35" cy="65" r="4" fill={isTarget ? "#EF4444" : "#10B981"} />
+      <circle cx="65" cy="65" r="4" fill={isTarget ? "#EF4444" : "#10B981"} />
+      <circle cx="85" cy="60" r="4" fill={isTarget ? "#EF4444" : "#10B981"} />
+    </g>
+  </svg>
+));
+
 const WORD_LISTS = {
   3: ["CAT", "DOG", "PEN", "CUP", "BUS", "CAR", "SKY", "BOX", "HAT", "MUG", "SUN", "AIR", "NET", "WEB"],
   4: ["BOOK", "DESK", "DOOR", "BIRD", "FISH", "TREE", "MOON", "STAR", "ROAD", "TIME", "DATA", "FUND", "IDEA"],
@@ -246,10 +321,10 @@ export default function TypingShooterScreen({ gs, setGs, onNav, onCoinEarned }) 
       // Update positions & check collisions
       curEnemies = curEnemies.map(en => {
         if (en.isBoss) {
-          const nextX = en.x + en.dir * 0.2;
+          const nextX = en.x + en.dir * 0.3;
           let ndir = en.dir;
-          if (nextX > 80) ndir = -1;
-          if (nextX < 20) ndir = 1;
+          if (nextX > 65) ndir = -1;
+          if (nextX < 35) ndir = 1;
           return { ...en, x: nextX, dir: ndir };
         } else {
           const nextY = en.y + en.speed;
@@ -321,11 +396,19 @@ export default function TypingShooterScreen({ gs, setGs, onNav, onCoinEarned }) 
         const activeFirstLetters = aliveEnemies.map(en => en.word[0]);
         if (!activeFirstLetters.includes(w[0])) {
            const isFast = Math.random() > 0.7 && curLevel > 1;
+           
+           let newX;
+           let attempts = 0;
+           do {
+             newX = 10 + Math.random() * 70;
+             attempts++;
+           } while (attempts < 10 && aliveEnemies.some(en => Math.abs(en.x - newX) < 16)); // Avoid horizontal stacking
+           
            aliveEnemies.push({
             id: now.toString(),
             word: w,
             typed: 0,
-            x: 10 + Math.random() * 70,
+            x: newX,
             y: -10,
             speed: isFast ? (0.3 + (curLevel * 0.08)) : (0.2 + (curLevel * 0.05)),
             isBoss: false,
@@ -441,11 +524,6 @@ export default function TypingShooterScreen({ gs, setGs, onNav, onCoinEarned }) 
           left: 50%;
           z-index: -1;
           pointer-events: none;
-        }
-        @media (max-width: 600px) {
-          .game-area-wrapper {
-            bottom: 45dvh !important;
-          }
         }
       `}</style>
       <div className="stars"></div>
@@ -638,7 +716,7 @@ export default function TypingShooterScreen({ gs, setGs, onNav, onCoinEarned }) 
                 flexDirection:"column",
                 alignItems:"center",
                 zIndex:20,
-                transition: "left 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), bottom 0.15s ease-out, transform 0.15s ease-out"
+                transition: "left 0.15s ease-out, bottom 0.15s ease-out, transform 0.15s ease-out"
               }}>
                 <div style={{
                   marginBottom:-8,
@@ -749,7 +827,7 @@ export default function TypingShooterScreen({ gs, setGs, onNav, onCoinEarned }) 
                 top:`${en.y}%`,
                 transform:"translateX(-50%)",
                 textAlign:"center",
-                transition: en.isBoss ? "left 0.1s linear" : "none", // Smooth horizontal move for boss
+                transition: en.isBoss ? "left 50ms linear" : "none", // Sync with 50ms game loop to prevent rubberbanding
                 zIndex:10
               }}>
                 <div style={{
@@ -760,74 +838,11 @@ export default function TypingShooterScreen({ gs, setGs, onNav, onCoinEarned }) 
                   justifyContent: "center"
                 }}>
                   {en.isBoss ? (
-                    <svg width="120" height="120" viewBox="0 0 100 100" fill="none" style={{animation: "elasticBoss 2s infinite ease-in-out", transformOrigin:"top center"}}>
-                      <defs>
-                        <radialGradient id="bossGlow" cx="50%" cy="50%" r="50%">
-                          <stop offset="0%" stopColor="#EF4444" stopOpacity="1"/>
-                          <stop offset="100%" stopColor="#7F1D1D" stopOpacity="0"/>
-                        </radialGradient>
-                        <linearGradient id="bossArmor" x1="0%" y1="0%" x2="100%" y2="100%">
-                          <stop offset="0%" stopColor="#3F3F46"/>
-                          <stop offset="50%" stopColor="#18181B"/>
-                          <stop offset="100%" stopColor="#09090B"/>
-                        </linearGradient>
-                        <linearGradient id="bossGold" x1="0%" y1="100%" x2="100%" y2="0%">
-                          <stop offset="0%" stopColor="#B45309"/>
-                          <stop offset="100%" stopColor="#FBBF24"/>
-                        </linearGradient>
-                      </defs>
-                      <path d="M10 40 L50 10 L90 40 L80 80 L50 60 L20 80 Z" fill="url(#bossArmor)" stroke={isTarget ? "#EF4444" : "url(#bossGold)"} strokeWidth="2" />
-                      <path d="M25 45 L50 25 L75 45 L65 70 L50 55 L35 70 Z" fill="url(#bossArmor)" stroke="#52525B" strokeWidth="1.5" />
-                      <path d="M50 10 L10 40 L25 45 L50 25 Z" fill="#71717A" opacity="0.4"/>
-                      <g style={{animation:"wingFlap 1.5s infinite ease-in-out", transformOrigin:"center"}}>
-                        <circle cx="50" cy="50" r="18" fill="url(#bossGlow)" />
-                        <circle cx="50" cy="50" r="8" fill="#FFFFFF" opacity="0.9" />
-                      </g>
-                      <circle cx="20" cy="70" r="6" fill="#EF4444" filter="drop-shadow(0 0 8px #EF4444)" />
-                      <circle cx="80" cy="70" r="6" fill="#EF4444" filter="drop-shadow(0 0 8px #EF4444)" />
-                    </svg>
+                    <BossShip isTarget={isTarget} />
                   ) : en.isFast ? (
-                    <svg width="70" height="70" viewBox="0 0 100 100" fill="none" style={{animation: "elasticFast 0.8s infinite ease-in-out", transformOrigin:"center"}}>
-                      <defs>
-                        <linearGradient id="fastArmor" x1="50%" y1="0%" x2="50%" y2="100%">
-                          <stop offset="0%" stopColor="#52525B"/>
-                          <stop offset="100%" stopColor="#18181B"/>
-                        </linearGradient>
-                        <linearGradient id="fastTrim" x1="0%" y1="0%" x2="100%" y2="0%">
-                          <stop offset="0%" stopColor="#F59E0B"/>
-                          <stop offset="100%" stopColor="#EA580C"/>
-                        </linearGradient>
-                      </defs>
-                      <g style={{animation:"wingFlap 0.4s infinite ease-in-out", transformOrigin:"center"}}>
-                        <path d="M50 90 L10 20 L50 40 L90 20 Z" fill="url(#fastArmor)" stroke={isTarget ? "#FBBF24" : "url(#fastTrim)"} strokeWidth="3" strokeLinejoin="round" />
-                      </g>
-                      <path d="M50 80 L40 50 L50 45 L60 50 Z" fill="#FCD34D" opacity="0.9" />
-                      <circle cx="50" cy="30" r="8" fill="#F97316" filter="blur(2px)" />
-                    </svg>
+                    <FastShip isTarget={isTarget} />
                   ) : (
-                    <svg width="80" height="80" viewBox="0 0 100 100" fill="none" style={{animation: "elasticBob 1.2s infinite ease-in-out", transformOrigin:"center"}}>
-                      <defs>
-                        <radialGradient id="ufoDome" cx="50%" cy="30%" r="50%">
-                          <stop offset="0%" stopColor="#6EE7B7"/>
-                          <stop offset="100%" stopColor="#059669"/>
-                        </radialGradient>
-                        <linearGradient id="ufoMetal" x1="0%" y1="0%" x2="0%" y2="100%">
-                          <stop offset="0%" stopColor="#94A3B8"/>
-                          <stop offset="50%" stopColor="#475569"/>
-                          <stop offset="100%" stopColor="#1E293B"/>
-                        </linearGradient>
-                      </defs>
-                      <ellipse cx="50" cy="40" rx="20" ry="25" fill="url(#ufoDome)" filter={isTarget ? "drop-shadow(0 0 15px #EF4444)" : "none"} />
-                      <ellipse cx="50" cy="25" rx="8" ry="4" fill="#FFFFFF" opacity="0.6" />
-                      <g style={{animation:"wingFlap 0.8s infinite ease-in-out", transformOrigin:"center"}}>
-                        <ellipse cx="50" cy="60" rx="45" ry="15" fill="url(#ufoMetal)" />
-                        <ellipse cx="50" cy="58" rx="42" ry="12" fill="none" stroke={isTarget ? "#EF4444" : "#CBD5E1"} strokeWidth="2" opacity="0.5" />
-                        <circle cx="15" cy="60" r="4" fill={isTarget ? "#EF4444" : "#10B981"} />
-                        <circle cx="35" cy="65" r="4" fill={isTarget ? "#EF4444" : "#10B981"} />
-                        <circle cx="65" cy="65" r="4" fill={isTarget ? "#EF4444" : "#10B981"} />
-                        <circle cx="85" cy="60" r="4" fill={isTarget ? "#EF4444" : "#10B981"} />
-                      </g>
-                    </svg>
+                    <NormalShip isTarget={isTarget} />
                   )}
                 </div>
                 {/* Alien thrust/beam */}
@@ -839,13 +854,15 @@ export default function TypingShooterScreen({ gs, setGs, onNav, onCoinEarned }) 
                   padding:"6px 12px",
                   borderRadius:12,
                   marginTop:2,
-                  fontSize: en.isBoss ? 20 : 14,
+                  fontSize: en.isBoss ? 16 : 14,
                   fontWeight:900,
                   letterSpacing:2,
                   boxShadow: isTarget ? "0 8px 20px rgba(239,68,68,.4)" : "0 4px 12px rgba(0,0,0,.4)",
                   backdropFilter: "blur(6px)",
                   transition: "all .2s ease",
-                  whiteSpace: "nowrap"
+                  whiteSpace: en.isBoss ? "pre-wrap" : "nowrap",
+                  maxWidth: en.isBoss ? "250px" : "none",
+                  wordBreak: "break-word"
                 }}>
                   <span style={{color: isTarget ? "#fff" : "#10B981", textShadow: isTarget ? "0 0 8px #fff" : "none"}}>{en.word.substring(0, en.typed)}</span>
                   <span style={{color: isTarget ? "rgba(255,255,255,.9)" : "#94A3B8"}}>{en.word.substring(en.typed)}</span>

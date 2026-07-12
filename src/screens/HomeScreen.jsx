@@ -19,7 +19,7 @@ export default function HomeScreen({ gs, setGs, onNav, onClaimStarter }) {
   ];
 
   return (
-    <div style={{paddingTop:56,paddingBottom:100,minHeight:"100vh",background:"var(--bg-main)"}}>
+    <div style={{paddingTop:64,paddingBottom:24,flex:1,background:"var(--bg-main)"}}>
       
       {/* Starter Claim Modal */}
       {gs.hasClaimedStarter === false && (

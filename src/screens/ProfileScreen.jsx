@@ -63,7 +63,7 @@ export default function ProfileScreen({ gs, setGs, onNav, isDark }) {
   ];
 
   return (
-    <div style={{paddingTop:64,paddingBottom:100,minHeight:"100vh",background:"var(--bg-main)"}}>
+    <div style={{paddingTop:64,paddingBottom:24,flex:1,background:"var(--bg-main)"}}>
       <div style={{padding:"20px 16px"}}>
         {/* Header Profile */}
         <div style={{background:"var(--bg-card)",borderRadius:24,padding:"24px 20px",boxShadow:C.shadowCard,textAlign:"center",position:"relative",overflow:"hidden",marginBottom:16,animation:"fadeUp .4s ease"}}>

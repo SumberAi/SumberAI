@@ -23,9 +23,6 @@ export default function AcademyScreen({ gs, onCoinEarned, onXPEarned, onNav, upg
       const isAlreadyPro = gs.proStatus?.scholar;
       upgradeToPro(qrModal.type);
       let message = gs?.lang === 'en' ? "Payment Successful! Package activated." : "Pembayaran Berhasil! Paket telah aktif.";
-      if (qrModal.type === 'scholar' && !isAlreadyPro) {
-        message += gs?.lang === 'en' ? "\n\n🎉 BONUS BUNDLE: +100 Coins have been added to your balance!" : "\n\n🎉 BONUS BUNDLE: +100 Koin telah ditambahkan ke saldo Anda!";
-      }
       alert(message);
       setQrModal(null);
       setPaymentSuccess(false);
@@ -35,7 +32,7 @@ export default function AcademyScreen({ gs, onCoinEarned, onXPEarned, onNav, upg
   const isEn = gs?.lang === 'en';
 
   return (
-    <div style={{paddingTop: 80, paddingBottom: 100, minHeight: "100vh", background:"var(--bg-main)", position: "relative"}}>
+    <div style={{paddingTop: 80, paddingBottom: 24, flex: 1, background:"var(--bg-main)", position: "relative"}}>
       <div style={{padding: "0 16px"}}>
         <div style={{display: "flex", alignItems: "center", marginBottom: 24}}>
           <button className="tap" onClick={() => onNav('home')} style={{background: "#fff", border: "1px solid #E2E8F0", padding: "8px 16px", borderRadius: "99px", display: "flex", alignItems: "center", gap: 6, cursor: "pointer", marginRight: 16, boxShadow: "0 4px 12px rgba(0,0,0,0.04)", flexShrink: 0, color: "#1E293B", fontWeight: 800, fontSize: 13}}>
@@ -43,7 +40,7 @@ export default function AcademyScreen({ gs, onCoinEarned, onXPEarned, onNav, upg
           </button>
           <div style={{flex: 1}}>
             <h2 style={{fontFamily: "Exo 2", fontWeight: 900, fontSize: 24, color: C.text, margin: 0}}>AI Academy 📚</h2>
-            <p style={{fontSize: 13, color: C.textSec, margin: "4px 0 0 0"}}>{isEn ? "Learn interactive AI modules and earn coins for shopping!" : "Pelajari modul AI interaktif dan dapatkan koin untuk belanja!"}</p>
+            <p style={{fontSize: 13, color: C.textSec, margin: "4px 0 0 0"}}>{isEn ? "Learn interactive AI modules." : "Pelajari modul AI interaktif."}</p>
           </div>
         </div>
 
@@ -137,7 +134,7 @@ export default function AcademyScreen({ gs, onCoinEarned, onXPEarned, onNav, upg
               <div style={{position: "absolute", top: 0, right: 0, background: "#F59E0B", color: "#fff", padding: "4px 12px", borderBottomLeftRadius: 16, fontSize: 10, fontWeight: 900}}>{isEn ? "BEST VALUE" : "LEBIH HEMAT"}</div>
               <div style={{fontSize: 12, color: "#93C5FD", fontWeight: 800, marginBottom: 4}}>{isEn ? "BUY BUNDLE" : "BELI BUNDEL"}</div>
               <div style={{fontFamily: "Exo 2", fontWeight: 900, fontSize: 16, marginBottom: 4}}>AI Academy PRO 👑</div>
-              <div style={{fontSize: 13, color: "#E2E8F0", marginBottom: 8}}>{isEn ? "Unlock ALL premium modules + Bonus Coins." : "Buka SEMUA modul premium + Bonus Koin."}</div>
+              <div style={{fontSize: 13, color: "#E2E8F0", marginBottom: 8}}>{isEn ? "Unlock ALL premium modules." : "Buka SEMUA modul premium."}</div>
               <div style={{fontSize: 18, fontWeight: 900, color: "#fff"}}>Rp 69.000</div>
             </div>
           </div>
@@ -186,7 +183,7 @@ export default function AcademyScreen({ gs, onCoinEarned, onXPEarned, onNav, upg
       {/* MODAL BACA MATERI */}
       {readingModal && (
         <div style={{position: "fixed", top: 0, left: 0, width: "100%", height: "100%", background: "rgba(0,0,0,0.8)", backdropFilter: "blur(4px)", zIndex: 2000, overflowY: "auto", display: "flex", justifyContent: "center", alignItems: "flex-start", padding: "0"}}>
-          <div style={{background:"var(--bg-main)", width: "100%", maxWidth: 430, minHeight: "100vh", padding: "80px 20px 100px", animation: "fadeUp .3s ease", position: "relative"}}>
+          <div style={{background:"var(--bg-main)", width: "100%", maxWidth: 430, flex: 1, padding: "80px 20px 100px", animation: "fadeUp .3s ease", position: "relative"}}>
             <button className="tap" onClick={() => setReadingModal(null)} style={{position: "absolute", top: 20, right: 20, background: "rgba(0,0,0,0.05)", borderRadius: "50%", width: 36, height: 36, border: "none", fontSize: 18, color: "var(--text-main)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center"}}>✕</button>
             
             <Tag label={readingModal.isPremium ? "PRO MODUL" : (isEn ? "FREE MODUL" : "MODUL GRATIS")} color={readingModal.isPremium ? "#fff" : "#059669"} bg={readingModal.isPremium ? "#3B82F6" : "#D1FAE5"} />
@@ -211,15 +208,11 @@ export default function AcademyScreen({ gs, onCoinEarned, onXPEarned, onNav, upg
             {readingPage === readingModal.content.length - 1 && (
               <button className="tap" onClick={() => {
                 const isPro = gs?.proStatus?.scholar;
-                if (isPro) {
-                  onCoinEarned(readingModal.coins);
-                }
                 onXPEarned(readingModal.xp);
                 const title = readingModal.title;
-                const coins = readingModal.coins;
                 const xp = readingModal.xp;
                 setReadingModal(null);
-                alert(isEn ? `Congratulations! You have completed the module "${title}".\n\nYour Rewards:\n${isPro ? `+${coins} S Coin\n` : ''}+${xp} XP` : `Selamat! Anda telah menyelesaikan modul "${title}".\n\nHadiah Anda:\n${isPro ? `+${coins} S Coin\n` : ''}+${xp} XP`);
+                alert(isEn ? `Congratulations! You have completed the module "${title}".\n\nYour Rewards:\n+${xp} XP` : `Selamat! Anda telah menyelesaikan modul "${title}".\n\nHadiah Anda:\n+${xp} XP`);
               }} style={{width: "100%", background: "linear-gradient(135deg, #10B981, #34D399)", color: "#fff", border: "none", padding: "16px", borderRadius: 16, fontSize: 16, fontWeight: 800, marginTop: 16, cursor: "pointer", boxShadow: "0 4px 12px rgba(16,185,129,.3)", display: "flex", justifyContent: "center", alignItems: "center", gap: 8, animation: "fadeUp .3s ease"}}>
                 <span>✅</span> {isEn ? "Complete & Claim Reward" : "Selesaikan & Klaim Hadiah"}
               </button>

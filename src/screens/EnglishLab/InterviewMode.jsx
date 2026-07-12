@@ -35,7 +35,7 @@ export default function InterviewMode({ onBack, onEarn }) {
   };
 
   if (done) return (
-    <div style={{padding:"80px 16px 100px",background:`linear-gradient(180deg,#ECFDF5,#EEF4FF)`,minHeight:"100vh",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center"}}>
+    <div style={{padding:"80px 16px 24px",background:`linear-gradient(180deg,#ECFDF5,#EEF4FF)`,flex:1,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center"}}>
       <div style={{background:"linear-gradient(135deg,#059669,#34D399)",borderRadius:26,padding:28,textAlign:"center",width:"100%",boxShadow:"0 12px 40px rgba(5,150,105,.25)"}}>
         <div style={{fontSize:52,marginBottom:8}}>🎙️🏆</div>
         <h2 style={{fontFamily:"Exo 2",fontWeight:900,fontSize:22,color:"#fff",marginBottom:4}}>Interview Selesai!</h2>
@@ -50,7 +50,7 @@ export default function InterviewMode({ onBack, onEarn }) {
 
   const q = INTERVIEW_QS[qIdx];
   return (
-    <div style={{paddingTop:56,paddingBottom:100,background:`linear-gradient(180deg,#ECFDF5,#EEF4FF)`,minHeight:"100vh"}}>
+    <div style={{paddingTop:56,paddingBottom:24,background:`linear-gradient(180deg,#ECFDF5,#EEF4FF)`,flex:1}}>
       <CoinPopup coins={lastC} trigger={coinTrig}/>
       <div style={{background:"linear-gradient(135deg,#059669,#34D399)",padding:"20px 18px 16px",borderRadius:"0 0 24px 24px"}}>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>

@@ -707,7 +707,7 @@ export default function MarketScreen({ gs, spendCoins, onNav, userUid }) {
   };
 
   return (
-    <div style={{paddingTop: 80, paddingBottom: 100, minHeight: "100vh", background:"var(--bg-main)", position: "relative"}}>
+    <div style={{paddingTop: 80, paddingBottom: 24, flex: 1, background:"var(--bg-main)", position: "relative"}}>
       <div style={{padding: "0 16px"}}>
         <div style={{display: "flex", flexDirection: "column", gap: 16, marginBottom: 24}}>
           <div style={{display: "flex", justifyContent: "space-between", alignItems: "center"}}>

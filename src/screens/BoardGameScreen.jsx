@@ -276,7 +276,7 @@ export default function BoardGameScreen({ gs, onNav, onCoinEarned, onXPEarned })
 
   if (setupMode) {
     return (
-      <div style={{paddingTop: 40, paddingBottom: 100, minHeight: "100vh", background:"var(--bg-main)", paddingLeft: 16, paddingRight: 16}}>
+      <div style={{paddingTop: 40, paddingBottom: 24, flex: 1, background:"var(--bg-main)", paddingLeft: 16, paddingRight: 16}}>
         <h2 style={{fontFamily: "Exo 2", fontWeight: 900, fontSize: 24, color: C.text, marginBottom: 8, textAlign: "center"}}>{isEn ? "🐉 Smart Snakes & Ladders" : "🐉 Ular Tangga Pintar"}</h2>
         <div style={{background: "var(--bg-card)", borderRadius: 20, padding: 20, boxShadow: C.shadowCard}}>
           <label style={{fontSize: 13, fontWeight: 800, color: C.text, display: "block", marginBottom: 8}}>{isEn ? "Number of Players:" : "Jumlah Pemain:"}</label>

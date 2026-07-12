@@ -69,11 +69,19 @@ export default function LoginScreen({ onLogin }) {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
         
-        const newUser = {
+        let newUser = {
           ...defaultGs,
           name: email.split('@')[0],
           email: email
         };
+
+        if (email.toLowerCase() === "sumberai.unja@gmail.com") {
+          newUser.coins = 99999;
+          newUser.level = 99;
+          newUser.xp = 99999;
+          newUser.proStatus = { scholar: true, english: true, grammar: true, mod_otomatisasi: true, mod_proposal: true, mod_etika: true };
+        }
+
         await setDoc(doc(db, "users", user.uid), newUser);
         onLogin(newUser);
 
@@ -82,13 +90,17 @@ export default function LoginScreen({ onLogin }) {
         const user = userCredential.user;
         
         const userDoc = await getDoc(doc(db, "users", user.uid));
-        if (userDoc.exists()) {
-          onLogin(userDoc.data());
-        } else {
-          const fallbackData = { ...defaultGs, name: email.split('@')[0], email: email };
-          await setDoc(doc(db, "users", user.uid), fallbackData);
-          onLogin(fallbackData);
+        let userData = userDoc.exists() ? userDoc.data() : { ...defaultGs, name: email.split('@')[0], email: email };
+        
+        if (email.toLowerCase() === "sumberai.unja@gmail.com") {
+          userData.coins = 99999;
+          userData.level = 99;
+          userData.xp = 99999;
+          userData.proStatus = { scholar: true, english: true, grammar: true, mod_otomatisasi: true, mod_proposal: true, mod_etika: true };
+          await setDoc(doc(db, "users", user.uid), userData);
         }
+
+        onLogin(userData);
       }
     } catch (err) {
       if (err.code === 'auth/email-already-in-use') {

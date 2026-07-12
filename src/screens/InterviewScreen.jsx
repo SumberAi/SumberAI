@@ -357,7 +357,7 @@ export default function InterviewScreen({ gs, setGs, onNav, onCoinEarned, onXPEa
 
   if (!mode) {
     return (
-      <div style={{ paddingTop: 80, paddingBottom: 100, minHeight: "100vh", background: "var(--bg-main)", paddingLeft: 16, paddingRight: 16 }}>
+      <div style={{ paddingTop: 80, paddingBottom: 24, flex: 1, background: "var(--bg-main)", paddingLeft: 16, paddingRight: 16 }}>
         <CoinAnnouncement
           show={showCoinInfo}
           onClose={() => setShowCoinInfo(false)}

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { C } from '../data/mockData';
 import { Tag, CoinAnnouncement } from '../components/Shared';
 import { GRAMMAR_QUESTIONS } from '../data/grammarData';
+import { playSfx } from '../utils/audio';
 
 export default function EnglishScreen({ gs, setGs, onCoinEarned, onXPEarned, onNav }) {
   const [selectedLevel, setSelectedLevel] = useState(null);
@@ -26,8 +27,18 @@ export default function EnglishScreen({ gs, setGs, onCoinEarned, onXPEarned, onN
     
     const db = GRAMMAR_QUESTIONS;
     const limit = !isPro && level === 'beginner' ? 20 : 35;
-    const shuffled = [...db[level]].sort(() => Math.random() - 0.5).slice(0, limit);
-    setShuffledQuestions(shuffled);
+    const totalQuestions = db[level].length;
+    
+    const progress = gs?.engLabProgress?.[level] || 0;
+    const startIdx = progress % totalQuestions;
+    
+    let questionsSlice = db[level].slice(startIdx, startIdx + limit);
+    if (questionsSlice.length < limit) {
+      const remaining = limit - questionsSlice.length;
+      questionsSlice = [...questionsSlice, ...db[level].slice(0, remaining)];
+    }
+    
+    setShuffledQuestions(questionsSlice);
     setQIdx(0);
     setIsFinished(false);
     setShowExplanation(false);
@@ -57,6 +68,7 @@ export default function EnglishScreen({ gs, setGs, onCoinEarned, onXPEarned, onN
     }
 
     if(idx === shuffledQuestions[qIdx].ans) {
+      playSfx('correct');
       setShowExplanation(false); // Jangan munculkan penjelasan jika benar
       let message = isEn ? "Correct!" : "Benar!";
       const levelLimit = isPro ? 140 : 40; 
@@ -83,6 +95,7 @@ export default function EnglishScreen({ gs, setGs, onCoinEarned, onXPEarned, onN
 
       setCorrectCount(prev => prev + 1);
     } else {
+      playSfx('wrong');
       setShowExplanation(true); // Munculkan penjelasan karena salah
     }
   };
@@ -95,7 +108,22 @@ export default function EnglishScreen({ gs, setGs, onCoinEarned, onXPEarned, onN
     if(qIdx < shuffledQuestions.length - 1) {
       setQIdx(qIdx + 1);
     } else {
+      playSfx('win');
       setIsFinished(true);
+      // Update progress so next time they get new questions
+      if (setGs && selectedLevel) {
+        setGs(prev => {
+          const limit = !prev?.proStatus?.grammar && selectedLevel === 'beginner' ? 20 : 35;
+          const currentProgress = prev?.engLabProgress?.[selectedLevel] || 0;
+          return {
+            ...prev,
+            engLabProgress: {
+              ...(prev.engLabProgress || {}),
+              [selectedLevel]: currentProgress + limit
+            }
+          };
+        });
+      }
     }
   };
 
@@ -104,7 +132,7 @@ export default function EnglishScreen({ gs, setGs, onCoinEarned, onXPEarned, onN
   };
 
   return (
-    <div style={{paddingTop: 80, paddingBottom: 100, minHeight: "100vh", background:"var(--bg-main)"}}>
+    <div style={{paddingTop: 80, paddingBottom: 24, flex: 1, background:"var(--bg-main)"}}>
         <div style={{padding: "0 16px"}}>
           
           {/* Header Premium */}
@@ -126,7 +154,7 @@ export default function EnglishScreen({ gs, setGs, onCoinEarned, onXPEarned, onN
           <>
             <div style={{display: "flex", flexDirection: "column", gap: 16, animation: "fadeUp .4s ease"}}>
               {/* Beginner */}
-              <div className="tap" onClick={() => startQuiz('beginner')} style={{background: "#fff", borderRadius: 24, padding: "20px", boxShadow: "0 12px 32px rgba(16,185,129,0.1)", border: "1px solid rgba(16,185,129,0.15)", position: "relative", overflow: "hidden"}}>
+              <div className="tap premium-btn" onClick={() => startQuiz('beginner')} style={{background: "#fff", borderRadius: 24, padding: "20px", border: "1px solid rgba(16,185,129,0.15)", position: "relative", overflow: "hidden"}}>
                 <div style={{position: "absolute", top: 0, left: 0, width: "100%", height: 5, background: "linear-gradient(90deg, #059669, #34D399)"}}></div>
                 <div style={{display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8}}>
                   <div style={{display: "flex", alignItems: "center", gap: 12}}>
@@ -139,7 +167,7 @@ export default function EnglishScreen({ gs, setGs, onCoinEarned, onXPEarned, onN
               </div>
 
               {/* Intermediate */}
-              <div className="tap" onClick={() => startQuiz('intermediate')} style={{background: "#fff", borderRadius: 24, padding: "20px", boxShadow: "0 12px 32px rgba(245,158,11,0.1)", border: "1px solid rgba(245,158,11,0.15)", position: "relative", overflow: "hidden", opacity: isPro ? 1 : 0.6}}>
+              <div className="tap premium-btn" onClick={() => startQuiz('intermediate')} style={{background: "#fff", borderRadius: 24, padding: "20px", border: "1px solid rgba(245,158,11,0.15)", position: "relative", overflow: "hidden", opacity: isPro ? 1 : 0.6}}>
                 <div style={{position: "absolute", top: 0, left: 0, width: "100%", height: 5, background: "linear-gradient(90deg, #D97706, #FCD34D)"}}></div>
                 <div style={{display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8}}>
                   <div style={{display: "flex", alignItems: "center", gap: 12}}>
@@ -153,7 +181,7 @@ export default function EnglishScreen({ gs, setGs, onCoinEarned, onXPEarned, onN
               </div>
 
               {/* Advanced */}
-              <div className="tap" onClick={() => startQuiz('advanced')} style={{background: "#fff", borderRadius: 24, padding: "20px", boxShadow: "0 12px 32px rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.15)", position: "relative", overflow: "hidden", opacity: isPro ? 1 : 0.6}}>
+              <div className="tap premium-btn" onClick={() => startQuiz('advanced')} style={{background: "#fff", borderRadius: 24, padding: "20px", border: "1px solid rgba(239,68,68,0.15)", position: "relative", overflow: "hidden", opacity: isPro ? 1 : 0.6}}>
                 <div style={{position: "absolute", top: 0, left: 0, width: "100%", height: 5, background: "linear-gradient(90deg, #DC2626, #F87171)"}}></div>
                 <div style={{display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8}}>
                   <div style={{display: "flex", alignItems: "center", gap: 12}}>
@@ -200,10 +228,10 @@ export default function EnglishScreen({ gs, setGs, onCoinEarned, onXPEarned, onN
                 </div>
 
                 <div style={{display: "flex", flexDirection: "column", gap: 12}}>
-                  <button className="tap" onClick={() => startQuiz(selectedLevel)} style={{background: "linear-gradient(135deg, #3B82F6, #1E3A8A)", color: "#fff", border: "none", padding: "14px 24px", borderRadius: 14, fontSize: 14, fontWeight: 800, cursor: "pointer", width: "100%", boxShadow: "0 8px 24px rgba(37,99,235,.3)"}}>
+                  <button className="tap premium-btn" onClick={() => startQuiz(selectedLevel)} style={{background: "linear-gradient(135deg, #3B82F6, #1E3A8A)", color: "#fff", border: "none", padding: "14px 24px", borderRadius: 14, fontSize: 14, fontWeight: 800, cursor: "pointer", width: "100%", boxShadow: "0 8px 24px rgba(37,99,235,.3)"}}>
                     🔄 {isEn ? "Play Again (Practice)" : "Main Lagi (Latihan)"}
                   </button>
-                  <button className="tap" onClick={resetSelection} style={{background: "transparent", color: "#64748B", border: "2px solid #E2E8F0", padding: "14px 24px", borderRadius: 14, fontSize: 14, fontWeight: 800, cursor: "pointer", width: "100%"}}>
+                  <button className="tap premium-btn" onClick={resetSelection} style={{background: "transparent", color: "#64748B", border: "2px solid #E2E8F0", padding: "14px 24px", borderRadius: 14, fontSize: 14, fontWeight: 800, cursor: "pointer", width: "100%"}}>
                     {isEn ? "Back to Menu" : "Kembali ke Menu"}
                   </button>
                 </div>
@@ -219,9 +247,18 @@ export default function EnglishScreen({ gs, setGs, onCoinEarned, onXPEarned, onN
                   {shuffledQuestions[qIdx].q}
                 </h3>
                  {showExplanation && (
-                  <div style={{fontSize: 14, color: C.textSec, fontStyle: "italic", marginBottom: 16, padding: "12px 16px", background: "#FEF2F2", borderRadius: 12, borderLeft: "4px solid #EF4444", animation: "fadeUp .3s ease"}}>
-                    <div style={{fontWeight: 800, color: "#DC2626", marginBottom: 4}}>{isEn ? "Incorrect Answer. Here is the explanation:" : "Jawaban Salah. Berikut penjelasannya:"}</div>
-                    {shuffledQuestions[qIdx].exp}
+                  <div style={{fontSize: 14, color: C.textSec, marginBottom: 16, padding: "16px", background: "#FEF2F2", borderRadius: 16, borderLeft: "5px solid #EF4444", animation: "fadeUp .3s ease"}}>
+                    <div style={{fontWeight: 900, color: "#DC2626", marginBottom: 8, fontSize: 15}}>{isEn ? "❌ Incorrect Answer" : "❌ Jawaban Salah"}</div>
+                    
+                    <div style={{fontWeight: 700, color: "#065F46", marginBottom: 8, display: "flex", alignItems: "center", gap: 6}}>
+                      {isEn ? "Correct Answer:" : "Jawaban Benar:"} 
+                      <span style={{background: "#D1FAE5", padding: "4px 10px", borderRadius: 8, border: "1px solid #34D399"}}>{shuffledQuestions[qIdx].opts[shuffledQuestions[qIdx].ans]}</span>
+                    </div>
+
+                    <div style={{fontStyle: "italic", lineHeight: 1.5}}>
+                      <span style={{fontWeight: 800, marginRight: 4}}>{isEn ? "Explanation:" : "Penjelasan:"}</span>
+                      {shuffledQuestions[qIdx].exp}
+                    </div>
                   </div>
                 )}
 
@@ -235,7 +272,7 @@ export default function EnglishScreen({ gs, setGs, onCoinEarned, onXPEarned, onN
                     return (
                       <button 
                         key={i} 
-                        className="tap" 
+                        className="tap premium-btn" 
                         onClick={() => handleAnswer(i)}
                         disabled={isAnswered}
                         style={{
@@ -255,7 +292,7 @@ export default function EnglishScreen({ gs, setGs, onCoinEarned, onXPEarned, onN
                 </div>
 
                 {isAnswered && (
-                  <button className="tap" onClick={goToNextQuestion} style={{background: "linear-gradient(135deg, #10B981, #059669)", color: "#fff", border: "none", padding: "16px 24px", borderRadius: 16, fontSize: 15, fontWeight: 800, cursor: "pointer", width: "100%", marginTop: 24, boxShadow: "0 8px 24px rgba(16,185,129,.3)", animation: "fadeUp .3s ease"}}>
+                  <button className="tap premium-btn" onClick={goToNextQuestion} style={{background: "linear-gradient(135deg, #10B981, #059669)", color: "#fff", border: "none", padding: "16px 24px", borderRadius: 16, fontSize: 15, fontWeight: 800, cursor: "pointer", width: "100%", marginTop: 24, boxShadow: "0 8px 24px rgba(16,185,129,.3)", animation: "fadeUp .3s ease"}}>
                     {isEn ? "Next Question ➔" : "Lanjut ke Soal Berikutnya ➔"}
                   </button>
                 )}

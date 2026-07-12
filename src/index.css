@@ -93,6 +93,10 @@ body.dark {
   0%, 100% { transform: scale(1); }
   50% { transform: scale(1.06); }
 }
+@keyframes neonPulse {
+  0%, 100% { filter: brightness(1) drop-shadow(0 0 8px rgba(255,255,255,0.2)); }
+  50% { filter: brightness(1.2) drop-shadow(0 0 16px rgba(255,255,255,0.6)); }
+}
 @keyframes float {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-6px); }
@@ -117,6 +121,19 @@ body.dark {
   transform: translateY(-6px) scale(1.02) !important;
   box-shadow: 0 16px 36px rgba(0,0,0,0.12) !important;
   z-index: 10;
+}
+
+.premium-btn {
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+.premium-btn:hover {
+  transform: translateY(-3px) scale(1.01);
+  box-shadow: 0 12px 24px rgba(37,99,235,0.15);
+  border-color: #3B82F6 !important;
+}
+.premium-btn:active {
+  transform: scale(0.96) translateY(0);
 }
 
 #root {
