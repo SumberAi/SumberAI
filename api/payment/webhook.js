@@ -36,7 +36,7 @@ export default async function handler(req, res) {
        
        // JIKA Mayar tidak mengirimkan ext_id, kita cari berdasarkan Email pembeli!
        if (!extId) {
-         const customerEmail = payload.data?.customer?.email || payload.customer?.email;
+         const customerEmail = payload.data?.customerEmail || payload.data?.customer?.email || payload.customerEmail || payload.customer?.email;
          if (customerEmail) {
            console.log(`Mencari pengguna dengan email: ${customerEmail}`);
            const usersRef = getFirestore().collection('users');
@@ -44,12 +44,14 @@ export default async function handler(req, res) {
            if (!snapshot.empty) {
              extId = snapshot.docs[0].id; // Menggunakan UID dari dokumen yang ditemukan
              console.log(`Ditemukan! UID pengguna: ${extId}`);
+           } else {
+             console.log(`⚠️ Email ${customerEmail} tidak ditemukan di database pengguna.`);
            }
          }
        }
 
        if (!extId) {
-         console.error("❌ Gagal: Tidak ada ext_id (UID) maupun Email di dalam webhook Mayar. Tidak tahu harus meng-upgrade siapa.");
+         console.error("❌ Gagal: Tidak ada ext_id (UID) maupun Email pembeli di dalam webhook Mayar. Tidak tahu harus meng-upgrade siapa.");
          return res.status(200).json({ status: 'OK', message: 'No ext_id found' });
        }
 
@@ -58,7 +60,7 @@ export default async function handler(req, res) {
        
        // JIKA Mayar juga membuang 'pkg', kita akan tebak dari NAMA PRODUK yang dibeli!
        if (!pkg) {
-         const productName = (payload.data?.product?.name || payload.data?.link?.name || payload.data?.title || payload.title || payload.data?.name || payload.name || "").toLowerCase();
+         const productName = (payload.data?.productName || payload.data?.product?.name || payload.data?.link?.name || payload.data?.title || payload.title || payload.data?.name || payload.name || "").toLowerCase();
          console.log(`Parameter 'pkg' hilang. Mencoba mendeteksi dari nama produk Mayar: "${productName}"`);
          
          if (productName.includes('lab') || productName.includes('grammar')) {
