@@ -54,19 +54,36 @@ export default async function handler(req, res) {
        }
 
        // 4. Mencari paket apa yang dibeli (pkg)
-       const pkg = payload.data?.pkg || payload.pkg || payload.customer?.pkg;
+       let pkg = payload.data?.pkg || payload.pkg || payload.customer?.pkg;
+       
+       // JIKA Mayar juga membuang 'pkg', kita akan tebak dari NAMA PRODUK yang dibeli!
+       if (!pkg) {
+         const productName = (payload.data?.product?.name || payload.data?.link?.name || payload.data?.title || payload.title || payload.data?.name || payload.name || "").toLowerCase();
+         console.log(`Parameter 'pkg' hilang. Mencoba mendeteksi dari nama produk Mayar: "${productName}"`);
+         
+         if (productName.includes('lab') || productName.includes('grammar')) {
+           pkg = 'grammar';
+         } else if (productName.includes('tutor') || productName.includes('english tutor')) {
+           pkg = 'english';
+         } else if (productName.includes('full') || productName.includes('bundle')) {
+           pkg = 'full';
+         }
+       }
+
        const updateData = {};
        
        if (pkg === 'grammar') {
          updateData['proStatus.grammar'] = true;
+         console.log("➡️ Membuka kunci: English Lab (Grammar)");
        } else if (pkg === 'english') {
          updateData['proStatus.english'] = true;
+         console.log("➡️ Membuka kunci: AI English Tutor");
        } else if (pkg === 'full') {
          updateData['proStatus.grammar'] = true;
          updateData['proStatus.english'] = true;
+         console.log("➡️ Membuka kunci: FULL BUNDLE (Semua Fitur)");
        } else {
-         // Jika 'pkg' hilang/tidak direkam Mayar, otomatis buka SEMUA akses (Fallback aman)
-         console.warn("⚠️ Parameter 'pkg' tidak ditemukan dari Mayar. Mengaktifkan semua fitur (Full Bundle) sebagai tindakan aman.");
+         console.warn(`⚠️ Nama produk tidak dikenali: "${pkg}". Mengaktifkan Full Bundle sebagai cadangan.`);
          updateData['proStatus.grammar'] = true;
          updateData['proStatus.english'] = true;
        }
