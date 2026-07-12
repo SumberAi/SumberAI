@@ -73,21 +73,29 @@ export default async function handler(req, res) {
        }
 
        const updateData = {};
+       const now = new Date().getTime();
+       const thirtyDaysFromNow = now + (30 * 24 * 60 * 60 * 1000);
        
        if (pkg === 'grammar') {
          updateData['proStatus.grammar'] = true;
-         console.log("➡️ Membuka kunci: English Lab (Grammar)");
+         updateData['proStatus.grammarExpiresAt'] = thirtyDaysFromNow;
+         console.log("➡️ Membuka kunci: English Lab (Grammar) selama 30 Hari");
        } else if (pkg === 'english') {
          updateData['proStatus.english'] = true;
-         console.log("➡️ Membuka kunci: AI English Tutor");
+         updateData['proStatus.englishExpiresAt'] = thirtyDaysFromNow;
+         console.log("➡️ Membuka kunci: AI English Tutor selama 30 Hari");
        } else if (pkg === 'full') {
          updateData['proStatus.grammar'] = true;
+         updateData['proStatus.grammarExpiresAt'] = thirtyDaysFromNow;
          updateData['proStatus.english'] = true;
-         console.log("➡️ Membuka kunci: FULL BUNDLE (Semua Fitur)");
+         updateData['proStatus.englishExpiresAt'] = thirtyDaysFromNow;
+         console.log("➡️ Membuka kunci: FULL BUNDLE (Semua Fitur) selama 30 Hari");
        } else {
          console.warn(`⚠️ Nama produk tidak dikenali: "${pkg}". Mengaktifkan Full Bundle sebagai cadangan.`);
          updateData['proStatus.grammar'] = true;
+         updateData['proStatus.grammarExpiresAt'] = thirtyDaysFromNow;
          updateData['proStatus.english'] = true;
+         updateData['proStatus.englishExpiresAt'] = thirtyDaysFromNow;
        }
 
        // 5. Mengubah data di Firebase Firestore
