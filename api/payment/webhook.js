@@ -1,7 +1,8 @@
 import admin from 'firebase-admin';
+import { getFirestore } from 'firebase-admin/firestore';
 
 // 1. Inisialisasi Firebase Admin menggunakan Kunci Rahasia dari Environment Variable Vercel
-if (!admin.apps.length) {
+if (admin.getApps().length === 0) {
   try {
     // Kita akan meminta Vercel untuk membaca rahasia dari variabel FIREBASE_SERVICE_ACCOUNT
     const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
@@ -58,7 +59,7 @@ export default async function handler(req, res) {
 
        // 5. Mengubah data di Firebase Firestore
        console.log(`🔄 Memproses Upgrade PRO untuk User UID: ${extId}`, updateData);
-       await admin.firestore().collection('users').doc(extId).update(updateData);
+       await getFirestore().collection('users').doc(extId).update(updateData);
        console.log("✅ SUKSES: Akun berhasil di-upgrade ke PRO!");
        
     } else {
