@@ -1,64 +1,75 @@
-import midtransClient from 'midtrans-client';
-// import admin from 'firebase-admin'; // TODO: Uncomment when Firebase Service Account is ready
+import admin from 'firebase-admin';
 
-// Inisialisasi Midtrans Core (untuk validasi signature key)
-const coreApi = new midtransClient.CoreApi({
-  isProduction: false,
-  serverKey: process.env.MIDTRANS_SERVER_KEY || 'SB-Mid-server-DUMMY_KEY',
-  clientKey: process.env.VITE_MIDTRANS_CLIENT_KEY || 'SB-Mid-client-DUMMY_KEY'
-});
+// 1. Inisialisasi Firebase Admin menggunakan Kunci Rahasia dari Environment Variable Vercel
+if (!admin.apps.length) {
+  try {
+    // Kita akan meminta Vercel untuk membaca rahasia dari variabel FIREBASE_SERVICE_ACCOUNT
+    const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+    admin.initializeApp({
+      credential: admin.credential.cert(serviceAccount)
+    });
+    console.log("Firebase Admin initialized successfully.");
+  } catch (error) {
+    console.error("Gagal menginisialisasi Firebase Admin. Pastikan FIREBASE_SERVICE_ACCOUNT valid JSON di Vercel.", error.message);
+  }
+}
 
 export default async function handler(req, res) {
+  // Hanya menerima metode POST dari Mayar
   if (req.method !== 'POST') {
     return res.status(405).json({ message: 'Method Not Allowed' });
   }
 
   try {
-    const notificationJson = req.body;
+    const payload = req.body;
+    console.log("Webhook Mayar diterima:", JSON.stringify(payload, null, 2));
+
+    // 2. Mengecek status pembayaran dari Mayar
+    // Mayar bisa menaruh status di payload.status atau payload.data.status
+    const status = payload.data?.status || payload.status;
+    const isSuccess = (status === 'SETTLED' || status === 'SUCCESS' || status === 'paid' || status === 'success');
     
-    // Validasi notifikasi resmi dari Midtrans
-    const statusResponse = await coreApi.transaction.notification(notificationJson);
-    
-    const orderId = statusResponse.order_id;
-    const transactionStatus = statusResponse.transaction_status;
-    const fraudStatus = statusResponse.fraud_status;
-
-    console.log(`Transaction notification received. Order ID: ${orderId}. Transaction status: ${transactionStatus}. Fraud status: ${fraudStatus}`);
-
-    let isSuccess = false;
-
-    // Logika persetujuan pembayaran Midtrans
-    if (transactionStatus == 'capture') {
-      if (fraudStatus == 'challenge') {
-        // Pembayaran butuh verifikasi manual
-        isSuccess = false;
-      } else if (fraudStatus == 'accept') {
-        isSuccess = true;
-      }
-    } else if (transactionStatus == 'settlement') {
-      // Pembayaran sukses (QRIS, GoPay, Transfer Bank yang sudah lunas)
-      isSuccess = true;
-    } else if (transactionStatus == 'cancel' || transactionStatus == 'deny' || transactionStatus == 'expire') {
-      // Pembayaran gagal/kadaluarsa
-      isSuccess = false;
-    } else if (transactionStatus == 'pending') {
-      // Menunggu pembayaran
-      isSuccess = false;
-    }
-
     if (isSuccess) {
-      // TODO: Update status user di database Firebase Firestore
-      // Contoh:
-      // const userId = orderId.split('-')[1]; // Asumsi orderId = ORDER-{userId}-{timestamp}
-      // await admin.firestore().collection('users').doc(userId).update({ proStatus: true });
-      console.log(`✅ SUCCESS: Order ${orderId} is paid. User should be upgraded to PRO.`);
+       // 3. Mencari UID pengguna (ext_id) yang kita titipkan di link pembayaran
+       const extId = payload.data?.ext_id || payload.ext_id || payload.customer?.ext_id;
+       
+       if (!extId) {
+         console.error("❌ Gagal: Tidak ada ext_id (UID) di dalam webhook Mayar. Tidak tahu harus meng-upgrade siapa.");
+         return res.status(200).json({ status: 'OK', message: 'No ext_id found' });
+       }
+
+       // 4. Mencari paket apa yang dibeli (pkg)
+       const pkg = payload.data?.pkg || payload.pkg || payload.customer?.pkg;
+       const updateData = {};
+       
+       if (pkg === 'grammar') {
+         updateData['proStatus.grammar'] = true;
+       } else if (pkg === 'english') {
+         updateData['proStatus.english'] = true;
+       } else if (pkg === 'full') {
+         updateData['proStatus.grammar'] = true;
+         updateData['proStatus.english'] = true;
+       } else {
+         // Jika 'pkg' hilang/tidak direkam Mayar, otomatis buka SEMUA akses (Fallback aman)
+         console.warn("⚠️ Parameter 'pkg' tidak ditemukan dari Mayar. Mengaktifkan semua fitur (Full Bundle) sebagai tindakan aman.");
+         updateData['proStatus.grammar'] = true;
+         updateData['proStatus.english'] = true;
+       }
+
+       // 5. Mengubah data di Firebase Firestore
+       console.log(`🔄 Memproses Upgrade PRO untuk User UID: ${extId}`, updateData);
+       await admin.firestore().collection('users').doc(extId).update(updateData);
+       console.log("✅ SUKSES: Akun berhasil di-upgrade ke PRO!");
+       
+    } else {
+       console.log(`ℹ️ Status pembayaran belum lunas atau kedaluwarsa: ${status}`);
     }
 
-    // Midtrans membutuhkan balasan 200 OK agar tidak mengirim ulang webhook
+    // Selalu balas 200 OK ke Mayar agar mereka tidak mencoba mengirim ulang terus-menerus
     res.status(200).json({ status: 'OK' });
 
   } catch (error) {
-    console.error('Error handling Midtrans webhook:', error);
-    res.status(500).json({ message: 'Failed to process webhook', error: error.message });
+    console.error("🔥 Error saat memproses webhook:", error);
+    res.status(500).json({ error: error.message });
   }
 }
