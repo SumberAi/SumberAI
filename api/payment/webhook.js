@@ -1,13 +1,13 @@
-import admin from 'firebase-admin';
+import { initializeApp, cert, getApps } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
 
 // 1. Inisialisasi Firebase Admin menggunakan Kunci Rahasia dari Environment Variable Vercel
-if (admin.getApps().length === 0) {
+if (getApps().length === 0) {
   try {
     // Kita akan meminta Vercel untuk membaca rahasia dari variabel FIREBASE_SERVICE_ACCOUNT
     const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
-    admin.initializeApp({
-      credential: admin.credential.cert(serviceAccount)
+    initializeApp({
+      credential: cert(serviceAccount)
     });
     console.log("Firebase Admin initialized successfully.");
   } catch (error) {
