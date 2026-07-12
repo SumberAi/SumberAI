@@ -156,21 +156,32 @@
 
 <script>
 // --- UI Buttons ---
-document.getElementById('btnExit').addEventListener('click', () => { window.close(); });
-document.getElementById('btnPause').addEventListener('click', () => {
+const btnExit = document.getElementById('btnExit');
+const exitGame = (e) => {
+  if (e) { e.preventDefault(); e.stopPropagation(); }
+  window.close(); // Attempt to close tab
+  setTimeout(() => { window.location.href = '/'; }, 100); // Fallback if close is blocked
+};
+btnExit.addEventListener('click', exitGame);
+btnExit.addEventListener('touchstart', exitGame, { passive: false });
+const btnPause = document.getElementById('btnPause');
+const togglePause = (e) => {
+  if (e) { e.preventDefault(); e.stopPropagation(); }
   if (state === 'play' || state === 'paused') {
     if (state === 'play') {
       state = 'paused';
-      document.getElementById('btnPause').textContent = "▶ LANJUT";
+      btnPause.textContent = "▶ LANJUT";
       stopBgMusic();
     } else {
       state = 'play';
-      document.getElementById('btnPause').textContent = "II PAUSE";
+      btnPause.textContent = "II PAUSE";
       lastTime = performance.now();
       playBgMusic();
     }
   }
-});
+};
+btnPause.addEventListener('click', togglePause);
+btnPause.addEventListener('touchstart', togglePause, { passive: false });
 
 // ─── Stars ────────────────────────────────────────────────────
 const starsEl = document.getElementById('stars');
