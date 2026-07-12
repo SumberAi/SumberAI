@@ -32,10 +32,24 @@ export default async function handler(req, res) {
     
     if (isSuccess) {
        // 3. Mencari UID pengguna (ext_id) yang kita titipkan di link pembayaran
-       const extId = payload.data?.ext_id || payload.ext_id || payload.customer?.ext_id;
+       let extId = payload.data?.ext_id || payload.ext_id || payload.customer?.ext_id;
        
+       // JIKA Mayar tidak mengirimkan ext_id, kita cari berdasarkan Email pembeli!
        if (!extId) {
-         console.error("❌ Gagal: Tidak ada ext_id (UID) di dalam webhook Mayar. Tidak tahu harus meng-upgrade siapa.");
+         const customerEmail = payload.data?.customer?.email || payload.customer?.email;
+         if (customerEmail) {
+           console.log(`Mencari pengguna dengan email: ${customerEmail}`);
+           const usersRef = getFirestore().collection('users');
+           const snapshot = await usersRef.where('email', '==', customerEmail).get();
+           if (!snapshot.empty) {
+             extId = snapshot.docs[0].id; // Menggunakan UID dari dokumen yang ditemukan
+             console.log(`Ditemukan! UID pengguna: ${extId}`);
+           }
+         }
+       }
+
+       if (!extId) {
+         console.error("❌ Gagal: Tidak ada ext_id (UID) maupun Email di dalam webhook Mayar. Tidak tahu harus meng-upgrade siapa.");
          return res.status(200).json({ status: 'OK', message: 'No ext_id found' });
        }
 
