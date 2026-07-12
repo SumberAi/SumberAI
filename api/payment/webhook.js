@@ -33,26 +33,29 @@ export default async function handler(req, res) {
     if (isSuccess) {
        // 3. Mencari UID pengguna (ext_id) yang kita titipkan di link pembayaran
        let extId = payload.data?.ext_id || payload.ext_id || payload.customer?.ext_id;
+       let targetUids = [];
        
-       // JIKA Mayar tidak mengirimkan ext_id, kita cari berdasarkan Email pembeli!
-       if (!extId) {
+       if (extId) {
+         targetUids.push(extId);
+       } else {
+         // JIKA Mayar tidak mengirimkan ext_id, kita cari berdasarkan Email pembeli!
          const customerEmail = payload.data?.customerEmail || payload.data?.customer?.email || payload.customerEmail || payload.customer?.email;
          if (customerEmail) {
            console.log(`Mencari pengguna dengan email: ${customerEmail}`);
            const usersRef = getFirestore().collection('users');
            const snapshot = await usersRef.where('email', '==', customerEmail).get();
            if (!snapshot.empty) {
-             extId = snapshot.docs[0].id; // Menggunakan UID dari dokumen yang ditemukan
-             console.log(`Ditemukan! UID pengguna: ${extId}`);
+             targetUids = snapshot.docs.map(doc => doc.id);
+             console.log(`Ditemukan! ${targetUids.length} akun dengan email tersebut: ${targetUids.join(', ')}`);
            } else {
              console.log(`⚠️ Email ${customerEmail} tidak ditemukan di database pengguna.`);
            }
          }
        }
 
-       if (!extId) {
+       if (targetUids.length === 0) {
          console.error("❌ Gagal: Tidak ada ext_id (UID) maupun Email pembeli di dalam webhook Mayar. Tidak tahu harus meng-upgrade siapa.");
-         return res.status(200).json({ status: 'OK', message: 'No ext_id found' });
+         return res.status(200).json({ status: 'OK', message: 'No target users found' });
        }
 
        // 4. Mencari paket apa yang dibeli (pkg)
@@ -99,9 +102,11 @@ export default async function handler(req, res) {
        }
 
        // 5. Mengubah data di Firebase Firestore
-       console.log(`🔄 Memproses Upgrade PRO untuk User UID: ${extId}`, updateData);
-       await getFirestore().collection('users').doc(extId).update(updateData);
-       console.log("✅ SUKSES: Akun berhasil di-upgrade ke PRO!");
+       for (const uid of targetUids) {
+         console.log(`🔄 Memproses Upgrade PRO untuk User UID: ${uid}`, updateData);
+         await getFirestore().collection('users').doc(uid).update(updateData);
+       }
+       console.log("✅ SUKSES: Semua akun yang cocok berhasil di-upgrade ke PRO!");
        
     } else {
        console.log(`ℹ️ Status pembayaran belum lunas atau kedaluwarsa: ${status}`);
