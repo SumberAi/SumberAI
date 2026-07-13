@@ -76,7 +76,13 @@ export class GeminiLiveClient {
       
       this.history.push({ role: 'model', parts: [{ text: ttsText }] });
       
-      await this.speak(ttsText, aiText);
+      // SHOW TEXT IMMEDIATELY to reduce perceived delay
+      if (this.onText) {
+        this.onText(aiText);
+      }
+
+      // Then generate and play audio in the background
+      await this.speak(ttsText);
     } catch (err) {
       console.error('REST API Error:', err);
     } finally {
@@ -98,10 +104,6 @@ export class GeminiLiveClient {
 
       const ttsRes = await fetch(ttsUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(ttsPayload) });
       const ttsData = await ttsRes.json();
-
-      if (uiTextToDisplay && this.onText) {
-        this.onText(uiTextToDisplay);
-      }
 
       if (ttsData.candidates && ttsData.candidates[0].content) {
         const outParts = ttsData.candidates[0].content.parts;
