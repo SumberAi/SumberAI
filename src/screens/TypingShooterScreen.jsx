@@ -171,6 +171,21 @@ export default function TypingShooterScreen({ gs, setGs, onNav, onCoinEarned }) 
   const [isPaused, setIsPaused] = useState(false);
   const [levelUpMsg, setLevelUpMsg] = useState(false);
   const [showCoinInfo, setShowCoinInfo] = useState(false);
+  const [viewportHeight, setViewportHeight] = useState('100vh');
+
+  useEffect(() => {
+    if (!window.visualViewport) return;
+    const handleResize = () => {
+      setViewportHeight(`${window.visualViewport.height}px`);
+    };
+    handleResize();
+    window.visualViewport.addEventListener('resize', handleResize);
+    window.visualViewport.addEventListener('scroll', handleResize);
+    return () => {
+      window.visualViewport.removeEventListener('resize', handleResize);
+      window.visualViewport.removeEventListener('scroll', handleResize);
+    };
+  }, []);
 
   useEffect(() => {
     if (level > 1 && level < 21) {
@@ -332,6 +347,7 @@ export default function TypingShooterScreen({ gs, setGs, onNav, onCoinEarned }) 
             en.dead = true;
             playSfx('error');
             newHp -= 1;
+            if (en.id === newActiveId) newActiveId = null;
           }
           return { ...en, y: nextY };
         }
@@ -452,7 +468,10 @@ export default function TypingShooterScreen({ gs, setGs, onNav, onCoinEarned }) 
   }, [isPlaying, gameOver]);
 
   return (
-    <div style={{minHeight:"100vh",background:"linear-gradient(135deg, #050B14 0%, #111827 50%, #030712 100%)",color:"#fff",position:"relative",overflow:"hidden",fontFamily:"'Exo 2', sans-serif"}}>
+    <div 
+      onClick={() => isPlaying && inputRef.current && inputRef.current.focus()}
+      style={{height: viewportHeight, transition: "height 0.25s cubic-bezier(0.2, 0.8, 0.2, 1)", background:"linear-gradient(135deg, #050B14 0%, #111827 50%, #030712 100%)",color:"#fff",position:"relative",overflow:"hidden",fontFamily:"'Exo 2', sans-serif"}}
+    >
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Exo+2:wght@400;700;900&family=Space+Mono:wght@400;700&display=swap');
         
