@@ -137,12 +137,12 @@ export default function HomeScreen({ gs, setGs, onNav, onClaimStarter }) {
         {/* Features Grid: Academy & Market */}
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginTop:4,marginBottom:12}}>
           <div className="tap hover-card" onClick={()=>onNav("academy")} style={{background:"linear-gradient(135deg,#7C3AED,#A78BFA)",borderRadius:20,padding:"16px 14px",boxShadow:"0 6px 20px rgba(124,58,237,.2)",color:"#fff",animation:"fadeUp .6s ease"}}>
-            <div style={{fontSize:26,marginBottom:6}}>📚</div>
+            <img src="/academy.jpeg" alt="Academy Logo" style={{width: 44, height: 44, marginBottom: 10, borderRadius: 10, objectFit: 'cover', border: '2px solid rgba(255,255,255,0.2)'}} />
             <div style={{fontFamily:"Exo 2",fontWeight:900,fontSize:14}}>AI Academy</div>
             <div style={{fontSize:11,opacity:.8}}>Kursus AI interaktif</div>
           </div>
           <div className="tap hover-card" onClick={()=>onNav("market")} style={{background:C.goldGrad,borderRadius:20,padding:"16px 14px",boxShadow:"0 6px 20px rgba(217,119,6,.2)",color:"#fff",animation:"fadeUp .65s ease"}}>
-            <div style={{fontSize:26,marginBottom:6}}>🛍️</div>
+            <img src="/umkm.jpeg" alt="UMKM Logo" style={{width: 44, height: 44, marginBottom: 10, borderRadius: 10, objectFit: 'cover', border: '2px solid rgba(255,255,255,0.2)'}} />
             <div style={{fontFamily:"Exo 2",fontWeight:900,fontSize:14}}>UMKM Market</div>
             <div style={{fontSize:11,opacity:.9}}>Tukar SmartCoin</div>
           </div>

@@ -8,6 +8,24 @@ import { doc, setDoc } from 'firebase/firestore';
 export default function ProfileScreen({ gs, setGs, onNav, isDark }) {
   const isEn = gs.lang === 'en';
   const fileInputRef = React.useRef(null);
+  const [isEditingName, setIsEditingName] = React.useState(false);
+  const [tempName, setTempName] = React.useState(gs.name || "");
+
+  const handleSaveName = async () => {
+    if(!tempName.trim()) {
+      setIsEditingName(false);
+      return;
+    }
+    if(setGs) setGs(prev => ({ ...prev, name: tempName }));
+    setIsEditingName(false);
+    if(auth.currentUser) {
+      try {
+        await setDoc(doc(db, "users", auth.currentUser.uid), { name: tempName }, { merge: true });
+      } catch(e) {
+        console.error("Gagal menyimpan nama:", e);
+      }
+    }
+  };
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
@@ -56,7 +74,7 @@ export default function ProfileScreen({ gs, setGs, onNav, isDark }) {
 
   const achs = [
     {icon:"🔥", title:"Streak Master", sub:isEn ? "Login 3 days in a row" : "Login 3 hari berturut-turut", done: gs.streak >= 3},
-    {icon:"🎓", title:isEn ? "Academy Scholar" : "Sarjana Academy", sub:isEn ? "Read 10 Academy modules" : "Baca 10 modul Academy", done: gs.academyDone >= 10},
+    {icon:<img src="/academy.jpeg" style={{width:26, height:26, borderRadius:4, objectFit:'cover'}} alt="Academy" />, title:isEn ? "Academy Scholar" : "Sarjana Academy", sub:isEn ? "Read 10 Academy modules" : "Baca 10 modul Academy", done: gs.academyDone >= 10},
     {icon:"🤖", title:"Bilingual", sub:isEn ? "Complete 20 English Lab questions" : "Selesaikan 20 soal English Lab", done: gs.engDone >= 20},
     {icon:"💼", title:"HRD Favorite", sub:isEn ? "Complete 5 Interview Simulation sessions" : "Jalani 5 sesi Simulasi Interview", done: gs.interviewDone >= 5},
     {icon:"👑", title:isEn ? "Coin Mogul" : "Sultan Koin", sub:isEn ? "Collect 100 SmartCoins" : "Kumpulkan 100 SmartCoin", done: gs.coins >= 100},
@@ -81,7 +99,23 @@ export default function ProfileScreen({ gs, setGs, onNav, isDark }) {
           </div>
           
           <div style={{position:"relative",zIndex:1}}>
-            <h2 style={{fontFamily:"Exo 2",fontWeight:900,fontSize:22,color:"var(--text-main)",marginBottom:16}}>{gs.name}</h2>
+            {isEditingName ? (
+              <div style={{display:"flex", alignItems:"center", justifyContent:"center", gap: 8, marginBottom: 16}}>
+                <input 
+                  type="text" 
+                  value={tempName}
+                  onChange={(e) => setTempName(e.target.value)}
+                  style={{fontFamily:"Exo 2", fontWeight:800, fontSize:18, textAlign:"center", padding:"4px 8px", borderRadius:8, border:"1px solid #CBD5E1", background:"var(--bg-main)", color:"var(--text-main)", width: 140, outline:"none"}}
+                  autoFocus
+                />
+                <button onClick={handleSaveName} style={{background:"#10B981", color:"#fff", border:"none", padding:"6px 12px", borderRadius:8, fontWeight:700, cursor:"pointer", fontSize:12}}>{isEn ? "Save" : "Simpan"}</button>
+              </div>
+            ) : (
+              <h2 style={{fontFamily:"Exo 2",fontWeight:900,fontSize:22,color:"var(--text-main)",marginBottom:16, display:"flex", alignItems:"center", justifyContent:"center", gap:8}}>
+                {gs.name} 
+                <span className="tap" onClick={() => { setTempName(gs.name); setIsEditingName(true); }} style={{fontSize:14, cursor:"pointer", color:"#94A3B8"}}>✏️</span>
+              </h2>
+            )}
             
             <div style={{background:"var(--bg-main)",borderRadius:16,padding:"14px",textAlign:"left"}}>
               <div style={{display:"flex",justifyContent:"space-between",fontSize:11,fontWeight:800,color:"var(--text-sec)",marginBottom:6}}>
@@ -138,7 +172,7 @@ export default function ProfileScreen({ gs, setGs, onNav, isDark }) {
             <div style={{fontFamily:"Exo 2",fontWeight:900,fontSize:14,color:"#D97706",marginBottom:2}}>{isEn ? "License Status" : "Status Lisensi"}</div>
             <div style={{fontSize:12,color:"#92400E",fontWeight:600}}>
               {gs.proStatus?.scholar && gs.proStatus?.english ? "👑 FULL BUNDLE PRO" :
-               gs.proStatus?.scholar ? "🎓 AI ACADEMY PRO" :
+               gs.proStatus?.scholar ? <span style={{display:"flex", alignItems:"center", gap:4}}><img src="/academy.jpeg" style={{width:14, height:14, borderRadius:2, objectFit:'cover'}} alt="Academy"/> AI ACADEMY PRO</span> :
                gs.proStatus?.english ? "🤖 AI ENGLISH TUTOR PRO" : (isEn ? "Free Basic" : "Bebas (Gratis)")}
             </div>
           </div>

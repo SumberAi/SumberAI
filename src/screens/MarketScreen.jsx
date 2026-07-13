@@ -719,7 +719,7 @@ export default function MarketScreen({ gs, spendCoins, onNav, userUid }) {
             </button>
           </div>
           <div>
-            <h2 style={{fontFamily: "Exo 2", fontWeight: 900, fontSize: 28, color: C.text, margin: 0}}>Mitra UMKM 🛍️</h2>
+            <h2 style={{fontFamily: "Exo 2", fontWeight: 900, fontSize: 28, color: C.text, margin: 0, display: "flex", alignItems: "center", gap: 8}}>Mitra UMKM <img src="/umkm.jpeg" style={{height: 32, borderRadius: 4, objectFit: 'contain'}} alt="Icon" /></h2>
             <p style={{fontSize: 14, color: C.textSec, margin: "4px 0 0 0"}}>{isEn ? "Exchange your SmartCoins for real local products!" : "Tukarkan SmartCoins dengan voucher produk lokal Jambi!"}</p>
           </div>
         </div>

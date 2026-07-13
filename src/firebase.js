@@ -6,7 +6,7 @@ import { getAnalytics } from "firebase/analytics";
 const firebaseConfig = {
   // Memecah string agar lolos dari false-positive GitHub Secret Scanner
   apiKey: "AIzaSy" + "AGIqyY-16nQcB0EwGNm6uZ-dVmvV6TSCQ",
-  authDomain: "ai-english-tutor-43e5f.firebaseapp.com",
+  authDomain: "login.sumberai.com",
   projectId: "ai-english-tutor-43e5f",
   storageBucket: "ai-english-tutor-43e5f.firebasestorage.app",
   messagingSenderId: "979120106864",

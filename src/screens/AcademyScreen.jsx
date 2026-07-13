@@ -39,7 +39,7 @@ export default function AcademyScreen({ gs, onCoinEarned, onXPEarned, onNav, upg
             ◀ {isEn ? "BACK" : "KEMBALI"}
           </button>
           <div style={{flex: 1}}>
-            <h2 style={{fontFamily: "Exo 2", fontWeight: 900, fontSize: 24, color: C.text, margin: 0}}>AI Academy 📚</h2>
+            <h2 style={{fontFamily: "Exo 2", fontWeight: 900, fontSize: 24, color: C.text, margin: 0, display: "flex", alignItems: "center", gap: 8}}>AI Academy <img src="/academy.jpeg" style={{height: 28, borderRadius: 4, objectFit: 'contain'}} alt="Icon" /></h2>
             <p style={{fontSize: 13, color: C.textSec, margin: "4px 0 0 0"}}>{isEn ? "Learn interactive AI modules." : "Pelajari modul AI interaktif."}</p>
           </div>
         </div>
