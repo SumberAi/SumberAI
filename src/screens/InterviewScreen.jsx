@@ -175,8 +175,8 @@ export default function InterviewScreen({ gs, setGs, onNav, onCoinEarned, onXPEa
       return;
     }
 
-    if (!gs?.proStatus?.english && selectedMode === 'basic' && (gs?.basicChatCount || 0) >= 3) {
-      alert("Limit Percakapan Gratis Habis! Anda telah mencoba 3 kali interaksi gratis. Untuk membuka fitur secara penuh, silakan berlangganan AI ENGLISH TUTOR PRO.");
+    if (!gs?.proStatus?.english && selectedMode === 'basic' && (gs?.basicChatCount || 0) >= 12) {
+      alert("Limit Percakapan Gratis Habis! Anda telah mencoba 12 kali interaksi gratis hari ini. Untuk membuka fitur secara penuh, silakan berlangganan AI ENGLISH TUTOR PRO.");
       onNav("pricing");
       return;
     }
@@ -193,8 +193,8 @@ export default function InterviewScreen({ gs, setGs, onNav, onCoinEarned, onXPEa
       }
     }
 
-    if (gs?.proStatus?.english && currentChatCount >= 25) {
-      alert("Limit Percakapan Harian PRO Anda (25x) telah habis. Silakan kembali lagi besok!");
+    if (gs?.proStatus?.english && currentChatCount >= 50) {
+      alert("Limit Percakapan Harian PRO Anda (50x) telah habis. Silakan kembali lagi besok!");
       return;
     }
 
@@ -307,15 +307,15 @@ export default function InterviewScreen({ gs, setGs, onNav, onCoinEarned, onXPEa
 
   const toggleListen = async () => {
     // Validasi Limit Saat Sedang Chat (User Gratis)
-    if (!isListening && !gs?.proStatus?.english && mode === 'basic' && (gs?.basicChatCount || 0) >= 3) {
-      alert(isEn ? "Free Trial Limit Reached! You have used your 3 free interactions today. Please subscribe to PRO to continue." : "Limit Percakapan Gratis Habis! Anda telah menggunakan 3 kali interaksi gratis hari ini. Silakan berlangganan PRO untuk melanjutkan.");
+    if (!isListening && !gs?.proStatus?.english && mode === 'basic' && (gs?.basicChatCount || 0) >= 12) {
+      alert(isEn ? "Free Trial Limit Reached! You have used your 12 free interactions today. Please subscribe to PRO to continue." : "Limit Percakapan Gratis Habis! Anda telah menggunakan 12 kali interaksi gratis hari ini. Silakan berlangganan PRO untuk melanjutkan.");
       onNav("pricing");
       return;
     }
     
     // Validasi Limit Saat Sedang Chat (User PRO)
-    if (!isListening && gs?.proStatus?.english && (gs?.proChatCount || 0) >= 25) {
-      alert(isEn ? "Daily PRO Limit Reached (25/25). Please come back tomorrow!" : "Limit Percakapan Harian PRO Anda (25/25) telah habis. Silakan kembali lagi besok untuk mencegah penyalahgunaan sistem!");
+    if (!isListening && gs?.proStatus?.english && (gs?.proChatCount || 0) >= 50) {
+      alert(isEn ? "Daily PRO Limit Reached (50/50). Please come back tomorrow!" : "Limit Percakapan Harian PRO Anda (50/50) telah habis. Silakan kembali lagi besok untuk mencegah penyalahgunaan sistem!");
       return;
     }
 
@@ -364,13 +364,13 @@ export default function InterviewScreen({ gs, setGs, onNav, onCoinEarned, onXPEa
           title={isEn ? "AI Tutor Coin Rules" : "Aturan Koin AI Tutor"}
           isEn={isEn}
           rules={isEn ? [
-            "Free Users: Access limited to 3 Basic Conversations per day.",
+            "Free Users: Access limited to 12 Basic Conversations per day.",
             "Free Users do not earn coins from this feature.",
             "PRO Users: Receive a daily bonus of 20 Coins just by opening this feature once a day.",
             "PRO Users also earn +2 Coins for every voice message sent.",
             "Limits reset every day."
           ] : [
-            "User Gratis: Maksimal 3 Percakapan Dasar per hari.",
+            "User Gratis: Maksimal 12 Percakapan Dasar per hari.",
             "User Gratis tidak mendapatkan koin dari fitur ini.",
             "User PRO: Mendapat bonus harian 20 Koin hanya dengan membuka fitur ini sekali sehari.",
             "User PRO juga mendapat +2 Koin untuk setiap pesan suara yang dikirim.",
@@ -415,12 +415,12 @@ export default function InterviewScreen({ gs, setGs, onNav, onCoinEarned, onXPEa
                 <div style={{ width: 40, height: 40, background: "#EFF6FF", borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>🗣️</div>
                 <h3 style={{ fontFamily: "Exo 2", fontWeight: 900, fontSize: 18, color: "#1E293B", margin: 0 }}>Basic Casual</h3>
               </div>
-              {(!gs?.proStatus?.english && (gs?.basicChatCount || 0) >= 3) ? <span style={{ fontSize: 18 }}>🔒</span> : <span style={{ fontSize: 11, background: "#FEF3C7", color: "#F59E0B", padding: "4px 10px", borderRadius: 99, fontWeight: 800 }}>Free</span>}
+              {(!gs?.proStatus?.english && (gs?.basicChatCount || 0) >= 12) ? <span style={{ fontSize: 18 }}>🔒</span> : <span style={{ fontSize: 11, background: "#FEF3C7", color: "#F59E0B", padding: "4px 10px", borderRadius: 99, fontWeight: 800 }}>Free</span>}
             </div>
             <p style={{ fontSize: 13, color: "#64748B", margin: 0, lineHeight: 1.5 }}>{isEn ? "Practice natural daily conversations about hobbies, food, and daily life in a friendly setting." : "Simulasi obrolan santai sehari-hari untuk melatih kepercayaan diri dan kelancaran berbicara."}</p>
             {!gs?.proStatus?.english && (
               <div style={{ background: "#FEF2F2", color: "#EF4444", fontSize: 11, fontWeight: 700, padding: "6px 12px", borderRadius: 8, display: "inline-block" }}>
-                {isEn ? "Remaining Free Quota:" : "Sisa Kuota Gratis:"} {Math.max(0, 3 - (gs?.basicChatCount || 0))}/3
+                {isEn ? "Remaining Free Quota:" : "Sisa Kuota Gratis:"} {Math.max(0, 12 - (gs?.basicChatCount || 0))}/12
               </div>
             )}
           </div>

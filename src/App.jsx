@@ -65,7 +65,7 @@ export default function App() {
       mod_proposal: false,
       mod_etika: false
     },
-    voiceLimit: 3,
+    voiceLimit: 12,
     voiceResetDate: null,
     playtimeMinutes: 0
   };
@@ -132,7 +132,8 @@ export default function App() {
 
         if (today !== lastReset) {
           const isPro = updatedData.proStatus?.scholar || updatedData.proStatus?.english || updatedData.proStatus?.grammar;
-          updatedData.voiceLimit = isPro ? 25 : 3;
+          const isAdmin = updatedData.email === "sumberai.unja@gmail.com" || updatedData.level >= 99;
+          updatedData.voiceLimit = isAdmin ? 99999 : (isPro ? 50 : 12);
           updatedData.voiceResetDate = new Date().getTime();
           needsDbUpdate = true;
         }

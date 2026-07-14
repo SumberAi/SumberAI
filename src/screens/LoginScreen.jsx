@@ -48,7 +48,7 @@ export default function LoginScreen({ onLogin }) {
       mod_proposal: false,
       mod_etika: false
     },
-    voiceLimit: 3,
+    voiceLimit: 12,
     voiceResetDate: null,
     playtimeMinutes: 0
   };
@@ -80,6 +80,7 @@ export default function LoginScreen({ onLogin }) {
           newUser.level = 99;
           newUser.xp = 99999;
           newUser.proStatus = { scholar: true, english: true, grammar: true, mod_otomatisasi: true, mod_proposal: true, mod_etika: true };
+          newUser.voiceLimit = 99999;
         }
 
         await setDoc(doc(db, "users", user.uid), newUser);
@@ -97,6 +98,7 @@ export default function LoginScreen({ onLogin }) {
           userData.level = 99;
           userData.xp = 99999;
           userData.proStatus = { scholar: true, english: true, grammar: true, mod_otomatisasi: true, mod_proposal: true, mod_etika: true };
+          userData.voiceLimit = 99999;
           await setDoc(doc(db, "users", user.uid), userData);
         }
 
