@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Analytics } from '@vercel/analytics/react';
 import { auth, db } from './firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import { doc, onSnapshot, setDoc } from 'firebase/firestore';
@@ -386,6 +387,7 @@ export default function App() {
 
   return (
     <ErrorBoundary>
+      <Analytics />
       <div style={{
         maxWidth: 430,
         margin: "0 auto",
