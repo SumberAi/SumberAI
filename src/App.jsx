@@ -1,0 +1,639 @@
+import React, { useState, useEffect } from 'react';
+import { auth, db } from './firebase';
+import { onAuthStateChanged } from 'firebase/auth';
+import { doc, onSnapshot, setDoc } from 'firebase/firestore';
+import { Capacitor } from '@capacitor/core';
+// import { PushNotifications } from '@capacitor/push-notifications';
+// import { App as CapacitorApp } from '@capacitor/app';
+const CapacitorApp = { addListener: ()=>{}, removeAllListeners: ()=>{}, exitApp: ()=>{} };
+import OnboardingScreen from './screens/OnboardingScreen';
+import HomeScreen from './screens/HomeScreen';
+import ArenaScreen from './screens/ArenaScreen';
+import EnglishScreen from './screens/EnglishScreen';
+import AcademyScreen from './screens/AcademyScreen';
+import MarketScreen from './screens/MarketScreen';
+import LoginScreen from './screens/LoginScreen';
+import PricingScreen from './screens/PricingScreen';
+import ProfileScreen from './screens/ProfileScreen';
+import MemoryGameScreen from './screens/MemoryGameScreen';
+import InterviewScreen from './screens/InterviewScreen';
+import TypingShooterScreen from './screens/TypingShooterScreen';
+import BoardGameScreen from './screens/BoardGameScreen';
+import MitraScreen from './screens/MitraScreen';
+import FeedbackScreen from './screens/FeedbackScreen';
+import PrivacyScreen from './screens/PrivacyScreen';
+import AdminFeedbackScreen from './screens/AdminFeedbackScreen';
+import { TopBar, BottomNav } from './components/Shared';
+import { Joyride } from 'react-joyride';
+import DailySpinModal from './components/DailySpinModal';
+import ChatbotWidget from './components/ChatbotWidget';
+
+function SetUsernameModal({ gs, onSave }) {
+  const [name, setName] = useState(gs.name || "");
+  return (
+    <div style={{position:"fixed", inset:0, zIndex: 100000, background:"rgba(15,23,42,0.9)", backdropFilter:"blur(10px)", display:"flex", alignItems:"center", justifyContent:"center", padding:20}}>
+      <div style={{background:"var(--bg-card)", padding:30, borderRadius:24, width:"100%", maxWidth:360, textAlign:"center", boxShadow:"0 20px 50px rgba(0,0,0,0.5)", animation:"popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)"}}>
+        <h2 style={{fontFamily:"Exo 2", fontWeight:900, marginBottom:10, color:"var(--text-main)"}}>Siapa namamu?</h2>
+        <p style={{fontSize:13, color:"var(--text-sec)", marginBottom:20, lineHeight:1.5}}>Masukkan nama panggilanmu agar kami bisa menyapamu dengan lebih akrab.</p>
+        <input 
+          type="text" 
+          value={name} 
+          onChange={e => setName(e.target.value)}
+          placeholder="Ketik namamu di sini..."
+          style={{width:"100%", padding:14, borderRadius:12, border:"1px solid var(--border-color)", background:"var(--bg-main)", color:"var(--text-main)", marginBottom:20, outline:"none", textAlign:"center", fontSize:16, fontWeight:700, boxSizing:"border-box"}}
+        />
+        <button className="tap" onClick={() => onSave(name)} disabled={!name.trim()} style={{width:"100%", padding:14, borderRadius:12, background:"linear-gradient(135deg, #2563EB, #60A5FA)", color:"#fff", border:"none", fontWeight:800, fontSize:15, opacity: name.trim() ? 1 : 0.5, cursor: name.trim() ? "pointer" : "not-allowed"}}>
+          Simpan & Lanjutkan
+        </button>
+      </div>
+    </div>
+  );
+}
+
+export default function App() {
+  const [hasSeenOnboarding, setHasSeenOnboarding] = useState(() => {
+    return localStorage.getItem('hasSeenOnboarding') === 'true';
+  });
+
+  const [nav, setNav] = useState(() => {
+    if (typeof window !== 'undefined' && window.location.search.includes('mitra')) {
+      return 'mitra';
+    }
+    if (!hasSeenOnboarding) {
+      return 'onboarding';
+    }
+    return 'login';
+  });
+  const [isDark, setIsDark] = useState(false);
+  const [debugText, setDebugText] = useState("");
+  const [showDailySpin, setShowDailySpin] = useState(false);
+
+  // Handle Android Hardware Back Button
+  useEffect(() => {
+    if (Capacitor.isNativePlatform()) {
+      CapacitorApp.addListener('backButton', ({ canGoBack }) => {
+        setNav((currentNav) => {
+          if (currentNav === "home" || currentNav === "login" || currentNav === "onboarding") {
+            CapacitorApp.exitApp();
+            return currentNav;
+          }
+          return "home"; // Mundur ke home jika di layar lain
+        });
+      });
+    }
+    return () => {
+      if (Capacitor.isNativePlatform()) {
+        CapacitorApp.removeAllListeners();
+      }
+    };
+  }, []);
+  
+  // Game State
+  const defaultGs = {
+    lang: "id",
+    name: "Siswa",
+    major: "Digital Business",
+    university: "Universitas Jambi",
+    coins: 0,
+    hasClaimedStarter: false,
+    streak: 3,
+    level: 1,
+    xp: 0,
+    xpNext: 500,
+    battlesWon: 0,
+    redeemed: 0,
+    engDone: 0,
+    engLabWeeklyCoins: { beginner: 0, intermediate: 0, advanced: 0 },
+    engLabResetDate: null,
+    tutorResetDate: null,
+    tutorDailyBonusDate: null,
+    typingDailyCoins: 0,
+    typingResetDate: null,
+    memoryDailyCoins: 0,
+    memoryResetDate: null,
+    petualanganDailyCoins: 0,
+    petualanganResetDate: null,
+    dailySpinResetDate: null,
+    basicChatCount: 0,
+    interviewDone: 0,
+    negsDone: 0,
+    academyDone: 0,
+    proStatus: {
+      scholar: false,
+      english: false,
+      grammar: false,
+      mod_otomatisasi: false,
+      mod_proposal: false,
+      mod_etika: false
+    },
+    voiceLimit: 12,
+    voiceResetDate: null,
+    playtimeMinutes: 0
+  };
+
+  const [gs, setGs] = useState(defaultGs);
+  const [userUid, setUserUid] = useState(null);
+  const [isDbLoaded, setIsDbLoaded] = useState(false);
+
+  // Pantau Status Login Firebase
+  useEffect(() => {
+    const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
+      if (typeof window !== 'undefined' && window.location.search.includes('mitra')) {
+        return; // Biarkan kasir tetap di halaman mitra
+      }
+      if (user) {
+        setUserUid(user.uid);
+        // Do not setNav("home") here yet. Wait for DB.
+        setNav("loading");
+        
+        // --- Setup Push Notifications ---
+        // if (Capacitor.isNativePlatform()) {
+        //   setupPushNotifications(user.uid);
+        // }
+      } else {
+        setUserUid(null);
+        setGs(defaultGs); // Reset state on logout
+        setIsDbLoaded(false);
+        if (hasSeenOnboarding) {
+          setNav("login");
+        } else {
+          setNav("onboarding");
+        }
+      }
+    });
+    return () => unsubscribeAuth();
+  }, [hasSeenOnboarding]);
+
+  const setupPushNotifications = async (uid) => {
+    // Disabled temporarily for iOS App Store release
+    /*
+    try {
+      let permStatus = await PushNotifications.checkPermissions();
+      if (permStatus.receive === 'prompt') {
+        permStatus = await PushNotifications.requestPermissions();
+      }
+      if (permStatus.receive !== 'granted') {
+        return;
+      }
+      
+      await PushNotifications.register();
+      
+      PushNotifications.addListener('registration', (token) => {
+        setDoc(doc(db, "users", uid), { fcmToken: token.value }, { merge: true });
+      });
+      
+      PushNotifications.addListener('pushNotificationReceived', (notification) => {
+        console.log('Push received: ', notification);
+      });
+    } catch (e) {
+      console.log('Push Notifications not supported or failed', e);
+    }
+    */
+  };
+
+  // Pantau Database Firestore secara Realtime jika sudah Login
+  useEffect(() => {
+    if (!userUid) return;
+    
+    const userRef = doc(db, "users", userUid);
+    const unsubscribeDb = onSnapshot(userRef, (docSnap) => {
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        
+        // Logika Reset Voice Limit Harian (Dilakukan secara otomatis saat data dimuat)
+        const today = new Date().toLocaleDateString('id-ID');
+        const lastReset = data.voiceResetDate ? new Date(data.voiceResetDate).toLocaleDateString('id-ID') : null;
+        
+        let updatedData = { ...data };
+        let needsDbUpdate = false;
+        const now = Date.now();
+
+        // Paksa flag onboarding dan dailySpin untuk pengguna lama
+        if (updatedData.hasSetUsername === undefined) {
+          updatedData.hasSetUsername = false;
+          updatedData.hasCompletedTour = false;
+          needsDbUpdate = true;
+        }
+        if (updatedData.dailySpinResetDate === undefined) {
+          updatedData.dailySpinResetDate = null;
+          needsDbUpdate = true;
+        }
+
+        // Cek Kedaluwarsa Langganan PRO (30 Hari)
+        if (updatedData.proStatus) {
+           let proChanged = false;
+           if (updatedData.proStatus.grammarExpiresAt && now > updatedData.proStatus.grammarExpiresAt) {
+               updatedData.proStatus.grammar = false;
+               updatedData.proStatus.grammarExpiresAt = null;
+               proChanged = true;
+           }
+           if (updatedData.proStatus.englishExpiresAt && now > updatedData.proStatus.englishExpiresAt) {
+               updatedData.proStatus.english = false;
+               updatedData.proStatus.englishExpiresAt = null;
+               proChanged = true;
+           }
+           if (proChanged) {
+               updatedData.isPro = updatedData.proStatus.scholar || updatedData.proStatus.english || updatedData.proStatus.grammar;
+               needsDbUpdate = true;
+           }
+        }
+
+        if (today !== lastReset) {
+          const isPro = updatedData.proStatus?.scholar || updatedData.proStatus?.english || updatedData.proStatus?.grammar;
+          const isAdmin = updatedData.email === "sumberai.unja@gmail.com" || updatedData.level >= 99;
+          updatedData.voiceLimit = isAdmin ? 99999 : (isPro ? 50 : 12);
+          updatedData.voiceResetDate = new Date().getTime();
+          needsDbUpdate = true;
+        }
+
+        updatedData.uid = userUid;
+        setGs(prev => ({ ...prev, ...updatedData }));
+        
+        setIsDbLoaded(true);
+        setNav(currentNav => {
+          if (currentNav === "loading") {
+            const lNav = localStorage.getItem('lastNav');
+            if (lNav) localStorage.removeItem('lastNav');
+            return lNav || "home";
+          }
+          return currentNav;
+        });
+
+        if (needsDbUpdate) {
+          setDoc(userRef, { 
+            voiceLimit: updatedData.voiceLimit, 
+            voiceResetDate: updatedData.voiceResetDate,
+            proStatus: updatedData.proStatus,
+            isPro: updatedData.isPro,
+            hasSetUsername: updatedData.hasSetUsername,
+            hasCompletedTour: updatedData.hasCompletedTour,
+            dailySpinResetDate: updatedData.dailySpinResetDate
+          }, { merge: true }).catch(console.error);
+        }
+      } else {
+        // If doc doesn't exist, it means user is brand new.
+        // We can safely go to home and they will get the modal.
+        setGs(prev => ({ ...prev, uid: userUid }));
+        setIsDbLoaded(true);
+        setNav(currentNav => {
+          if (currentNav === "loading") {
+            const lNav = localStorage.getItem('lastNav');
+            if (lNav) localStorage.removeItem('lastNav');
+            return lNav || "home";
+          }
+          return currentNav;
+        });
+      }
+    });
+    
+    return () => unsubscribeDb();
+  }, [userUid]);
+
+  // Pelacak Durasi Aktif (Playtime Tracker)
+  useEffect(() => {
+    if (!userUid) return;
+
+    let unsavedMinutes = 0;
+    
+    const interval = setInterval(() => {
+      unsavedMinutes += 1;
+      
+      // Update state lokal setiap menit agar UI bisa bereaksi (opsional)
+      setGs(prev => ({ ...prev, playtimeMinutes: (prev.playtimeMinutes || 0) + 1 }));
+
+      // Simpan ke Firestore setiap 5 menit untuk menghemat kuota Write
+      if (unsavedMinutes >= 5) {
+        setGs(prev => {
+          setDoc(doc(db, "users", userUid), { playtimeMinutes: prev.playtimeMinutes }, { merge: true });
+          return prev;
+        });
+        unsavedMinutes = 0;
+      }
+    }, 60000); // 1 menit
+
+    // Simpan sisa menit ke Firestore saat pengguna menutup Tab browser atau pindah aplikasi
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'hidden' && unsavedMinutes > 0) {
+        setGs(prev => {
+          setDoc(doc(db, "users", userUid), { playtimeMinutes: prev.playtimeMinutes }, { merge: true });
+          return prev;
+        });
+        unsavedMinutes = 0;
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      if (unsavedMinutes > 0) {
+        setGs(prev => {
+          setDoc(doc(db, "users", userUid), { playtimeMinutes: prev.playtimeMinutes }, { merge: true });
+          return prev;
+        });
+      }
+    };
+  }, [userUid]);
+
+  // Simpan progress secara otomatis ke Firestore setiap kali `gs` diubah lokal
+  // (Debounce bisa ditambahkan nanti, untuk sekarang langsung tulis)
+  useEffect(() => {
+    if (userUid && gs.name !== "Siswa") {
+      const saveToDb = async () => {
+        try {
+          await setDoc(doc(db, "users", userUid), gs, { merge: true });
+        } catch (e) {
+          console.error("Gagal menyimpan ke Firestore:", e);
+        }
+      };
+      
+      // Mencegah infinite loop dengan memastikan update tidak berasal dari onSnapshot langsung
+      // Cara aman: kita tidak otomatis nge-save seluruh objek setiap ada re-render, 
+      // tetapi fungsi helper di bawah ini (addCoins, addXP, dll) yang harus update state & db secara sadar.
+    }
+  }, [gs, userUid]);
+
+  useEffect(() => {
+    if (isDark) {
+      document.body.classList.add("dark");
+    } else {
+      document.body.classList.remove("dark");
+    }
+  }, [isDark]);
+
+  // Fix scroll position saat pindah halaman
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [nav]);
+
+  const updateDb = async (newData) => {
+    if (!userUid) return;
+    try {
+      await setDoc(doc(db, "users", userUid), newData, { merge: true });
+    } catch(e) {
+      console.error(e);
+    }
+  };
+
+  const handleClaimStarter = () => {
+    setGs(prev => {
+      if (prev.hasClaimedStarter) return prev;
+      const newGs = { ...prev, coins: prev.coins + 50, hasClaimedStarter: true };
+      updateDb(newGs);
+      return newGs;
+    });
+  };
+
+  const upgradeToPro = (type) => {
+    setGs(p => {
+      let newCoins = p.coins;
+      if (type === 'scholar' && !p.proStatus?.scholar) {
+        alert(p.lang === 'en' ? "Successfully upgraded to AI Academy PRO!" : "Berhasil langganan AI Academy PRO!");
+      }
+      const newGs = {
+        ...p, 
+        coins: newCoins,
+        proStatus: { ...p.proStatus, [type]: true }
+      };
+      updateDb(newGs);
+      return newGs;
+    });
+  };
+
+  const addCoins = (amt) => {
+    setGs(p => {
+      const newGs = { ...p, coins: p.coins + amt };
+      updateDb({ coins: newGs.coins });
+      return newGs;
+    });
+  };
+
+  const addXP = (amt) => {
+    setGs(p => {
+      let nxp = p.xp + amt;
+      let nlv = p.level;
+      let nxpNext = p.xpNext;
+      while(nxp >= nxpNext) {
+        nlv++;
+        nxp -= nxpNext;
+        nxpNext = Math.floor(nxpNext * 1.5);
+      }
+      const newGs = { ...p, xp: nxp, level: nlv, xpNext: nxpNext, battlesWon: p.battlesWon + 1 };
+      updateDb({ xp: nxp, level: nlv, xpNext: nxpNext, battlesWon: newGs.battlesWon });
+      return newGs;
+    });
+  };
+
+  const spendCoins = (amt) => {
+    setGs(p => {
+      const newGs = { ...p, coins: Math.max(0, p.coins - amt), redeemed: p.redeemed + 1 };
+      updateDb({ coins: newGs.coins, redeemed: newGs.redeemed });
+      return newGs;
+    });
+  };
+
+  // Render current screen based on nav
+  const addBasicChatCount = () => {
+    setGs(prev => {
+      const newGs = { ...prev, basicChatCount: (prev.basicChatCount || 0) + 1 };
+      updateDb({ basicChatCount: newGs.basicChatCount });
+      return newGs;
+    });
+  };
+
+  const claimStarter = () => {
+    setGs(p => {
+      const newGs = { ...p, coins: p.coins + 50, hasClaimedStarter: true };
+      updateDb({ coins: newGs.coins, hasClaimedStarter: true });
+      return newGs;
+    });
+  };
+
+  const handleTutorBonus = () => {
+    setGs(p => {
+      const now = new Date().getTime();
+      const today = new Date().toLocaleDateString('id-ID');
+      const lastBonusDay = p.tutorDailyBonusDate ? new Date(p.tutorDailyBonusDate).toLocaleDateString('id-ID') : null;
+      if (today === lastBonusDay) return p; // CEGAH SPAM CLICK!
+      const newGs = { ...p, coins: p.coins + 20, tutorDailyBonusDate: now };
+      updateDb({ coins: newGs.coins, tutorDailyBonusDate: now });
+      return newGs;
+    });
+  };
+
+  // Fungsi proxy untuk mencegat setGs dari komponen anak
+  // dan otomatis menyimpannya ke Firestore secara real-time
+  const updateGameState = (updater) => {
+    setGs(prev => {
+      const nextState = typeof updater === 'function' ? updater(prev) : { ...prev, ...updater };
+      updateDb(nextState);
+      return nextState;
+    });
+  };
+
+  const [htmlGameUrl, setHtmlGameUrl] = useState("");
+
+  useEffect(() => {
+    const handleMessage = (e) => {
+      if (e.data === 'closeGame') {
+        setNav("arena");
+        setHtmlGameUrl("");
+      }
+    };
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, []);
+
+  const handleNav = (target, payload) => {
+    if (target === "htmlGame") {
+      setHtmlGameUrl(payload);
+    }
+    setNav(target);
+  };
+
+  let ScreenComponent;
+  switch (nav) {
+    case "onboarding": 
+      ScreenComponent = <OnboardingScreen onComplete={() => {
+        localStorage.setItem('hasSeenOnboarding', 'true');
+        setHasSeenOnboarding(true);
+        setNav("login");
+      }} />; 
+      break;
+    case "home": ScreenComponent = <HomeScreen gs={gs} setGs={updateGameState} onNav={handleNav} onClaimStarter={claimStarter} />; break;
+    case "arena": ScreenComponent = <ArenaScreen gs={gs} onXPEarned={addXP} onNav={handleNav} />; break;
+    case "english": ScreenComponent = <EnglishScreen gs={gs} setGs={updateGameState} onCoinEarned={addCoins} onXPEarned={addXP} onNav={handleNav} />; break;
+    case "academy": ScreenComponent = <AcademyScreen gs={gs} onCoinEarned={addCoins} onXPEarned={addXP} onNav={handleNav} upgradeToPro={upgradeToPro} />; break;
+    case "interview_pro": ScreenComponent = <InterviewScreen gs={gs} setGs={updateGameState} onNav={handleNav} onCoinEarned={addCoins} onXPEarned={addXP} onChatUsed={addBasicChatCount} onTutorBonus={handleTutorBonus} />; break;
+    case "market": ScreenComponent = <MarketScreen gs={gs} spendCoins={spendCoins} onNav={handleNav} userUid={userUid} />; break;
+    case "mitra": ScreenComponent = <MitraScreen />; break;
+    case "pricing": ScreenComponent = <PricingScreen gs={gs} onNav={handleNav} upgradeToPro={upgradeToPro} />; break;
+    case "profile": ScreenComponent = <ProfileScreen gs={gs} setGs={updateGameState} onNav={handleNav} isDark={isDark} />; break;
+    case "memory": ScreenComponent = <MemoryGameScreen gs={gs} setGs={updateGameState} onNav={handleNav} onCoinEarned={addCoins} />; break;
+    case "typing": ScreenComponent = <TypingShooterScreen gs={gs} setGs={updateGameState} onNav={handleNav} onCoinEarned={addCoins} />; break;
+    case "board": ScreenComponent = <BoardGameScreen gs={gs} onNav={handleNav} onCoinEarned={addCoins} onXPEarned={addXP} />; break;
+    case "feedback": ScreenComponent = <FeedbackScreen gs={gs} onNav={handleNav} />; break;
+    case "admin_feedback": ScreenComponent = <AdminFeedbackScreen onNav={handleNav} />; break;
+    case "privacy": ScreenComponent = <PrivacyScreen gs={gs} onNav={handleNav} />; break;
+    case "login": ScreenComponent = <LoginScreen 
+      onSkip={() => setNav("home")}
+      onLogin={(userData)=>{ 
+      // Karena onAuthStateChanged otomatis memanggil setNav("home") dan update gs, kita kosongkan saja callback ini.
+    }} />; break;
+    case "htmlGame": ScreenComponent = <iframe src={htmlGameUrl} style={{width:'100vw', height:'100vh', border:'none', display:'block', position:'fixed', top:0, left:0, zIndex:9999}} title="HTML Game" />; break;
+    case "loading": ScreenComponent = <div style={{height:"100vh", display:"flex", justifyContent:"center", alignItems:"center", color:"var(--text-main)"}}>Loading profile...</div>; break;
+    default: ScreenComponent = <HomeScreen gs={gs} onNav={handleNav} onClaimStarter={handleClaimStarter} />;
+  }
+
+  // Khusus untuk game Typing/Board, kita hide TopBar/BottomNav agar fullscreen
+  const isFullscreen = nav === "onboarding" || nav === "typing" || nav === "board" || nav === "memory" || nav === "login" || nav === "pricing" || nav === "mitra";
+  const hideTopBar = nav === "onboarding" || nav === "typing" || nav === "board" || nav === "memory" || nav === "login" || nav === "mitra";
+
+
+
+  return (
+    <ErrorBoundary>
+      <div className="app-wrapper">
+        {gs.hasSetUsername === false && nav === "home" && userUid && (
+          <SetUsernameModal 
+            gs={gs} 
+            onSave={(name) => {
+              setGs(p => {
+                const next = {...p, name, hasSetUsername: true};
+                updateDb({ name, hasSetUsername: true });
+                return next;
+              });
+            }} 
+          />
+        )}
+        
+
+
+        {!hideTopBar && <TopBar gs={gs} setGs={setGs} onLogo={() => setNav("home")} onNav={setNav} isDark={isDark} setIsDark={setIsDark} nav={nav} />}
+        <div style={{flex: 1, display: "flex", flexDirection: "column", paddingBottom: !isFullscreen ? 80 : 0}}>
+          {ScreenComponent}
+        </div>
+        {!isFullscreen && <BottomNav gs={gs} active={nav} onNav={setNav} />}
+
+        {/* In-App Customer Service Chatbot */}
+        {nav === "home" && (
+          <ChatbotWidget gs={gs} isDark={isDark} />
+        )}
+
+        {/* Floating Daily Spin */}
+        {nav === "home" && gs.dailySpinResetDate !== new Date().toDateString() && (
+          <button
+            className="tap"
+            onClick={() => setShowDailySpin(true)}
+            style={{
+              position: "fixed",
+              bottom: !isFullscreen ? 90 : 20,
+              right: "max(20px, calc(50vw - 380px))",
+              background: "linear-gradient(135deg, #F59E0B, #EC4899)",
+              color: "#fff",
+              width: 56,
+              height: 56,
+              borderRadius: 28,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              border: "none",
+              boxShadow: "0 8px 24px rgba(236,72,153,0.4)",
+              zIndex: 9999,
+              animation: "bounce 2s infinite"
+            }}
+          >
+            <span style={{fontSize: 28}}>🎁</span>
+          </button>
+        )}
+
+        {/* Daily Spin Modal */}
+        {showDailySpin && (
+          <DailySpinModal 
+            isDark={isDark}
+            onClose={() => setShowDailySpin(false)}
+            onWin={(result) => {
+              if (result.type === 'coin') {
+                setGs(p => {
+                  const next = {...p, coins: (p.coins || 0) + result.val, dailySpinResetDate: new Date().toDateString()};
+                  updateDb({ coins: next.coins, dailySpinResetDate: next.dailySpinResetDate });
+                  return next;
+                });
+              } else {
+                setGs(p => {
+                  const next = {...p, dailySpinResetDate: new Date().toDateString()};
+                  updateDb({ dailySpinResetDate: next.dailySpinResetDate });
+                  return next;
+                });
+              }
+              setTimeout(() => setShowDailySpin(false), 2000);
+            }}
+          />
+        )}
+      </div>
+    </ErrorBoundary>
+  );
+}
+
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{padding: 20, color: "red", background: "#fee2e2", minHeight: "100vh"}}>
+          <h2>Terjadi Kesalahan (Crash)</h2>
+          <pre style={{whiteSpace: "pre-wrap", fontSize: 12}}>{this.state.error?.toString()}</pre>
+          <pre style={{whiteSpace: "pre-wrap", fontSize: 10}}>{this.state.error?.stack}</pre>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
