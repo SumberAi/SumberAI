@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SAIGAMY 💙</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700;900&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #020d1f;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    font-family: 'Nunito', sans-serif;
+    overflow: hidden;
+  }
+
+  /* Animated aurora background */
+  .aurora {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+  }
+  .aurora-blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    animation: drift 8s ease-in-out infinite alternate;
+    opacity: 0.18;
+  }
+  .aurora-blob:nth-child(1) { width:400px;height:400px;background:#0066ff;top:-100px;left:-80px;animation-delay:0s; }
+  .aurora-blob:nth-child(2) { width:500px;height:300px;background:#00c8ff;top:200px;right:-120px;animation-delay:-2s; }
+  .aurora-blob:nth-child(3) { width:350px;height:350px;background:#003fa3;bottom:-50px;left:100px;animation-delay:-4s; }
+  .aurora-blob:nth-child(4) { width:250px;height:250px;background:#00e5ff;top:400px;left:200px;animation-delay:-6s; }
+
+  @keyframes drift {
+    from { transform: translateY(0) scale(1); }
+    to   { transform: translateY(40px) scale(1.1); }
+  }
+
+  .bg-stars {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .star {
+    position: absolute;
+    border-radius: 50%;
+    animation: twinkle 2s infinite alternate;
+  }
+  @keyframes twinkle {
+    from { opacity: 0.15; transform: scale(1); }
+    to   { opacity: 1;    transform: scale(1.5); }
+  }
+
+  .game-wrapper {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .game-title {
+    font-family: 'Fredoka One', cursive;
+    font-size: 2.6rem;
+    background: linear-gradient(135deg, #00e5ff 0%, #0088ff 50%, #7b2fff 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    filter: drop-shadow(0 0 18px #00aaff88);
+    letter-spacing: 3px;
+  }
+
+  canvas {
+    border-radius: 24px;
+    box-shadow:
+      0 0 0 2px rgba(0,200,255,0.3),
+      0 0 40px rgba(0,150,255,0.25),
+      0 0 100px rgba(0,80,200,0.15);
+    display: block;
+  }
+
+  .hud {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    padding: 0 2px;
+    gap: 10px;
+  }
+
+  .hud-box {
+    flex: 1;
+    background: rgba(0,100,255,0.12);
+    border: 1.5px solid rgba(0,200,255,0.25);
+    border-radius: 14px;
+    padding: 7px 16px;
+    color: rgba(255,255,255,0.8);
+    font-size: 0.82rem;
+    font-weight: 700;
+    backdrop-filter: blur(8px);
+    text-align: center;
+    letter-spacing: 0.5px;
+  }
+  .hud-box span {
+    color: #00e5ff;
+    font-size: 1.15rem;
+    font-family: 'Fredoka One', cursive;
+  }
+
+  .controls-hint {
+    color: rgba(100,200,255,0.45);
+    font-size: 0.72rem;
+    text-align: center;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+  }
+</style>
+</head>
+<body>
+
+<div class="aurora">
+  <div class="aurora-blob"></div>
+  <div class="aurora-blob"></div>
+  <div class="aurora-blob"></div>
+  <div class="aurora-blob"></div>
+</div>
+<div class="bg-stars" id="stars"></div>
+
+<div class="game-wrapper">
+  
+  <div class="game-title">💙 SAIGAMY</div>
+
+  <div class="hud">
+    <div class="hud-box">⬆ SKOR &nbsp;<span id="scoreDisplay">0</span></div>
+    <div class="hud-box">🏆 TERBAIK &nbsp;<span id="bestDisplay">0</span></div>
+  </div>
+
+  <div style="position:relative; width:100%; max-width:380px; aspect-ratio:38/58; border-radius: 24px; overflow: hidden; box-shadow: 0 0 0 2px rgba(0,200,255,0.3), 0 0 40px rgba(0,150,255,0.25), 0 0 100px rgba(0,80,200,0.15);">
+    <div style="position:absolute; top:16px; left:16px; z-index:99; display:flex; gap:12px;">
+      <button id="btnExit" style="background:rgba(255,255,255,0.15); border:none; color:#ffffff; border-radius:20px; padding:8px 18px; font-weight:900; cursor:pointer; font-family:'Nunito',sans-serif; font-size: 13px; text-transform:uppercase; backdrop-filter:blur(4px);">KEMBALI</button>
+      <button id="btnPause" style="background:rgba(255,255,255,0.15); border:none; color:#ffffff; border-radius:20px; padding:8px 18px; font-weight:900; cursor:pointer; font-family:'Nunito',sans-serif; font-size: 13px; text-transform:uppercase; backdrop-filter:blur(4px);">II PAUSE</button>
+    </div>
+    <canvas id="c" width="380" height="580" style="width:100%; height:100%; display:block;"></canvas>
+  </div>
+  <div class="controls-hint">← → bergerak &nbsp;|&nbsp; sentuh layar kiri / kanan</div>
+</div>
+
+<script>
+// --- UI Buttons ---
+const btnExit = document.getElementById('btnExit');
+const exitGame = (e) => {
+  if (e) { e.preventDefault(); e.stopPropagation(); }
+  if(window.parent !== window) {
+    window.parent.postMessage('closeGame', '*');
+  } else {
+    window.close(); // Attempt to close tab
+    setTimeout(() => { window.location.href = '/'; }, 100); // Fallback if close is blocked
+  }
+};
+btnExit.addEventListener('click', exitGame);
+btnExit.addEventListener('touchstart', exitGame, { passive: false });
+const btnPause = document.getElementById('btnPause');
+const togglePause = (e) => {
+  if (e) { e.preventDefault(); e.stopPropagation(); }
+  if (state === 'play' || state === 'paused') {
+    if (state === 'play') {
+      state = 'paused';
+      btnPause.textContent = "▶ LANJUT";
+      stopBgMusic();
+    } else {
+      state = 'play';
+      btnPause.textContent = "II PAUSE";
+      lastTime = performance.now();
+      playBgMusic();
+    }
+  }
+};
+btnPause.addEventListener('click', togglePause);
+btnPause.addEventListener('touchstart', togglePause, { passive: false });
+
+// ─── Stars ────────────────────────────────────────────────────
+const starsEl = document.getElementById('stars');
+for (let i = 0; i < 90; i++) {
+  const s = document.createElement('div');
+  s.className = 'star';
+  const sz = Math.random() * 2.5 + 0.5;
+  const hue = 180 + Math.random() * 60; // blue-cyan stars
+  s.style.cssText = `width:${sz}px;height:${sz}px;top:${Math.random()*100}%;left:${Math.random()*100}%;background:hsl(${hue},100%,80%);animation-delay:${Math.random()*3}s;animation-duration:${1.2+Math.random()*2}s`;
+  starsEl.appendChild(s);
+}
+
+// ─── Canvas ───────────────────────────────────────────────────
+const canvas = document.getElementById('c');
+const ctx    = canvas.getContext('2d');
+const W = canvas.width, H = canvas.height;
+
+// ─── Audio Engine (Web Audio API) ────────────────────────────
+let audioCtx = null;
+let masterGain = null;
+let bgLoopNode = null;
+let bgLoopGain = null;
+
+function getAudio() {
+  if (!audioCtx) {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    masterGain = audioCtx.createGain();
+    masterGain.gain.value = 0.7;
+    masterGain.connect(audioCtx.destination);
+  }
+  return audioCtx;
+}
+
+function resumeAudio() {
+  const ac = getAudio();
+  if (ac.state === 'suspended') ac.resume();
+}
+
+// Generic synth helper
+function playTone({ freq=440, type='sine', gain=0.4, attack=0.01, decay=0.1, sustain=0.0, release=0.15, duration=0.3, detune=0 }={}) {
+  const ac = getAudio();
+  const now = ac.currentTime;
+  const osc = ac.createOscillator();
+  const g   = ac.createGain();
+  osc.type = type;
+  osc.frequency.setValueAtTime(freq, now);
+  if (detune) osc.detune.setValueAtTime(detune, now);
+  g.gain.setValueAtTime(0, now);
+  g.gain.linearRampToValueAtTime(gain, now + attack);
+  g.gain.linearRampToValueAtTime(sustain * gain, now + attack + decay);
+  g.gain.setValueAtTime(sustain * gain, now + duration - release);
+  g.gain.linearRampToValueAtTime(0, now + duration);
+  osc.connect(g);
+  g.connect(masterGain);
+  osc.start(now);
+  osc.stop(now + duration + 0.05);
+}
+
+// ── Sound: Jump (bouncy boing) ──────────────────────────────
+function sfxJump() {
+  const ac = getAudio();
+  const now = ac.currentTime;
+  // Sweep up + harmonic
+  const osc = ac.createOscillator();
+  const g   = ac.createGain();
+  osc.type = 'triangle';
+  osc.frequency.setValueAtTime(180, now);
+  osc.frequency.exponentialRampToValueAtTime(520, now + 0.12);
+  g.gain.setValueAtTime(0.35, now);
+  g.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
+  osc.connect(g); g.connect(masterGain);
+  osc.start(now); osc.stop(now + 0.25);
+
+  // Soft click body
+  const osc2 = ac.createOscillator();
+  const g2   = ac.createGain();
+  osc2.type = 'sine';
+  osc2.frequency.setValueAtTime(90, now);
+  osc2.frequency.exponentialRampToValueAtTime(40, now + 0.06);
+  g2.gain.setValueAtTime(0.28, now);
+  g2.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+  osc2.connect(g2); g2.connect(masterGain);
+  osc2.start(now); osc2.stop(now + 0.1);
+}
+
+// ── Sound: Super Spring jump ─────────────────────────────────
+function sfxSpring() {
+  const ac = getAudio();
+  const now = ac.currentTime;
+  // Dramatic sweep + shimmer
+  [[120, 900, 0.4], [200, 1200, 0.25], [300, 1600, 0.15]].forEach(([f0, f1, gv], i) => {
+    const o = ac.createOscillator();
+    const g = ac.createGain();
+    o.type = i === 0 ? 'sawtooth' : 'triangle';
+    o.frequency.setValueAtTime(f0, now);
+    o.frequency.exponentialRampToValueAtTime(f1, now + 0.28);
+    g.gain.setValueAtTime(gv, now + i * 0.015);
+    g.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+    o.connect(g); g.connect(masterGain);
+    o.start(now + i * 0.015); o.stop(now + 0.45);
+  });
+  // Whoosh noise
+  const buf = ac.createBuffer(1, ac.sampleRate * 0.35, ac.sampleRate);
+  const data = buf.getChannelData(0);
+  for (let i = 0; i < data.length; i++) data[i] = (Math.random()*2-1) * (1 - i/data.length) * 0.6;
+  const src = ac.createBufferSource();
+  const filt = ac.createBiquadFilter();
+  const ng = ac.createGain();
+  filt.type = 'bandpass'; filt.frequency.value = 1800; filt.Q.value = 0.8;
+  src.buffer = buf;
+  ng.gain.setValueAtTime(0.22, now);
+  ng.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+  src.connect(filt); filt.connect(ng); ng.connect(masterGain);
+  src.start(now); src.stop(now + 0.4);
+}
+
+// ── Sound: Coin / Crystal collect ───────────────────────────
+function sfxCoin() {
+  const ac = getAudio();
+  const now = ac.currentTime;
+  const notes = [880, 1108, 1320, 1760];
+  notes.forEach((freq, i) => {
+    const o = ac.createOscillator();
+    const g = ac.createGain();
+    o.type = 'sine';
+    o.frequency.setValueAtTime(freq, now + i * 0.045);
+    g.gain.setValueAtTime(0.22, now + i * 0.045);
+    g.gain.exponentialRampToValueAtTime(0.001, now + i * 0.045 + 0.18);
+    o.connect(g); g.connect(masterGain);
+    o.start(now + i * 0.045);
+    o.stop(now + i * 0.045 + 0.2);
+  });
+}
+
+// ── Sound: Milestone (every 100 pts) ─────────────────────────
+function sfxMilestone() {
+  const ac = getAudio();
+  const now = ac.currentTime;
+  const melody = [523, 659, 784, 1047];
+  melody.forEach((freq, i) => {
+    const o = ac.createOscillator();
+    const g = ac.createGain();
+    o.type = 'triangle';
+    o.frequency.setValueAtTime(freq, now + i * 0.1);
+    g.gain.setValueAtTime(0.3, now + i * 0.1);
+    g.gain.exponentialRampToValueAtTime(0.001, now + i * 0.1 + 0.25);
+    o.connect(g); g.connect(masterGain);
+    o.start(now + i * 0.1);
+    o.stop(now + i * 0.1 + 0.28);
+  });
+}
+
+// ── Sound: Game Over ─────────────────────────────────────────
+function sfxGameOver() {
+  const ac = getAudio();
+  const now = ac.currentTime;
+  const drops = [400, 320, 240, 160, 100];
+  drops.forEach((freq, i) => {
+    const o = ac.createOscillator();
+    const g = ac.createGain();
+    o.type = 'sawtooth';
+    o.frequency.setValueAtTime(freq * 1.4, now + i * 0.1);
+    o.frequency.exponentialRampToValueAtTime(freq, now + i * 0.1 + 0.09);
+    g.gain.setValueAtTime(0.28, now + i * 0.1);
+    g.gain.exponentialRampToValueAtTime(0.001, now + i * 0.1 + 0.12);
+    o.connect(g); g.connect(masterGain);
+    o.start(now + i * 0.1);
+    o.stop(now + i * 0.1 + 0.15);
+  });
+  // Low boom
+  const o2 = ac.createOscillator();
+  const g2 = ac.createGain();
+  o2.type = 'sine';
+  o2.frequency.setValueAtTime(80, now + 0.5);
+  o2.frequency.exponentialRampToValueAtTime(30, now + 1.1);
+  g2.gain.setValueAtTime(0.4, now + 0.5);
+  g2.gain.exponentialRampToValueAtTime(0.001, now + 1.2);
+  o2.connect(g2); g2.connect(masterGain);
+  o2.start(now + 0.5); o2.stop(now + 1.3);
+}
+
+// ── Sound: Start jingle ──────────────────────────────────────
+function sfxStart() {
+  const ac = getAudio();
+  const now = ac.currentTime;
+  const jingle = [261, 329, 392, 523, 659];
+  jingle.forEach((freq, i) => {
+    const o = ac.createOscillator();
+    const g = ac.createGain();
+    o.type = i < 3 ? 'triangle' : 'sine';
+    o.frequency.setValueAtTime(freq, now + i * 0.08);
+    g.gain.setValueAtTime(0.28, now + i * 0.08);
+    g.gain.exponentialRampToValueAtTime(0.001, now + i * 0.08 + 0.22);
+    o.connect(g); g.connect(masterGain);
+    o.start(now + i * 0.08);
+    o.stop(now + i * 0.08 + 0.25);
+  });
+}
+
+// ── Ambient background loop ──────────────────────────────────
+function startBgMusic() {
+  if (bgLoopNode) return;
+  const ac = getAudio();
+  bgLoopGain = ac.createGain();
+  bgLoopGain.gain.value = 0.06;
+  bgLoopGain.connect(masterGain);
+
+  // Slowly pulsing drone — two detuned oscillators + sub
+  function makeDrone(freq, detune, type, vol) {
+    const o = ac.createOscillator();
+    const g = ac.createGain();
+    o.type = type;
+    o.frequency.value = freq;
+    o.detune.value = detune;
+    g.gain.value = vol;
+    o.connect(g); g.connect(bgLoopGain);
+    o.start();
+    return { osc: o, gain: g };
+  }
+  bgLoopNode = [
+    makeDrone(55,  0,   'sine',     1.0),
+    makeDrone(110, 8,   'triangle', 0.5),
+    makeDrone(220, -6,  'sine',     0.3),
+    makeDrone(440, 14,  'sine',     0.15),
+  ];
+
+  // LFO for wobble
+  const lfo = ac.createOscillator();
+  const lfoGain = ac.createGain();
+  lfo.frequency.value = 0.18;
+  lfoGain.gain.value = 0.025;
+  lfo.connect(lfoGain);
+  lfoGain.connect(bgLoopGain.gain);
+  lfo.start();
+}
+
+function stopBgMusic() {
+  if (!bgLoopNode) return;
+  bgLoopNode.forEach(n => { try { n.osc.stop(); } catch(e){} });
+  bgLoopNode = null;
+  bgLoopGain = null;
+}
+
+// Mute button state
+let muted = false;
+// ─── Mute button (DOM) ────────────────────────────────────────
+const muteBtn = document.createElement('button');
+muteBtn.id = 'muteBtn';
+muteBtn.textContent = '🔊';
+muteBtn.style.cssText = `
+  position:fixed;top:14px;right:14px;z-index:99;
+  background:rgba(0,100,255,0.18);border:1.5px solid rgba(0,200,255,0.35);
+  color:#00e5ff;font-size:1.3rem;padding:6px 12px;border-radius:12px;
+  cursor:pointer;backdrop-filter:blur(8px);transition:all 0.2s;
+  font-family:'Nunito',sans-serif;
+`;
+muteBtn.style.touchAction = 'manipulation';
+muteBtn.addEventListener('click', () => {
+  muted = !muted;
+  if (audioCtx) {
+    if (muted) audioCtx.suspend();
+    else if (audioCtx.state === 'suspended') audioCtx.resume();
+  }
+  if (masterGain) masterGain.gain.value = muted ? 0 : 0.7;
+  muteBtn.textContent = muted ? '🔇' : '🔊';
+});
+document.body.appendChild(muteBtn);
+
+// ─── Blue palette ─────────────────────────────────────────────
+const BLUES = [
+  ['#00e5ff','#0077cc'],  // cyan-blue
+  ['#4db8ff','#0044aa'],  // sky blue
+  ['#00aaff','#003d80'],  // mid blue
+  ['#7eb8ff','#2255cc'],  // periwinkle
+  ['#00ccdd','#006699'],  // teal-blue
+  ['#aaddff','#3388cc'],  // ice blue
+];
+
+// ─── State ────────────────────────────────────────────────────
+let state = 'start';
+let score = 0, best = 0, cameraY = 0;
+
+// ─── Input ────────────────────────────────────────────────────
+const keys = {};
+document.addEventListener('keydown', e => { keys[e.key] = true; });
+document.addEventListener('keyup',   e => { keys[e.key] = false; });
+
+let touchX = null;
+canvas.addEventListener('touchstart', e => {
+  touchX = e.touches[0].clientX;
+  if (state !== 'play') startGame();
+}, { passive: true });
+canvas.addEventListener('touchmove', e => {
+  e.preventDefault();
+  touchX = e.touches[0].clientX;
+}, { passive: false });
+canvas.addEventListener('touchend', () => touchX = null);
+canvas.addEventListener('click', () => { if (state !== 'play') startGame(); });
+
+// ─── Physics ──────────────────────────────────────────────────
+const GRAVITY = 0.38, JUMP_V = -13.5, MAX_VX = 5.5;
+
+// ─── Player ───────────────────────────────────────────────────
+const POU = { x:W/2, y:H-200, w:52, h:58, vx:0, vy:0, facing:1, blink:0, blinkTimer:0, jumpAnim:0 };
+
+// ─── Platforms ────────────────────────────────────────────────
+let platforms = [];
+
+function makePlatform(x, y, idx) {
+  const ci = idx % BLUES.length;
+  const w  = 75 + Math.random() * 35;
+  const moving = Math.random() < 0.2;
+  const hasSpring = Math.random() < 0.1;
+  return {
+    x, y, w, h: 16,
+    color: BLUES[ci],
+    moving,
+    moveDir: 1,
+    moveSpeed: 0.7 + Math.random() * 1.3,
+    hasSpring,
+    glowPhase: Math.random() * Math.PI * 2,
+    coins: Math.random() < 0.3 ? [{ x:0, y:-28, collected:false }] : [],
+  };
+}
+
+function initPlatforms() {
+  platforms = [];
+  platforms.push({ x:0, y:H-40, w:W, h:16, color:BLUES[0], moving:false, hasSpring:false, glowPhase:0, coins:[] });
+  let py = H - 120;
+  for (let i = 0; i < 24; i++) {
+    platforms.push(makePlatform(Math.random()*(W-110)+5, py, i));
+    py -= 65 + Math.random() * 60;
+  }
+}
+
+function spawnAbove() {
+  const top = platforms.reduce((m,p) => Math.min(m,p.y), Infinity);
+  if (top - cameraY > -200) {
+    platforms.push(makePlatform(Math.random()*(W-110)+5, top - (65+Math.random()*60), platforms.length));
+  }
+}
+function prune() { platforms = platforms.filter(p => p.y - cameraY < H + 120); }
+
+// ─── Particles ────────────────────────────────────────────────
+let particles = [];
+function spawnParticles(x, y, color, n=10) {
+  for (let i=0;i<n;i++) {
+    const a = Math.random()*Math.PI*2;
+    const s = 1.5 + Math.random()*3;
+    particles.push({ x,y, vx:Math.cos(a)*s, vy:Math.sin(a)*s-2, life:1, decay:0.025+Math.random()*0.03, r:3+Math.random()*5, color });
+  }
+}
+
+let floatingTexts = [];
+
+// ─── Init ─────────────────────────────────────────────────────
+let lastMilestone = 0;
+
+function startGame() {
+  resumeAudio();
+  score=0; cameraY=0; lastMilestone=0;
+  POU.x=W/2; POU.y=H-200; POU.vx=0; POU.vy=JUMP_V; POU.facing=1; POU.jumpAnim=0;
+  particles=[]; floatingTexts=[];
+  initPlatforms();
+  sfxStart();
+  startBgMusic();
+  state='play';
+}
+
+// ─── Helpers ──────────────────────────────────────────────────
+function roundRect(cx2,x,y,w,h,r) {
+  cx2.moveTo(x+r,y);
+  cx2.lineTo(x+w-r,y);
+  cx2.quadraticCurveTo(x+w,y,x+w,y+r);
+  cx2.lineTo(x+w,y+h-r);
+  cx2.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+  cx2.lineTo(x+r,y+h);
+  cx2.quadraticCurveTo(x,y+h,x,y+h-r);
+  cx2.lineTo(x,y+r);
+  cx2.quadraticCurveTo(x,y,x+r,y);
+}
+
+// ─── Draw Pou (blue themed) ───────────────────────────────────
+function drawPou(sx, sy, facing, jumpAnim, blinking) {
+  ctx.save();
+  ctx.translate(sx + POU.w/2, sy + POU.h/2);
+  ctx.scale(facing, 1);
+
+  const sq = 1 + Math.sin(jumpAnim * Math.PI) * 0.18;
+  ctx.scale(1/sq, sq);
+
+  // Glow aura
+  const aura = ctx.createRadialGradient(0,0,5,0,0,38);
+  aura.addColorStop(0,'rgba(0,180,255,0.18)');
+  aura.addColorStop(1,'rgba(0,100,255,0)');
+  ctx.beginPath();
+  ctx.arc(0,0,38,0,Math.PI*2);
+  ctx.fillStyle = aura;
+  ctx.fill();
+
+  // Shadow
+  ctx.save();
+  ctx.scale(1,0.28);
+  ctx.beginPath();
+  ctx.ellipse(0, POU.h/2*sq+8, 20,7,0,0,Math.PI*2);
+  ctx.fillStyle='rgba(0,50,150,0.3)';
+  ctx.fill();
+  ctx.restore();
+
+  // Body
+  const bw=46, bh=52;
+  ctx.beginPath();
+  roundRect(ctx,-bw/2,-bh/2,bw,bh,20);
+  const bodyGrad = ctx.createLinearGradient(-bw/2,-bh/2,bw/2,bh/2);
+  bodyGrad.addColorStop(0,'#4ab4ff');
+  bodyGrad.addColorStop(0.5,'#1a7fd4');
+  bodyGrad.addColorStop(1,'#0a3d80');
+  ctx.fillStyle = bodyGrad;
+  ctx.fill();
+  // Body rim light
+  ctx.strokeStyle='rgba(100,220,255,0.4)';
+  ctx.lineWidth=2;
+  ctx.stroke();
+
+  // Belly
+  ctx.beginPath();
+  ctx.ellipse(0,8,16,18,0,0,Math.PI*2);
+  const bellyGrad = ctx.createRadialGradient(-3,-3,1,0,8,18);
+  bellyGrad.addColorStop(0,'#b8e8ff');
+  bellyGrad.addColorStop(1,'#5ab0e8');
+  ctx.fillStyle=bellyGrad;
+  ctx.fill();
+
+  // Eyes
+  const eyeY = -10;
+  const eyeOff = 10;
+  const eyeRY = blinking ? 1 : 8;
+  [-eyeOff,eyeOff].forEach(ex => {
+    // Outer glow
+    if (!blinking) {
+      const eg = ctx.createRadialGradient(ex,eyeY,1,ex,eyeY,11);
+      eg.addColorStop(0,'rgba(150,230,255,0.4)');
+      eg.addColorStop(1,'transparent');
+      ctx.beginPath();
+      ctx.arc(ex,eyeY,11,0,Math.PI*2);
+      ctx.fillStyle=eg;
+      ctx.fill();
+    }
+    // White
+    ctx.beginPath();
+    ctx.ellipse(ex,eyeY,9,eyeRY,0,0,Math.PI*2);
+    ctx.fillStyle='#e8f8ff';
+    ctx.fill();
+  });
+
+  if (!blinking) {
+    [-eyeOff,eyeOff].forEach(ex => {
+      // Pupil
+      ctx.beginPath();
+      ctx.arc(ex+1.5,eyeY+1,4,0,Math.PI*2);
+      ctx.fillStyle='#04183a';
+      ctx.fill();
+      // Blue iris ring
+      ctx.beginPath();
+      ctx.arc(ex+1.5,eyeY+1,5,0,Math.PI*2);
+      ctx.strokeStyle='#0080ff';
+      ctx.lineWidth=1.5;
+      ctx.stroke();
+      // Shine
+      ctx.beginPath();
+      ctx.arc(ex,eyeY-1.5,1.8,0,Math.PI*2);
+      ctx.fillStyle='white';
+      ctx.fill();
+    });
+  }
+
+  // Smile
+  ctx.beginPath();
+  ctx.arc(0,2,9,0.25,Math.PI-0.25);
+  ctx.strokeStyle='#04183a';
+  ctx.lineWidth=2.5;
+  ctx.stroke();
+
+  // Nostrils
+  ctx.beginPath();
+  ctx.ellipse(-4,-2,2.5,1.8,-0.3,0,Math.PI*2);
+  ctx.fillStyle='#04183a';
+  ctx.fill();
+  ctx.beginPath();
+  ctx.ellipse(4,-2,2.5,1.8,0.3,0,Math.PI*2);
+  ctx.fillStyle='#04183a';
+  ctx.fill();
+
+  // Ears
+  [-bw/2-2, bw/2+2].forEach((ex,i) => {
+    ctx.beginPath();
+    ctx.arc(i===0?-bw/2+4:bw/2-4, -bh/2-3, 9, 0, Math.PI*2);
+    ctx.fillStyle='#1a6fb8';
+    ctx.fill();
+    ctx.strokeStyle='rgba(100,200,255,0.5)';
+    ctx.lineWidth=1.5;
+    ctx.stroke();
+  });
+
+  // Arms
+  ctx.beginPath();
+  ctx.ellipse(-bw/2-7,4,7,11,-0.3,0,Math.PI*2);
+  ctx.fillStyle='#1a7fd4';
+  ctx.fill();
+  ctx.beginPath();
+  ctx.ellipse(bw/2+7,4,7,11,0.3,0,Math.PI*2);
+  ctx.fillStyle='#1a7fd4';
+  ctx.fill();
+
+  // Feet
+  ctx.beginPath();
+  ctx.ellipse(-12,bh/2+2,10,7,0,0,Math.PI*2);
+  ctx.fillStyle='#0a4880';
+  ctx.fill();
+  ctx.beginPath();
+  ctx.ellipse(12,bh/2+2,10,7,0,0,Math.PI*2);
+  ctx.fillStyle='#0a4880';
+  ctx.fill();
+
+  // Sparkle on body
+  const now = Date.now()/800;
+  ctx.fillStyle='rgba(180,230,255,0.6)';
+  ctx.beginPath();
+  ctx.arc(-15+Math.sin(now)*3,-20+Math.cos(now)*2,2,0,Math.PI*2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(18+Math.sin(now+1)*2,-5+Math.cos(now+1)*3,1.5,0,Math.PI*2);
+  ctx.fill();
+
+  ctx.restore();
+}
+
+// ─── Draw Platform ────────────────────────────────────────────
+function drawPlatform(p, sy) {
+  const t = Date.now()/1000;
+  const glow = 0.5 + 0.5*Math.sin(t*2 + p.glowPhase);
+
+  // Glow effect
+  ctx.save();
+  ctx.shadowColor = p.color[0];
+  ctx.shadowBlur  = 10 + glow * 10;
+
+  ctx.beginPath();
+  roundRect(ctx, p.x, sy, p.w, p.h, 9);
+  const g = ctx.createLinearGradient(p.x, sy, p.x, sy+p.h);
+  g.addColorStop(0, p.color[0]);
+  g.addColorStop(1, p.color[1]);
+  ctx.fillStyle = g;
+  ctx.fill();
+  ctx.restore();
+
+  // Top sheen
+  ctx.beginPath();
+  roundRect(ctx, p.x+4, sy+2, p.w-8, 5, 3);
+  ctx.fillStyle='rgba(255,255,255,0.35)';
+  ctx.fill();
+
+  // Border
+  ctx.beginPath();
+  roundRect(ctx, p.x, sy, p.w, p.h, 9);
+  ctx.strokeStyle=`rgba(150,230,255,${0.3+glow*0.3})`;
+  ctx.lineWidth=1.5;
+  ctx.stroke();
+
+  // Spring platform indicator
+  if (p.hasSpring) {
+    ctx.fillStyle='#ffee44';
+    ctx.font='bold 11px Nunito';
+    ctx.textAlign='center';
+    ctx.fillText('⚡', p.x+p.w/2, sy+p.h-2);
+  } else if (p.moving) {
+    ctx.fillStyle='rgba(200,240,255,0.55)';
+    ctx.font='10px Nunito';
+    ctx.textAlign='center';
+    ctx.fillText('↔', p.x+p.w/2, sy+p.h-3);
+  }
+}
+
+// ─── Draw Coin ────────────────────────────────────────────────
+function drawCoin(x, y) {
+  const t = Date.now()/400;
+  ctx.save();
+  ctx.translate(x,y);
+  ctx.scale(Math.abs(Math.cos(t)),1);
+
+  // Glow
+  ctx.shadowColor='#00e5ff';
+  ctx.shadowBlur=12;
+
+  ctx.beginPath();
+  ctx.arc(0,0,9,0,Math.PI*2);
+  const g=ctx.createRadialGradient(-2,-2,1,0,0,9);
+  g.addColorStop(0,'#aaeeff');
+  g.addColorStop(0.5,'#0099ee');
+  g.addColorStop(1,'#004488');
+  ctx.fillStyle=g;
+  ctx.fill();
+  ctx.strokeStyle='rgba(100,220,255,0.8)';
+  ctx.lineWidth=1.5;
+  ctx.stroke();
+
+  ctx.shadowBlur=0;
+  ctx.fillStyle='rgba(200,240,255,0.9)';
+  ctx.font='bold 8px Nunito';
+  ctx.textAlign='center';
+  ctx.textBaseline='middle';
+  ctx.fillText('✦',0,0.5);
+  ctx.restore();
+}
+
+// ─── Background ───────────────────────────────────────────────
+function drawBackground() {
+  const height = Math.max(0, -cameraY);
+  const t = Math.min(height/3500, 1);
+
+  // Deep ocean → space blue gradient
+  const bg = ctx.createLinearGradient(0,0,0,H);
+  bg.addColorStop(0, `hsl(${220-t*20},${85-t*20}%,${8+t*3}%)`);
+  bg.addColorStop(1, `hsl(${210-t*15},${75-t*15}%,${13+t*3}%)`);
+  ctx.fillStyle=bg;
+  ctx.fillRect(0,0,W,H);
+
+  // Light rays from top
+  ctx.save();
+  ctx.globalAlpha=0.04;
+  for (let i=0;i<5;i++) {
+    const rx = W/2 + (i-2)*70;
+    ctx.beginPath();
+    ctx.moveTo(rx,0);
+    ctx.lineTo(rx-60,H);
+    ctx.lineTo(rx+60,H);
+    ctx.closePath();
+    ctx.fillStyle=`hsl(${200+i*10},100%,70%)`;
+    ctx.fill();
+  }
+  ctx.restore();
+
+  // Floating bubbles (decorative)
+  ctx.fillStyle='rgba(100,200,255,0.06)';
+  const bOffset = (cameraY*0.2)%300;
+  const bubbles=[[40,120],[320,220],[180,80],[70,300],[290,350]];
+  bubbles.forEach(([bx,by],i) => {
+    const BY = (by + bOffset + H) % (H+60) - 30;
+    ctx.beginPath();
+    ctx.arc(bx, BY, 20+i*8, 0, Math.PI*2);
+    ctx.fill();
+    ctx.strokeStyle='rgba(150,220,255,0.1)';
+    ctx.lineWidth=1;
+    ctx.stroke();
+  });
+
+  // Nebula wisps
+  const wispTime = Date.now()/4000;
+  ctx.save();
+  ctx.globalAlpha=0.06;
+  for (let i=0;i<3;i++) {
+    const wx = W*(0.2+i*0.3) + Math.sin(wispTime+i)*30;
+    const wy = H*(0.2+i*0.25);
+    const wg = ctx.createRadialGradient(wx,wy,0,wx,wy,80);
+    wg.addColorStop(0,`hsl(${200+i*20},100%,60%)`);
+    wg.addColorStop(1,'transparent');
+    ctx.beginPath();
+    ctx.arc(wx,wy,80,0,Math.PI*2);
+    ctx.fillStyle=wg;
+    ctx.fill();
+  }
+  ctx.restore();
+}
+
+// ─── HUD refs ─────────────────────────────────────────────────
+const scoreEl=document.getElementById('scoreDisplay');
+const bestEl =document.getElementById('bestDisplay');
+let pulseT=0;
+
+function animPulse(fn) {
+  pulseT+=0.04;
+  ctx.globalAlpha=0.65+0.35*Math.abs(Math.sin(pulseT));
+  fn();
+  ctx.globalAlpha=1;
+}
+
+// ─── Screens ──────────────────────────────────────────────────
+function drawStartScreen() {
+  ctx.fillStyle='rgba(2,8,30,0.72)';
+  ctx.fillRect(0,0,W,H);
+
+  drawPou(W/2-26, H/2-160, 1, 0.6, false);
+
+  ctx.textAlign='center';
+
+  // Title glow
+  ctx.save();
+  ctx.shadowColor='#00aaff';
+  ctx.shadowBlur=40;
+  ctx.font='bold 54px Fredoka One';
+  const tg=ctx.createLinearGradient(W/2-120,0,W/2+120,0);
+  tg.addColorStop(0,'#aaeeff');
+  tg.addColorStop(0.5,'#00aaff');
+  tg.addColorStop(1,'#0055ff');
+  ctx.fillStyle=tg;
+  ctx.fillText('SAIGAMY',W/2,H/2-15);
+  ctx.restore();
+
+  ctx.font='20px Nunito';
+  ctx.fillStyle='rgba(180,230,255,0.9)';
+  ctx.fillText('Bantu Pou melompat setinggi mungkin!',W/2,H/2+22);
+
+  ctx.font='700 17px Nunito';
+  animPulse(() => {
+    ctx.fillStyle='#00e5ff';
+    ctx.fillText('[ Klik / Sentuh untuk mulai ]',W/2,H/2+72);
+  });
+
+  // Tips
+  ctx.font='13px Nunito';
+  ctx.fillStyle='rgba(100,190,255,0.5)';
+  ctx.fillText('⚡ Platform kuning = lompat super tinggi!',W/2,H/2+108);
+  ctx.fillText('✦ Kumpulkan kristal biru untuk poin bonus',W/2,H/2+130);
+}
+
+function drawDeadScreen() {
+  ctx.fillStyle='rgba(2,8,30,0.82)';
+  ctx.fillRect(0,0,W,H);
+
+  ctx.textAlign='center';
+
+  ctx.save();
+  ctx.shadowColor='#0066ff';
+  ctx.shadowBlur=30;
+  ctx.font='bold 46px Fredoka One';
+  const dg=ctx.createLinearGradient(0,0,W,0);
+  dg.addColorStop(0,'#aaeeff');
+  dg.addColorStop(1,'#0055ff');
+  ctx.fillStyle=dg;
+  ctx.fillText('GAME OVER!',W/2,H/2-55);
+  ctx.restore();
+
+  ctx.font='700 26px Nunito';
+  ctx.fillStyle='#e8f8ff';
+  ctx.fillText(`Skor: ${score}`,W/2,H/2-5);
+
+  ctx.font='700 20px Nunito';
+  ctx.fillStyle='rgba(100,200,255,0.8)';
+  ctx.fillText(`Rekor Tertinggi: ${best}`,W/2,H/2+32);
+
+  if (score >= best && score > 0) {
+    ctx.save();
+    ctx.shadowColor='#00e5ff';
+    ctx.shadowBlur=15;
+    ctx.font='700 18px Nunito';
+    ctx.fillStyle='#00e5ff';
+    ctx.fillText('🎉 REKOR BARU!',W/2,H/2+64);
+    ctx.restore();
+  }
+
+  ctx.font='700 16px Nunito';
+  animPulse(() => {
+    ctx.fillStyle='#00aaff';
+    ctx.fillText('[ Klik / Sentuh untuk main lagi ]',W/2,H/2+105);
+  });
+}
+
+// ─── Game Loop ────────────────────────────────────────────────
+let lastTime=0;
+function loop(ts) {
+  const dt=Math.min((ts-lastTime)/16.67,3);
+  lastTime=ts;
+  ctx.clearRect(0,0,W,H);
+  drawBackground();
+
+  if (state==='start') { drawStartScreen(); requestAnimationFrame(loop); return; }
+
+  if (state==='play') update(dt);
+
+  // Platforms
+  for (const p of platforms) {
+    const sy = p.y - cameraY;
+    if (sy > -30 && sy < H+30) {
+      drawPlatform(p, sy);
+      for (const coin of p.coins) {
+        if (!coin.collected) drawCoin(p.x+p.w/2+coin.x, sy+coin.y);
+      }
+    }
+  }
+
+  // Pou
+  const psy = POU.y - cameraY;
+  POU.blinkTimer+=dt;
+  if (POU.blinkTimer>200) { POU.blink=1; if (POU.blinkTimer>205){POU.blink=0;POU.blinkTimer=0;} }
+  POU.jumpAnim=Math.max(0,POU.jumpAnim-0.05*dt);
+  drawPou(POU.x, psy, POU.facing, POU.jumpAnim, POU.blink===1);
+
+  // Particles
+  for (let i=particles.length-1;i>=0;i--) {
+    const p=particles[i];
+    p.x+=p.vx*dt; p.y+=p.vy*dt; p.vy+=0.12*dt;
+    p.life-=p.decay*dt;
+    if (p.life<=0){particles.splice(i,1);continue;}
+    ctx.globalAlpha=p.life;
+    ctx.beginPath();
+    ctx.arc(p.x,p.y-cameraY,p.r*p.life,0,Math.PI*2);
+    ctx.fillStyle=p.color;
+    ctx.shadowColor=p.color;
+    ctx.shadowBlur=6;
+    ctx.fill();
+    ctx.shadowBlur=0;
+    ctx.globalAlpha=1;
+  }
+
+  // Floating texts
+  for (let i=floatingTexts.length-1;i>=0;i--) {
+    const f=floatingTexts[i];
+    f.y-=0.8*dt; f.life-=0.02*dt;
+    if (f.life<=0){floatingTexts.splice(i,1);continue;}
+    ctx.globalAlpha=f.life;
+    ctx.fillStyle='#aaeeff';
+    ctx.shadowColor='#00aaff';
+    ctx.shadowBlur=8;
+    ctx.font='bold 18px Fredoka One';
+    ctx.textAlign='center';
+    ctx.fillText(f.text,f.x,f.y-cameraY);
+    ctx.shadowBlur=0;
+    ctx.globalAlpha=1;
+  }
+
+  if (state==='dead') drawDeadScreen();
+  if (state==='paused') {
+    ctx.fillStyle='rgba(2,8,30,0.7)';
+    ctx.fillRect(0,0,W,H);
+    ctx.textAlign='center';
+    ctx.shadowColor='#00e5ff';
+    ctx.shadowBlur=20;
+    ctx.fillStyle='#00e5ff';
+    ctx.font='bold 50px Fredoka One';
+    ctx.fillText('PAUSED',W/2,H/2);
+    ctx.shadowBlur=0;
+    ctx.font='bold 16px Nunito';
+    ctx.fillStyle='rgba(255,255,255,0.8)';
+    ctx.fillText('Tekan LANJUT untuk kembali',W/2,H/2 + 40);
+  }
+
+  requestAnimationFrame(loop);
+}
+
+// ─── Update ───────────────────────────────────────────────────
+function update(dt) {
+  let moveDir=0;
+  if (keys['ArrowLeft']||keys['a']||keys['A']) moveDir=-1;
+  if (keys['ArrowRight']||keys['d']||keys['D']) moveDir=1;
+  if (touchX!==null) {
+    const rect=canvas.getBoundingClientRect();
+    const relX=(touchX-rect.left)*(W/rect.width);
+    moveDir = relX<W/2 ? -1 : 1;
+  }
+
+  if (moveDir!==0) { POU.facing=moveDir; POU.vx+=moveDir*0.75*dt; }
+  else { POU.vx*=Math.pow(0.88,dt); }
+  POU.vx=Math.max(-MAX_VX,Math.min(MAX_VX,POU.vx));
+  POU.x+=POU.vx*dt;
+
+  if (POU.x+POU.w<0) POU.x=W;
+  if (POU.x>W) POU.x=-POU.w;
+
+  POU.vy+=GRAVITY*dt;
+  POU.y+=POU.vy*dt;
+
+  if (POU.vy>0) {
+    for (const p of platforms) {
+      if (p.moving) {
+        p.x+=p.moveDir*p.moveSpeed*dt;
+        if (p.x<0||p.x+p.w>W) p.moveDir*=-1;
+      }
+      const pb=POU.y+POU.h, pl=POU.x+4, pr=POU.x+POU.w-4;
+      if (pb>=p.y && pb<=p.y+p.h+POU.vy*dt+2 && pr>=p.x && pl<=p.x+p.w) {
+        POU.y=p.y-POU.h;
+        POU.vy=p.hasSpring ? JUMP_V*1.6 : JUMP_V;
+        POU.jumpAnim=1;
+        spawnParticles(POU.x+POU.w/2, p.y, p.color[0], p.hasSpring?18:8);
+        if (p.hasSpring) {
+          floatingTexts.push({x:POU.x+POU.w/2, y:POU.y-10, text:'⚡ SUPER!', life:1});
+          sfxSpring();
+        } else {
+          sfxJump();
+        }
+        for (const coin of p.coins) {
+          if (!coin.collected) {
+            coin.collected=true; score+=10;
+            floatingTexts.push({x:p.x+p.w/2, y:p.y-20, text:'+10', life:1});
+            spawnParticles(p.x+p.w/2, p.y-28, '#00e5ff', 14);
+            sfxCoin();
+          }
+        }
+        break;
+      }
+    }
+  }
+
+  const targetCam=POU.y-H*0.45;
+  if (targetCam<cameraY) cameraY+=(targetCam-cameraY)*0.1*dt;
+
+  const hs=Math.floor(-cameraY/10);
+  score=Math.max(score,hs);
+  best=Math.max(best,score);
+  scoreEl.textContent=score;
+  bestEl.textContent=best;
+
+  // Milestone every 100 pts
+  const milestone = Math.floor(score/100);
+  if (milestone > lastMilestone && score > 0) {
+    lastMilestone = milestone;
+    sfxMilestone();
+    floatingTexts.push({x:W/2, y:H/2, text:`🌟 ${score} POIN!`, life:1.2});
+  }
+
+  spawnAbove();
+  prune();
+
+  if (POU.y-cameraY>H+100) {
+    sfxGameOver();
+    stopBgMusic();
+    state='dead';
+  }
+}
+
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>
