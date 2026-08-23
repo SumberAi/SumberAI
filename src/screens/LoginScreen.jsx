@@ -249,6 +249,8 @@ export default function LoginScreen({ onLogin, onSkip }) {
       await sendPasswordResetEmail(auth, email);
       setError("");
       alert("✅ Tautan reset password telah dikirim ke email Anda! Silakan cek kotak masuk atau folder spam.");
+      // Fallback in case alert is blocked
+      setError("✅ Tautan reset telah dikirim ke email Anda! Cek kotak masuk/spam.");
     } catch(err) {
       setError("Gagal mengirim email reset: " + err.message);
     }
@@ -398,7 +400,17 @@ export default function LoginScreen({ onLogin, onSkip }) {
             </div>
 
             {error && (
-              <div style={{ background: "rgba(239, 68, 68, 0.1)", border: "1px solid rgba(239, 68, 68, 0.3)", color: "#ef4444", padding: "12px 14px", borderRadius: 12, fontSize: 12, fontWeight: 600, marginBottom: 20, textAlign: "center" }}>
+              <div style={{ 
+                background: error.includes("✅") ? "rgba(34, 197, 94, 0.1)" : "rgba(239, 68, 68, 0.1)", 
+                border: error.includes("✅") ? "1px solid rgba(34, 197, 94, 0.3)" : "1px solid rgba(239, 68, 68, 0.3)", 
+                color: error.includes("✅") ? "#16a34a" : "#ef4444", 
+                padding: "12px 14px", 
+                borderRadius: 12, 
+                fontSize: 12, 
+                fontWeight: 600, 
+                marginBottom: 20, 
+                textAlign: "center" 
+              }}>
                 {error}
               </div>
             )}
