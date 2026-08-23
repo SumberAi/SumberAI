@@ -1,0 +1,15 @@
+{
+  "appId": "app.sumberai.com",
+  "appName": "SumberAI Edu",
+  "webDir": "dist",
+  "server": {
+    "iosScheme": "https",
+    "androidScheme": "https"
+  },
+  "plugins": {
+    "FirebaseAuthentication": {
+      "skipNativeAuth": false,
+      "providers": ["google.com", "apple.com"]
+    }
+  }
+}
