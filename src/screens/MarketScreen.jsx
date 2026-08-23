@@ -891,7 +891,9 @@ export default function MarketScreen({ gs, spendCoins, onNav, userUid }) {
         const chatId = import.meta.env.VITE_TELEGRAM_CHAT_ID;
         
         if (botToken && chatId) {
-          const message = `📢 *PENUKARAN VOUCHER BARU!*\n\n🏪 *Toko:* ${storeName}\n🛍️ *Produk:* ${title}\n🎁 *Keuntungan:* ${benefitText}\n🎟️ *KODE:* \`${code}\`\n\n🕒 *Waktu:* ${new Date().toLocaleString('id-ID')}\n_Siap-siap pelanggan akan datang menukarkan kode ini dalam waktu 24 jam!_`;
+          const userEmail = auth.currentUser?.email || "Tidak ada email";
+          const userName = auth.currentUser?.displayName || "Pengguna";
+          const message = `📢 *PENUKARAN VOUCHER BARU!*\n\n👤 *User:* ${userName}\n📧 *Email:* ${userEmail}\n🏪 *Toko:* ${storeName}\n🛍️ *Produk:* ${title}\n🎁 *Keuntungan:* ${benefitText}\n🎟️ *KODE:* \`${code}\`\n\n🕒 *Waktu:* ${new Date().toLocaleString('id-ID')}\n_Siap-siap pelanggan akan datang menukarkan kode ini dalam waktu 24 jam!_`;
           
           try {
             const url = `https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(message)}&parse_mode=Markdown`;
